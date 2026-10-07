@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dbyp1kw5ludnx"]
+
+[ext_resource type="Texture2D" uid="uid://df6egq1epw0wl" path="res://textures/button/button_a.png" id="1_j3o1g"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="2_j3o1g"]
+
+[sub_resource type="GDScript" id="GDScript_2vlpw"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Control
+
+func _pressed() -> void:
+	if root.has_method(\"_pressed\"):
+		root._pressed()
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends Label
+
+@export var root: Control
+
+func _ready() -> void:
+	text = root.get_meta(\"text\", \"\")
+"
+
+[node name="button_a" type="Control" unique_id=241703751]
+process_mode = 4
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="button" type="Button" parent="." unique_id=514758248 node_paths=PackedStringArray("root", "follow_modulate")]
+process_mode = 1
+layout_mode = 0
+offset_top = 6.1035156e-05
+offset_right = 1451.0
+offset_bottom = 653.00006
+scale = Vector2(0.166, 0.166)
+icon = ExtResource("1_j3o1g")
+flat = true
+script = SubResource("GDScript_2vlpw")
+root = NodePath("..")
+follow_modulate = [NodePath("../text")]
+
+[node name="text" type="Label" parent="." unique_id=2047862294 node_paths=PackedStringArray("root")]
+process_mode = 1
+layout_mode = 0
+offset_right = 241.0
+offset_bottom = 92.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("2_j3o1g")
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+vertical_alignment = 1
+script = SubResource("GDScript_ifow5")
+root = NodePath("..")

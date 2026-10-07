@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" format=3 uid="uid://bjrrdqxg0xsx4"]
+
+[ext_resource type="FontFile" uid="uid://bquna1cwkxokd" path="res://fonts/IosevkaAile_Regular.ttf" id="1_3sgks"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="2_wjhnd"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_wjhnd")])
+base_font = ExtResource("1_3sgks")

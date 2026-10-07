@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://bq8urncd6rbcl"]
+
+[ext_resource type="Script" uid="uid://hamadtjxgur0" path="res://scripts/player.gd" id="1_dqkch"]
+[ext_resource type="Script" uid="uid://dwxk361jwlk0q" path="res://scripts/judgement.gd" id="3_qhqgy"]
+[ext_resource type="FontVariation" uid="uid://bjrrdqxg0xsx4" path="res://fonts/Player.tres" id="3_qlg0r"]
+
+[sub_resource type="Environment" id="Environment_3vyb7"]
+background_mode = 1
+ambient_light_source = 1
+reflected_light_source = 1
+glow_enabled = true
+glow_levels/2 = 0.0
+glow_levels/4 = 0.5
+glow_levels/5 = 0.1
+glow_levels/6 = 0.1
+glow_strength = 1.4
+glow_mix = 0.134
+glow_hdr_threshold = 2.0
+glow_hdr_luminance_cap = 256.0
+
+[node name="player" type="Node3D" unique_id=1361765532]
+process_mode = 1
+script = ExtResource("1_dqkch")
+
+[node name="judgement" type="Node3D" parent="." unique_id=1941253445 node_paths=PackedStringArray("camera", "player")]
+process_mode = 1
+visible = false
+script = ExtResource("3_qhqgy")
+camera = NodePath("../camera")
+player = NodePath("..")
+
+[node name="camera" type="Camera3D" parent="." unique_id=1544584856]
+process_mode = 4
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 19.2)
+environment = SubResource("Environment_3vyb7")
+current = true
+size = 10.8
+
+[node name="line_multimesh" type="MultiMeshInstance3D" parent="." unique_id=1450862331]
+process_mode = 4
+cast_shadow = 0
+extra_cull_margin = 16384.0
+ignore_occlusion_culling = true
+
+[node name="line_labels" type="Node3D" parent="." unique_id=47282097]
+process_mode = 4
+
+[node name="item" type="Label3D" parent="line_labels" unique_id=238346984]
+process_mode = 4
+rotation_order = 5
+visible = false
+pixel_size = 0.0336
+no_depth_test = true
+font = ExtResource("3_qlg0r")
+font_size = 256
+outline_size = 0
+
+[node name="note_multimesh_0" type="MultiMeshInstance3D" parent="." unique_id=842538027]
+process_mode = 4
+cast_shadow = 0
+extra_cull_margin = 16384.0
+ignore_occlusion_culling = true
+
+[node name="note_multimesh_1" type="MultiMeshInstance3D" parent="." unique_id=2095620677]
+process_mode = 4
+cast_shadow = 0
+extra_cull_margin = 16384.0
+ignore_occlusion_culling = true
+
+[node name="effect_multimesh" type="MultiMeshInstance3D" parent="." unique_id=806945740]
+process_mode = 4
+cast_shadow = 0
+extra_cull_margin = 16384.0
+ignore_occlusion_culling = true
+
+[node name="judgement_multimesh" type="MultiMeshInstance3D" parent="." unique_id=1931475605]
+process_mode = 4

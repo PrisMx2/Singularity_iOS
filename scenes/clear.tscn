@@ -1,0 +1,795 @@
+[gd_scene format=3 uid="uid://b6hqxh0obw53h"]
+
+[ext_resource type="Texture2D" uid="uid://dqeosdl12rn0j" path="res://textures/clear/background.png" id="1_t2o1o"]
+[ext_resource type="Texture2D" uid="uid://dvb364gelnaas" path="res://textures/generic/missing_illust.jpg" id="3_le6tq"]
+[ext_resource type="Shader" uid="uid://0koppdb0n8j8" path="res://shaders/ui/circle.gdshader" id="3_wvryc"]
+[ext_resource type="Texture2D" uid="uid://cpfpiqmpc1fav" path="res://textures/generic/divider.png" id="4_le6tq"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="6_0od80"]
+[ext_resource type="Script" uid="uid://dtmac32wg1t2w" path="res://scripts/generic_text_scroll.gd" id="6_le6tq"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="7_gwr70"]
+[ext_resource type="PackedScene" uid="uid://kfjuwnut88lx" path="res://scenes/difficulty.tscn" id="9_0od80"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="9_6iv3t"]
+[ext_resource type="Texture2D" uid="uid://dxjvo8a3ta6me" path="res://textures/clear/data_background.png" id="11_0g1ai"]
+[ext_resource type="Texture2D" uid="uid://c4m236s2vhh73" path="res://textures/clear/data_perfect.png" id="11_le6tq"]
+[ext_resource type="Texture2D" uid="uid://chk7vxurwdkag" path="res://textures/clear/data_good.png" id="12_0od80"]
+[ext_resource type="Texture2D" uid="uid://dil4aeic2x3nc" path="res://textures/clear/data_miss.png" id="13_gwr70"]
+[ext_resource type="Texture2D" uid="uid://bj4u7ui4o0ovo" path="res://textures/clear/data_bad.png" id="14_bjiko"]
+[ext_resource type="FontFile" uid="uid://dlvrskx6wh5px" path="res://fonts/IosevkaEtoile_Heavy.ttf" id="15_0od80"]
+[ext_resource type="Texture2D" uid="uid://igs2gxmm0rfl" path="res://textures/char/shio.png" id="15_fv4fg"]
+[ext_resource type="Texture2D" uid="uid://d1iy5571mtma2" path="res://textures/clear/frame_top.png" id="15_okt16"]
+[ext_resource type="Texture2D" uid="uid://b51ppcpnmblvn" path="res://textures/clear/data_score.png" id="16_wvryc"]
+[ext_resource type="Texture2D" uid="uid://dkebnm2upec0l" path="res://textures/clear/data_rating.png" id="17_3dna2"]
+[ext_resource type="Texture2D" uid="uid://dchdswftc8drg" path="res://textures/clear/data_stardust.png" id="18_36h70"]
+[ext_resource type="Texture2D" uid="uid://b8wakx5wmtlso" path="res://textures/generic/confirm.png" id="21_xy1l3"]
+[ext_resource type="Texture2D" uid="uid://d4kmdpnxuw12q" path="res://textures/clear/restart.png" id="22_okt16"]
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="24_i8uan"]
+[ext_resource type="FontFile" uid="uid://c4gs46c5j52of" path="res://fonts/Symvola_Trio_2.ttf" id="24_wvryc"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="25_t2o1o"]
+[ext_resource type="Texture2D" uid="uid://bgtg2ag20j8dk" path="res://textures/clear/times_background.png" id="26_t2o1o"]
+[ext_resource type="Texture2D" uid="uid://b44qxwkxcrr4t" path="res://textures/clear/times_axis.png" id="27_le6tq"]
+[ext_resource type="PackedScene" uid="uid://6mndwqflxei" path="res://scenes/user_profile.tscn" id="27_okt16"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="28_5nuo4"]
+[ext_resource type="Texture2D" uid="uid://cx16gka3wktlb" path="res://textures/clear/initialized.png" id="28_h0c6h"]
+[ext_resource type="Texture2D" uid="uid://cr51quqn553oj" path="res://textures/clear/frame_left.png" id="29_fojsj"]
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="30_le6tq"]
+[ext_resource type="Texture2D" uid="uid://c538tganybrlj" path="res://textures/clear/char_plots.png" id="30_tq8wk"]
+[ext_resource type="FontFile" uid="uid://co0r7vithn0jj" path="res://fonts/IosevkaEtoile_Light.ttf" id="32_poto1"]
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Node2D
+
+@onready var player: Node3D = SceneManager.get_scene(\"player\")
+@onready var player_ui: Node2D = SceneManager.get_scene(\"player_ui\")
+
+@onready var illust: TextureRect = $title/illustration
+@onready var title: Label = $title/mask/title
+@onready var artist: Label = $title/mask/artist
+@onready var difficulty: Control = $title/difficulty
+@onready var accuracy: Label = $data/acc/value
+@onready var score: Label = $data/score/value
+@onready var increment: Label = $data/score/increment
+@onready var new_best: Label = $data/score/new_best
+@onready var rating: Label = $data/stat/rating
+@onready var stardust: Label = $data/stat/stardust
+@onready var pf_stardust: Label = $user_profile/stardust/count
+@onready var perfect: Label = $data/stat/perfect
+@onready var good: Label = $data/stat/good
+@onready var bad: Label = $data/stat/bad
+@onready var miss: Label = $data/stat/miss
+@onready var rank: Label = $data/stat/rank
+@onready var rank_background: ColorRect = $data/stat/rank/display
+@onready var times_graph: ColorRect = $data/judgement_times/graph
+
+var _stardust_increment: int = 0
+var _score_increment: int = 0
+
+var playing_stat: Array = []
+
+func _tween_before() -> void:
+	perfect.set_value_override(0)
+	good.set_value_override(0)
+	bad.set_value_override(0)
+	miss.set_value_override(0)
+	accuracy.set_value_override(0)
+	score.set_value_override(0)
+
+func _tween_enter() -> void:
+	await get_tree().create_timer(0.25).timeout
+	stardust.set_value(_stardust_increment)
+	perfect.set_value(playing_stat[0])
+	good.set_value(playing_stat[1])
+	bad.set_value(playing_stat[2])
+	miss.set_value(playing_stat[3])
+	accuracy.set_value(playing_stat[6])
+	score.set_value(playing_stat[8])
+	increment.set_value(_score_increment)
+
+func load_info(info: Dictionary) -> void:
+	var diff: Dictionary = info.difficulty
+
+	var save: String = info.save
+	var save_data: Dictionary = DataManager.get_save(save)
+	var stat: Array = playing_stat
+	var _score: int = ceili(stat[8])
+	_score_increment = _score - save_data.score
+	var _rank: int = -1
+	for i: int in DataManager.rank_score:
+		if _score >= i * 10000:
+			_rank += 1
+		else:
+			break
+
+	save_data.merge({
+		accuracy = maxf(stat[6], save_data.accuracy),
+		score = maxi(_score, save_data.score),
+		rank = maxi(_rank, save_data.rank),
+	}, true)
+	DataManager.set_save(save, save_data)
+	DataManager.save_save()
+
+	var diff_value: float = floorf(diff.value) + ( 0.5 if diff.plus else 0.0 )
+	_stardust_increment = ceili( ( 4.0 * diff_value + 26.0 * _score ) / 10000000.0 )
+	_stardust_increment += ceili( 3.6 * pow(diff_value, 1.2) * pow(2.71828, 4.0 * _score / 10000000.0 - 4.0) )
+	var _stardust: int = DataManager.get_save(\"stardust\") + _stardust_increment
+	DataManager.set_save(\"stardust\", _stardust)
+	pf_stardust._tween_before()
+
+	difficulty.set_difficulty(diff)
+	title.load_text(info.title)
+	artist.load_text(info.artist)
+	if _score_increment > 0:
+		new_best.visible = true 
+	else:
+		new_best.visible = false
+
+	rank.text = DataManager.rank[_rank]
+	var color: Array = DataManager.rank_color[_rank]
+	var _material: ShaderMaterial = rank_background.material
+	_material.set_shader_parameter(\"color_a\", color[0])
+	_material.set_shader_parameter(\"color_b\", color[1])
+	times_graph._draw_data(playing_stat[9])
+	illust.texture = info.illust_image
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_abi3o"]
+shader = ExtResource("3_wvryc")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhbo"]
+shader = ExtResource("3_wvryc")
+
+[sub_resource type="GDScript" id="GDScript_dqkch"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_float(0.0001) * 100.0).pad_decimals(2) + \"%\"
+"
+
+[sub_resource type="GDScript" id="GDScript_0od80"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	var score_text: String = str(_calcuate_int()).pad_zeros(8)
+	for i: int in range(score_text.length() - 1, 0, -1):
+		if i % 3 == 0:
+			score_text = score_text.insert(score_text.length() - i, \",\")
+	text = score_text
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ifow5"]
+shader = ExtResource("30_le6tq")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(0.6, 0.8, 0.937, 1)
+shader_parameter/color_b = Vector4(0.8, 0.8, 1, 1)
+shader_parameter/angle = 90.0
+
+[sub_resource type="GDScript" id="GDScript_le6tq"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	var increment: int = _calcuate_int()
+	var score_text: String = str(increment).pad_zeros(8)
+	for i: int in range(score_text.length() - 1, 0, -1):
+		if i % 3 == 0:
+			score_text = score_text.insert(score_text.length() - i, \",\")
+	text = ( \"+\" if increment > 0 else \"\" ) + score_text
+"
+
+[sub_resource type="GDScript" id="GDScript_gwr70"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+var increment_sign: String = \"+\"
+
+func _process(_delta: float) -> void:
+	text = increment_sign + str(_calcuate_float(0.0001) * 100.0).pad_decimals(2)
+"
+
+[sub_resource type="GDScript" id="GDScript_g4s8q"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_int())
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_int())
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_int())
+"
+
+[sub_resource type="GDScript" id="GDScript_ibjym"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_int())
+"
+
+[sub_resource type="GDScript" id="GDScript_jrdhs"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_int())
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_le6tq"]
+shader = ExtResource("30_le6tq")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0od80"]
+shader = ExtResource("24_i8uan")
+shader_parameter/mask_texture = ExtResource("25_t2o1o")
+shader_parameter/mask_color = Vector3(0, 0, 0)
+shader_parameter/mask_speed = Vector2(0, 5)
+shader_parameter/mask_zoom = 2.4
+shader_parameter/mask_strength = 0.03
+
+[sub_resource type="GDScript" id="GDScript_igqou"]
+script/source = "extends ColorRect
+
+var _times: Array = []
+
+func _draw_data(times: Array) -> void:
+	_times = times
+	queue_redraw()
+
+func _draw() -> void:
+	var width: float = 555.0 / 38.0
+	var columns: Array = []
+	columns.resize(39)
+	columns.fill(0)
+	var total: int = 0
+	for time: int in _times:
+		var column: int = clampi( floori( time / 10.0 + 19.5 ), 0, 38)
+		columns[column] += 1
+		total = maxi(total, columns[column])
+	if total > 0:
+		for i: int in 38:
+			var column: int = columns[i]
+			if column > 0:
+				var height: float = column * 215.0 / total
+				draw_rect(Rect2( ( i + 0.2 ) * width, 215.0 - height, width * 0.6, height ), Color(0xD3D3D3FF), true, -1.0, true)
+"
+
+[sub_resource type="GDScript" id="GDScript_2o4a8"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_jnpdl"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.change_scene(\"player\")
+	root.player.restart()
+"
+
+[sub_resource type="GDScript" id="GDScript_xeyld"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	var node: Node2D = await SceneManager.change_scene(\"song_select\")
+	node.load_chapter()
+	root.player.stop()
+	root.player.unload_ui()
+"
+
+[node name="clear" type="Node2D" unique_id=1216248771]
+process_mode = 1
+script = SubResource("GDScript_wvhbo")
+metadata/_edit_horizontal_guides_ = [384.0, 452.0, 407.0, 318.0, 360.0, 768.0, 984.0]
+metadata/_edit_vertical_guides_ = [614.0]
+
+[node name="background" type="Sprite2D" parent="." unique_id=1583733349]
+process_mode = 4
+position = Vector2(1441, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_t2o1o")
+
+[node name="title" type="Node2D" parent="." unique_id=762314540]
+process_mode = 4
+
+[node name="outline" type="ColorRect" parent="title" unique_id=1774109970]
+material = SubResource("ShaderMaterial_abi3o")
+offset_left = 70.0
+offset_top = 89.0
+offset_right = 208.0
+offset_bottom = 227.0
+color = Color(1, 1, 1, 0.70980394)
+
+[node name="illustration" type="TextureRect" parent="title" unique_id=2041301537]
+process_mode = 4
+material = SubResource("ShaderMaterial_wvhbo")
+offset_left = 72.0
+offset_top = 91.0
+offset_right = 206.0
+offset_bottom = 225.0
+mouse_filter = 2
+texture = ExtResource("3_le6tq")
+expand_mode = 1
+
+[node name="divider" type="Sprite2D" parent="title" unique_id=991475046]
+process_mode = 4
+position = Vector2(247, 128)
+scale = Vector2(0.6, 0.4)
+texture = ExtResource("4_le6tq")
+
+[node name="mask" type="ColorRect" parent="title" unique_id=464425758]
+clip_children = 1
+offset_left = 270.0
+offset_top = 24.0
+offset_right = 860.0
+offset_bottom = 232.0
+
+[node name="title" type="Label" parent="title/mask" unique_id=1209036472]
+process_mode = 1
+custom_minimum_size = Vector2(590, 0)
+layout_mode = 0
+offset_top = 62.0
+offset_right = 590.0
+offset_bottom = 109.0
+offset_transform_enabled = true
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("6_0od80")
+theme_override_font_sizes/font_size = 37
+text = "Example"
+script = ExtResource("6_le6tq")
+metadata/_edit_use_anchors_ = true
+
+[node name="artist" type="Label" parent="title/mask" unique_id=1394778228]
+process_mode = 1
+custom_minimum_size = Vector2(590, 0)
+layout_mode = 0
+offset_top = 111.00003
+offset_right = 590.0
+offset_bottom = 140.00003
+offset_transform_enabled = true
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("7_gwr70")
+theme_override_font_sizes/font_size = 24
+text = "Example"
+script = ExtResource("6_le6tq")
+metadata/_edit_use_anchors_ = true
+
+[node name="initialized" type="Sprite2D" parent="title" unique_id=187024083]
+process_mode = 4
+position = Vector2(1028, 156)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("28_h0c6h")
+
+[node name="difficulty" parent="title" unique_id=336640056 instance=ExtResource("9_0od80")]
+offset_left = 917.0
+offset_top = 127.0
+offset_right = 917.0
+offset_bottom = 127.0
+metadata/_edit_use_anchors_ = true
+
+[node name="data" type="Node2D" parent="." unique_id=1427869674]
+process_mode = 4
+
+[node name="background" type="Sprite2D" parent="data" unique_id=404540107]
+process_mode = 4
+position = Vector2(614, 473)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("11_0g1ai")
+
+[node name="frame_left" type="Sprite2D" parent="data" unique_id=945596448]
+process_mode = 4
+position = Vector2(236, 526)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("29_fojsj")
+
+[node name="frame_top" type="Sprite2D" parent="data" unique_id=1270496270]
+process_mode = 4
+position = Vector2(614.00006, 267.99997)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("15_okt16")
+
+[node name="score_icon" type="Sprite2D" parent="data" unique_id=20715880]
+process_mode = 4
+position = Vector2(358.90063, 318.8)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("16_wvryc")
+
+[node name="acc" type="Node2D" parent="data" unique_id=1375886014]
+process_mode = 4
+
+[node name="acc" type="Label" parent="data/acc" unique_id=432170112]
+process_mode = 4
+offset_left = 556.0
+offset_top = 315.00006
+offset_right = 604.0
+offset_bottom = 339.00006
+theme_override_fonts/font = ExtResource("7_gwr70")
+theme_override_font_sizes/font_size = 18
+text = "Acc :"
+metadata/_edit_use_anchors_ = true
+
+[node name="value" type="Label" parent="data/acc" unique_id=950767315]
+process_mode = 1
+offset_left = 601.0
+offset_top = 314.00006
+offset_right = 701.0
+offset_bottom = 339.00006
+theme_override_fonts/font = ExtResource("6_0od80")
+theme_override_font_sizes/font_size = 19
+text = "100.00%"
+horizontal_alignment = 2
+script = SubResource("GDScript_dqkch")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="score" type="Node2D" parent="data" unique_id=1327707904]
+process_mode = 4
+
+[node name="value" type="Label" parent="data/score" unique_id=862774979]
+process_mode = 1
+offset_left = 267.0
+offset_top = 343.00006
+offset_right = 707.9994
+offset_bottom = 424.00006
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 80
+text = "10,000,000"
+horizontal_alignment = 2
+script = SubResource("GDScript_0od80")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="new_best" type="Label" parent="data/score" unique_id=1254564756]
+process_mode = 4
+clip_children = 1
+offset_left = 334.0
+offset_top = 431.0
+offset_right = 433.0
+offset_bottom = 457.0
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("15_0od80")
+theme_override_font_sizes/font_size = 20
+text = "NEW BEST"
+horizontal_alignment = 2
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="display" type="ColorRect" parent="data/score/new_best" unique_id=1753175681]
+process_mode = 4
+material = SubResource("ShaderMaterial_ifow5")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_stretch_ratio = 0.0
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="increment" type="Label" parent="data/score" unique_id=1258668293]
+process_mode = 1
+offset_left = 520.0
+offset_top = 428.00006
+offset_right = 703.99994
+offset_bottom = 459.00006
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "+10,000,000"
+horizontal_alignment = 2
+script = SubResource("GDScript_le6tq")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="stat" type="Node2D" parent="data" unique_id=438862543]
+process_mode = 4
+
+[node name="rating_icon" type="Sprite2D" parent="data/stat" unique_id=1675521901]
+process_mode = 4
+position = Vector2(388, 554.00006)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("17_3dna2")
+
+[node name="rating" type="Label" parent="data/stat" unique_id=1881794416]
+process_mode = 1
+offset_left = 328.0
+offset_top = 532.00006
+offset_right = 484.0
+offset_bottom = 563.00006
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "+0.00"
+horizontal_alignment = 2
+script = SubResource("GDScript_gwr70")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="stardust_icon" type="Sprite2D" parent="data/stat" unique_id=231513997]
+process_mode = 4
+position = Vector2(570, 555.00006)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("18_36h70")
+
+[node name="stardust" type="Label" parent="data/stat" unique_id=1419905912]
+process_mode = 1
+offset_left = 541.0
+offset_top = 532.00006
+offset_right = 697.0
+offset_bottom = 563.00006
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "+0"
+horizontal_alignment = 2
+script = SubResource("GDScript_g4s8q")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="perfect_icon" type="Sprite2D" parent="data/stat" unique_id=1390702299]
+process_mode = 4
+position = Vector2(389, 617.00006)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("11_le6tq")
+
+[node name="perfect" type="Label" parent="data/stat" unique_id=1872725071]
+process_mode = 1
+offset_left = 329.0
+offset_top = 595.00006
+offset_right = 485.0
+offset_bottom = 626.00006
+theme_override_colors/font_color = Color(1, 0.7254902, 0.1882353, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "1000"
+horizontal_alignment = 2
+script = SubResource("GDScript_ifow5")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="good_icon" type="Sprite2D" parent="data/stat" unique_id=354415991]
+process_mode = 4
+position = Vector2(601, 617.00006)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("12_0od80")
+
+[node name="good" type="Label" parent="data/stat" unique_id=1862521036]
+process_mode = 1
+offset_left = 541.0
+offset_top = 595.00006
+offset_right = 697.0
+offset_bottom = 626.00006
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 2
+script = SubResource("GDScript_abi3o")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="bad_icon" type="Sprite2D" parent="data/stat" unique_id=970834060]
+process_mode = 4
+position = Vector2(414, 653)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("14_bjiko")
+
+[node name="bad" type="Label" parent="data/stat" unique_id=326940161]
+process_mode = 1
+offset_left = 329.0
+offset_top = 635.0
+offset_right = 485.0
+offset_bottom = 666.0
+theme_override_colors/font_color = Color(0.61960787, 0, 0.21568628, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 2
+script = SubResource("GDScript_ibjym")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="miss_icon" type="Sprite2D" parent="data/stat" unique_id=1296992735]
+process_mode = 4
+position = Vector2(600.9999, 655)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("13_gwr70")
+
+[node name="miss" type="Label" parent="data/stat" unique_id=364420259]
+process_mode = 1
+offset_left = 541.0
+offset_top = 633.0
+offset_right = 697.0
+offset_bottom = 664.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("9_6iv3t")
+theme_override_font_sizes/font_size = 30
+text = "0"
+horizontal_alignment = 2
+script = SubResource("GDScript_jrdhs")
+length = 2000.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="rank" type="Label" parent="data/stat" unique_id=2100582107]
+process_mode = 4
+clip_children = 1
+offset_left = 748.0
+offset_top = 342.0
+offset_right = 846.0
+offset_bottom = 473.0
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.49803922)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_fonts/font = ExtResource("24_wvryc")
+theme_override_font_sizes/font_size = 130
+text = "0"
+
+[node name="display" type="ColorRect" parent="data/stat/rank" unique_id=1781457538]
+process_mode = 4
+material = SubResource("ShaderMaterial_le6tq")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="contour" type="ColorRect" parent="data/stat/rank" unique_id=972749144]
+process_mode = 4
+material = SubResource("ShaderMaterial_0od80")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="judgement_times" type="Node2D" parent="data" unique_id=1219257206]
+
+[node name="background" type="Sprite2D" parent="data/judgement_times" unique_id=1532439772]
+process_mode = 4
+position = Vector2(614, 875)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("26_t2o1o")
+
+[node name="axis" type="Sprite2D" parent="data/judgement_times" unique_id=1843487128]
+process_mode = 4
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+position = Vector2(614, 875)
+scale = Vector2(0.24, 0.24)
+texture = ExtResource("27_le6tq")
+
+[node name="graph" type="ColorRect" parent="data/judgement_times" unique_id=821555853]
+process_mode = 1
+offset_left = 357.0
+offset_top = 768.0
+offset_right = 912.0
+offset_bottom = 983.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+script = SubResource("GDScript_igqou")
+
+[node name="character" type="Node2D" parent="." unique_id=1224011425]
+process_mode = 4
+
+[node name="plots" type="Sprite2D" parent="character" unique_id=1446884251]
+process_mode = 4
+position = Vector2(1666, 671)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("30_tq8wk")
+
+[node name="char_name" type="Label" parent="character" unique_id=1405364214]
+process_mode = 4
+offset_left = 1665.0
+offset_top = 670.0
+offset_right = 2177.0
+offset_bottom = 746.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("6_0od80")
+theme_override_font_sizes/font_size = 60
+text = "char.shio"
+metadata/_edit_use_anchors_ = true
+
+[node name="char_name_sub" type="Label" parent="character" unique_id=1212477819]
+process_mode = 4
+offset_left = 1666.0
+offset_top = 736.0
+offset_right = 2178.0
+offset_bottom = 760.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("32_poto1")
+theme_override_font_sizes/font_size = 18
+text = "char.shio.sub"
+metadata/_edit_use_anchors_ = true
+
+[node name="character" type="Button" parent="character" unique_id=613669954]
+process_mode = 1
+offset_left = 891.0
+offset_top = -128.0
+offset_right = 2739.0
+offset_bottom = 3102.0
+scale = Vector2(0.46, 0.46)
+icon = ExtResource("15_fv4fg")
+flat = true
+script = SubResource("GDScript_2o4a8")
+pixel_button = true
+metadata/_edit_use_anchors_ = true
+
+[node name="user_profile" parent="." unique_id=557689118 instance=ExtResource("27_okt16")]
+position = Vector2(1387, 53)
+
+[node name="buttons" type="Node2D" parent="." unique_id=1092480087]
+process_mode = 4
+
+[node name="edge_light_blue" type="Sprite2D" parent="buttons" unique_id=1022001746]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, 1340)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("28_5nuo4")
+
+[node name="restart" type="Button" parent="buttons" unique_id=607741442 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 5.0
+offset_top = 907.00006
+offset_right = 424.0
+offset_bottom = 1195.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("22_okt16")
+flat = true
+script = SubResource("GDScript_jnpdl")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="edge_light_purple" type="Sprite2D" parent="buttons" unique_id=1174909008]
+process_mode = 4
+self_modulate = Color(0.8, 0.8, 1, 1)
+position = Vector2(2180, 1340)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("28_5nuo4")
+
+[node name="continue" type="Button" parent="buttons" unique_id=1282965234 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 1656.0001
+offset_top = 900.0
+offset_right = 2085.0
+offset_bottom = 1202.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("21_xy1l3")
+flat = true
+script = SubResource("GDScript_xeyld")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true

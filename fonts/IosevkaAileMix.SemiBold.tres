@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" format=3 uid="uid://b6k1uq85imkt6"]
+
+[ext_resource type="FontFile" uid="uid://qsytkv7inmrq" path="res://fonts/IosevkaAile_SemiBold.ttf" id="1_5ivfi"]
+[ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="2_nq11y"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_nq11y")])
+base_font = ExtResource("1_5ivfi")
+spacing_bottom = -5

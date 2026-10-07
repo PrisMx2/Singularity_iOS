@@ -1,0 +1,432 @@
+[gd_scene format=3 uid="uid://cpmwguq1ndqyq"]
+
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="1_4hr4w"]
+[ext_resource type="Texture2D" uid="uid://c4af41wt37y60" path="res://textures/main_chapters/grid.png" id="2_11gc3"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="3_2mscq"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="4_2fuym"]
+[ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="6_bpv8i"]
+[ext_resource type="Script" uid="uid://bgh0aooa60sj0" path="res://scripts/generic_input.gd" id="7_r2ku4"]
+[ext_resource type="Texture2D" uid="uid://clq67plffwvwn" path="res://textures/generic/confirm_noglowing.png" id="8_4guy6"]
+[ext_resource type="VideoStream" uid="uid://c3fmm4tsequyl" path="res://chapter/preface/7_overclocked_reality/unlock.ogv" id="9_lx5k1"]
+[ext_resource type="Shader" uid="uid://dkpjv042pb1qb" path="res://shaders/player/glitch.gdshader" id="9_yernx"]
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="10_qgche"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="11_4ulw6"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="12_x8nha"]
+[ext_resource type="Texture2D" uid="uid://djnspsslm3oe3" path="res://textures/unlock/sp_pv.png" id="13_4npxj"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="14_g7hfc"]
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="15_2gsod"]
+[ext_resource type="FontVariation" uid="uid://cyswer0i5ipj2" path="res://fonts/IosevkaAileMix.Light.tres" id="16_61ol6"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="17_r677w"]
+
+[sub_resource type="GDScript" id="GDScript_m1e48"]
+script/source = "extends Node2D
+
+@onready var input: Node2D = $input
+@onready var image: TextureRect = $input/center/fit/texture
+@onready var pv: Node2D = $pv
+@onready var player: VideoStreamPlayer = $pv/video
+@onready var info: Node2D = $pv/info
+@onready var title: Label = $pv/info/title
+@onready var artist: Label = $pv/info/artist
+@onready var difficulty: Label = $pv/info/fit/difficulty
+@onready var difficulty_background: ColorRect = $pv/info/fit/difficulty/margin/display
+
+var _callback: Callable
+
+var current_chart: Dictionary = {}
+var special: Array = []
+
+func _tween_before() -> void:
+	modulate.a = 0.0
+	input.visible = true
+	pv.modulate.a = 0.0
+	info.visible = false
+
+func _tween_enter() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_interval(0.1)
+	tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
+	await tween.finished
+
+func _tween_leave() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 0.0, 0.2).from(1.0)
+	tween.tween_interval(0.1)
+	await tween.finished
+
+func _ready() -> void:
+	player.finished.connect(func() -> void:
+		_callback.call(self)
+	)
+
+func load_data(chart: Dictionary, callback: Callable) -> void:
+	current_chart = chart
+	_callback = callback
+
+	var song_path: String = chart.path
+	var texture_path: String = song_path.path_join(\"unlock.png\")
+	image.texture = ResourceLoader.load(texture_path)
+
+	special = chart.test[1].special.duplicate_deep()
+	special[1] = special[1].to_float()
+	special[2] = special[2].to_float()
+
+	title.text = chart.title
+	artist.text = chart.artist
+	var diff: Dictionary = chart.difficulty
+	var display: Array
+	if diff.has(\"display\"):
+		display = diff.display
+	else:
+		display = [\"EXTERNAL\", \"TIER #?\", Color(0xA67FD4FF), Color(0xA67FD4FF)]
+	var _material: ShaderMaterial = difficulty_background.material
+	_material.set_shader_parameter(\"color_a\", display[2])
+	_material.set_shader_parameter(\"color_b\", display[3])
+	difficulty.text = display[0] + \" Lv.\" + str(int(diff.value)) + ( \"+\" if diff.plus else \"\" )
+
+func unlock() -> void:
+	get_viewport().gui_disable_input = true
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_interval(0.1)
+	tween.tween_property(pv, \"modulate:a\", 1.0, 0.2).from(0.0)
+	tween.tween_interval(0.5)
+	await tween.finished
+	input.visible = false
+	get_viewport().gui_disable_input = false
+	var song_path: String = current_chart.path
+	var texture_path: String = song_path.path_join(\"unlock.ogv\")
+	player.stream = ResourceLoader.load(texture_path)
+	player.volume = DataManager.get_save(\"settings.music_volume\")
+	player.play()
+
+func _process(_delta: float) -> void:
+	var time: float = player.stream_position * 1000.0
+	info.visible = time >= special[1] and time <= special[2]
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lx5k1"]
+shader = ExtResource("1_4hr4w")
+shader_parameter/strength = 2.0
+
+[sub_resource type="GDScript" id="GDScript_qgche"]
+script/source = "extends Button
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		accept_event()
+"
+
+[sub_resource type="GDScript" id="GDScript_4ulw6"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.leave(root)
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x8nha"]
+
+[sub_resource type="GDScript" id="GDScript_4npxj"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+@export var edit: LineEdit
+
+func _pressed() -> void:
+	if root.special[0] == edit.text:
+		root.unlock()
+	else:
+		edit.text = \"\"
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhbo"]
+shader = ExtResource("9_yernx")
+shader_parameter/frequency = 48.0
+shader_parameter/density = 16.0
+shader_parameter/percent = 0.85
+shader_parameter/strength = 0.007
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1f3ox"]
+shader = ExtResource("10_qgche")
+shader_parameter/mask_texture = ExtResource("11_4ulw6")
+shader_parameter/mask_color = Vector3(1, 1, 1)
+shader_parameter/mask_speed = Vector2(-8, 0)
+shader_parameter/mask_zoom = 1.5
+shader_parameter/mask_strength = 0.04
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1evua"]
+shader = ExtResource("15_2gsod")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 90.0
+
+[node name="unlock_sp" type="Node2D" unique_id=2105211010]
+process_mode = 1
+script = SubResource("GDScript_m1e48")
+
+[node name="input" type="Node2D" parent="." unique_id=1439026184]
+process_mode = 4
+
+[node name="buffer_copy" type="BackBufferCopy" parent="input" unique_id=751972310]
+process_mode = 4
+copy_mode = 2
+
+[node name="blur" type="ColorRect" parent="input" unique_id=1409853510]
+process_mode = 4
+material = SubResource("ShaderMaterial_lx5k1")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="stop_touch" type="Button" parent="input" unique_id=260725983]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_right = 1920.0
+offset_bottom = 1080.0
+disabled = true
+flat = true
+script = SubResource("GDScript_qgche")
+
+[node name="darkness" type="ColorRect" parent="input" unique_id=1156389780]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.4509804)
+
+[node name="grid" type="Sprite2D" parent="input" unique_id=1883151652]
+process_mode = 4
+position = Vector2(942, 200)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_11gc3")
+
+[node name="edge_light" type="Sprite2D" parent="input" unique_id=425245702]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, -260)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("3_2mscq")
+
+[node name="back" type="Button" parent="input" unique_id=1443561158 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 11.0
+offset_right = 415.0
+offset_bottom = 289.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("4_2fuym")
+flat = true
+script = SubResource("GDScript_4ulw6")
+root = NodePath("../..")
+
+[node name="center" type="CenterContainer" parent="input" unique_id=1759059749]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 825.0
+mouse_filter = 2
+
+[node name="fit" type="VBoxContainer" parent="input/center" unique_id=563807884]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 15
+
+[node name="texture" type="TextureRect" parent="input/center/fit" unique_id=702906954]
+process_mode = 4
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, 75)
+offset_transform_scale = Vector2(0.6, 0.6)
+offset_transform_visual_only = false
+mouse_filter = 2
+stretch_mode = 2
+
+[node name="edit" type="LineEdit" parent="input/center/fit" unique_id=1796487103]
+process_mode = 1
+custom_minimum_size = Vector2(444, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("6_bpv8i")
+theme_override_font_sizes/font_size = 37
+theme_override_styles/focus = SubResource("StyleBoxEmpty_x8nha")
+placeholder_text = "???"
+alignment = 1
+max_length = 16
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+caret_force_displayed = true
+script = ExtResource("7_r2ku4")
+filter = "1234567890qwertyuiopasdfghjklzxcvbnm "
+
+[node name="underline" type="ColorRect" parent="input/center/fit" unique_id=1692126939]
+process_mode = 4
+custom_minimum_size = Vector2(444, 2)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="confirm" type="Button" parent="input" unique_id=526094061 node_paths=PackedStringArray("root", "edit")]
+process_mode = 1
+offset_left = 890.0
+offset_top = 765.0
+offset_right = 1077.0
+offset_bottom = 849.0
+scale = Vector2(0.75, 0.75)
+icon = ExtResource("8_4guy6")
+flat = true
+script = SubResource("GDScript_4npxj")
+root = NodePath("../..")
+edit = NodePath("../center/fit/edit")
+
+[node name="buffer_copy_2" type="BackBufferCopy" parent="input" unique_id=776647964]
+process_mode = 4
+copy_mode = 2
+
+[node name="glitch" type="ColorRect" parent="input" unique_id=1884144506]
+process_mode = 4
+material = SubResource("ShaderMaterial_wvhbo")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0.87058824)
+
+[node name="pv" type="Node2D" parent="." unique_id=410137973]
+process_mode = 4
+modulate = Color(1, 1, 1, 0)
+metadata/_edit_vertical_guides_ = [242.0]
+metadata/_edit_horizontal_guides_ = [540.0]
+
+[node name="background" type="ColorRect" parent="pv" unique_id=241950291]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="video" type="VideoStreamPlayer" parent="pv" unique_id=1113087252]
+process_mode = 1
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+stream = ExtResource("9_lx5k1")
+expand = true
+
+[node name="info" type="Node2D" parent="pv" unique_id=389025016]
+process_mode = 4
+visible = false
+
+[node name="darkness" type="Sprite2D" parent="pv/info" unique_id=1523768186]
+process_mode = 4
+self_modulate = Color(1, 1, 1, 0.6862745)
+position = Vector2(900, 539.99994)
+rotation = -1.5707964
+scale = Vector2(0.34, 2)
+texture = ExtResource("12_x8nha")
+
+[node name="contour" type="Sprite2D" parent="pv/info" unique_id=445288231]
+process_mode = 4
+material = SubResource("ShaderMaterial_1f3ox")
+position = Vector2(900, 539.99994)
+rotation = -1.5707964
+scale = Vector2(0.34, 2)
+texture = ExtResource("12_x8nha")
+
+[node name="deco" type="Sprite2D" parent="pv/info" unique_id=1045037710]
+position = Vector2(104, 540)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("13_4npxj")
+
+[node name="challenging" type="Label" parent="pv/info" unique_id=115269584]
+process_mode = 4
+offset_left = 242.0
+offset_top = 432.0
+offset_right = 617.0
+offset_bottom = 468.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("16_61ol6")
+theme_override_font_sizes/font_size = 28
+text = "pv.challenging"
+
+[node name="title" type="Label" parent="pv/info" unique_id=489505182]
+process_mode = 4
+offset_left = 239.0
+offset_top = 467.0
+offset_right = 1263.0
+offset_bottom = 553.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("17_r677w")
+theme_override_font_sizes/font_size = 72
+text = "Example"
+vertical_alignment = 1
+
+[node name="artist" type="Label" parent="pv/info" unique_id=1942213780]
+process_mode = 4
+offset_left = 241.0
+offset_top = 553.0
+offset_right = 1265.0
+offset_bottom = 598.0
+theme_override_fonts/font = ExtResource("16_61ol6")
+theme_override_font_sizes/font_size = 39
+text = "Example"
+vertical_alignment = 1
+
+[node name="fit" type="VBoxContainer" parent="pv/info" unique_id=225041709]
+process_mode = 4
+offset_left = 244.0
+offset_top = 608.0
+offset_right = 385.0
+offset_bottom = 648.0
+mouse_filter = 2
+
+[node name="difficulty" type="Label" parent="pv/info/fit" unique_id=1546477073]
+process_mode = 4
+layout_mode = 2
+size_flags_horizontal = 0
+offset_transform_enabled = true
+offset_transform_position = Vector2(16, 5)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("14_g7hfc")
+theme_override_font_sizes/font_size = 30
+text = "Difficulty"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="margin" type="MarginContainer" parent="pv/info/fit/difficulty" unique_id=126858788]
+process_mode = 4
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/margin_left = -18
+theme_override_constants/margin_right = -18
+
+[node name="display" type="ColorRect" parent="pv/info/fit/difficulty/margin" unique_id=784815086]
+process_mode = 4
+material = SubResource("ShaderMaterial_1evua")
+layout_mode = 2
+mouse_filter = 2

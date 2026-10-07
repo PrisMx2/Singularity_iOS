@@ -1,0 +1,53 @@
+# ===========================================================================
+# Godot 4 project .gitignore
+# ===========================================================================
+
+# Godot's import cache and editor state. Regenerated automatically on first
+# open / first export; several hundred MB on this project.
+.godot/
+
+# Android gradle build tree. Godot regenerates the whole thing from the
+# installed export template whenever build/ is missing, so it is pure cache.
+# On this project it is ~2.1 GB.
+/android/build/
+/android/.gradle/
+/android/gradle/
+/android/gradlew
+/android/gradlew.bat
+
+# ---------------------------------------------------------------------------
+# Editor scratch / crash leftovers
+# ---------------------------------------------------------------------------
+# Godot leaves "<scene>.tscn<digits>.tmp" behind when the editor is killed or
+# crashes while saving a scene.
+*.tmp
+*.bak
+*.orig
+*~
+__pycache__/
+*.py[co]
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------------------
+# IDE / editor
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ---------------------------------------------------------------------------
+# Export output
+# ---------------------------------------------------------------------------
+# Only things that are clearly produced by an export run. Everything the
+# project actually needs (addons/, chapter/, fonts/, sounds/, textures/,
+# export_presets.cfg, project.godot, *.import, *.uid) stays tracked.
+/build/
+/export/
+*.apk
+*.aab
+*.ipa
+*.xcarchive
+*.pck

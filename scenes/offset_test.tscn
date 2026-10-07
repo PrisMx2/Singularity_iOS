@@ -1,0 +1,616 @@
+[gd_scene format=3 uid="uid://cngb34pquhdqn"]
+
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="1_vspax"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="2_2pjre"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="3_qso03"]
+[ext_resource type="Texture2D" uid="uid://dhj3gnqn163yk" path="res://textures/login/frame.png" id="4_2ldk1"]
+[ext_resource type="Texture2D" uid="uid://5537w83u48po" path="res://textures/login/plots.png" id="5_uma2r"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="6_hvjuj"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="7_m8mf7"]
+[ext_resource type="Texture2D" uid="uid://clq67plffwvwn" path="res://textures/generic/confirm_noglowing.png" id="9_60850"]
+[ext_resource type="Texture2D" uid="uid://dcn1gms56coya" path="res://textures/generic/ring.png" id="10_rrkpw"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="11_vele0"]
+[ext_resource type="Texture2D" uid="uid://uyc65tmfg8ce" path="res://textures/offset_test/delay.png" id="12_pqg3u"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="13_tc6ub"]
+[ext_resource type="Texture2D" uid="uid://bgig4hx0dxk73" path="res://textures/offset_test/button.png" id="14_ueeem"]
+[ext_resource type="Texture2D" uid="uid://cmonx87jwjla2" path="res://textures/settings/item_switch_frame.png" id="15_jnsas"]
+[ext_resource type="Texture2D" uid="uid://bcwjn4r3kyoff" path="res://textures/settings/item_switch_on.png" id="16_1pxok"]
+
+[sub_resource type="GDScript" id="GDScript_emhwf"]
+script/source = "extends Node2D
+
+@onready var offset_value: Label = $offset/value
+@onready var offset_suggested: Label = $offset/suggested
+
+var _note_multimesh: MultiMesh
+var _note_material: ShaderMaterial
+var _note_data: Array = []
+
+var _effect: bool = false
+var _effect_data: Array = []
+
+var _player: FmodOggPlayer
+var _music_start: float = 0.0
+var _music_offset: int = 0
+
+var sound_mode: int = 0
+var beat_filter: int = 4
+
+var last_scene: String = \"\"
+
+func _tween_before() -> void:
+	_note_data = []
+	for i: int in 16:
+		_note_data.append([ ( i + 4 ) * 125.0, false, i == 12 - 4 ])
+	_music_offset = DataManager.get_save(\"settings.music_offset\", 0)
+	_music_start = _get_time()
+	_player.set_volume(DataManager.get_save(\"settings.music_volume\"))
+	_player.play()
+	add(0)
+
+func _tween_leave() -> void:
+	_player.stop()
+
+func _get_time() -> float:
+	return Time.get_ticks_usec() / 1000.0
+
+func get_player_time() -> float:
+	return maxf(_get_time() - _music_start - _music_offset, 0.0)
+
+func _init_render() -> void:
+
+	var aabb: AABB = AABB(Vector3(), Vector3.ONE)
+
+	var quad_mesh: QuadMesh = QuadMesh.new()
+	quad_mesh.size = Vector2(1.0, 1.0)
+	quad_mesh.subdivide_width = 0
+	quad_mesh.subdivide_depth = 0
+
+	_note_multimesh = MultiMesh.new()
+	_note_multimesh.custom_aabb = aabb
+	_note_multimesh.use_custom_data = true
+	_note_multimesh.transform_format = MultiMesh.TRANSFORM_2D
+	_note_multimesh.mesh = quad_mesh
+	_note_multimesh.instance_count = 320
+	_note_multimesh.visible_instance_count = 0
+	$mask/note_multimesh.multimesh = _note_multimesh
+
+	_note_material = ShaderMaterial.new()
+	_note_material.shader = preload(\"res://shaders/player/offset.gdshader\")
+	_note_material.render_priority = 0
+	$mask/note_multimesh.material = _note_material
+
+func add(value: int) -> void:
+	_music_offset += value
+	_music_offset = clampi(_music_offset, -999, 999)
+	DataManager.set_save(\"settings.music_offset\", _music_offset)
+	offset_value.text = str(_music_offset) + \" ms\"
+
+func _ready() -> void:
+	_init_render()
+	_player = FmodServer.create_player_by_ogg(\"res://sounds/offset_test.ogg\")
+	_player.set_loop(true)
+
+func _unhandled_input(event: InputEvent) -> void:
+
+	if event is InputEventScreenTouch:
+		if event.pressed and not event.canceled:
+
+			if sound_mode == 1 or sound_mode == 3:
+				SoundManager.play(\"tap\")
+
+			_effect = true
+			var time: float = get_player_time()
+			var offset_comp: float = 999999.0
+			var offset_record: float = 0.0
+
+			for i: int in 16:
+				if i % mini(beat_filter, 4) > 0:
+					continue
+				var note: Array = _note_data[i]
+				var delta_time: float = note[0] - time
+				if absf(delta_time) < offset_comp:
+					offset_comp = absf(delta_time)
+					offset_record = delta_time
+
+			offset_suggested.text = \"(\" + str(int(offset_record)) + \" ms)\"
+
+func _process(_delta: float) -> void:
+
+	var time: float = get_player_time()
+	var time_raw: float = _get_time()
+
+	var note_index: int = 0
+
+	for i: int in range(_effect_data.size()-1, -1, -1):
+		var effect: Array = _effect_data[i]
+		var progress: float = maxf(time_raw - effect[1], 0.0) / 600
+		if progress > 1.0:
+			_effect_data.remove_at(i)
+			continue
+		var delta_time: float = effect[0]
+		var _position: Vector2 = Vector2(delta_time * 690.0, 0.0)
+		progress = Easings.Function[4].call(progress) / 2.0 + 0.5
+		_note_multimesh.set_instance_custom_data(note_index, Color(delta_time, progress, effect[2], 0.0))
+		_note_multimesh.set_instance_transform_2d(note_index, Transform2D(0.0, _position))
+		note_index += 1
+
+	for i: int in 16:
+		var note: Array = _note_data[i]
+		var delta_time: float = time - note[0]
+		if delta_time > 1000.0:
+			delta_time += 2000.0
+			note[0] += 2000.0
+			note[1] = false
+		if i % beat_filter > 0 or beat_filter == 8:
+			continue
+		delta_time /= 1000.0
+		var extended: float = 100.0 if note[2] else 0.0
+		if _effect:
+			_effect_data.append([ delta_time, time_raw, extended ])
+		var _position: Vector2 = Vector2(delta_time * 690.0, 0.0)
+		_note_multimesh.set_instance_custom_data(note_index, Color(delta_time, 0.0, extended, 0.0))
+		_note_multimesh.set_instance_transform_2d(note_index, Transform2D(0.0, _position))
+		note_index += 1
+
+	_effect = false
+
+	_note_multimesh.visible_instance_count = note_index
+
+func _physics_process(_delta: float) -> void:
+
+	var time: float = get_player_time()
+
+	for i: int in 16:
+		var note: Array = _note_data[i]
+		var delta_time: float = time - note[0]
+		if delta_time > 0.0 and not note[1]:
+			note[1] = true
+			if i % beat_filter > 0 or beat_filter == 8:
+				continue
+			if sound_mode == 1 or sound_mode == 2:
+				SoundManager.play(\"flick\" if note[2] else \"drag\")
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lnp0k"]
+shader = ExtResource("1_vspax")
+shader_parameter/mask_texture = ExtResource("2_2pjre")
+shader_parameter/mask_color = Vector3(1, 1, 1)
+shader_parameter/mask_speed = Vector2(0, 4)
+shader_parameter/mask_zoom = 1.0
+shader_parameter/mask_strength = 0.02
+
+[sub_resource type="GDScript" id="GDScript_n53g3"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.change_scene(root.last_scene)
+"
+
+[sub_resource type="GDScript" id="GDScript_wlyqo"]
+script/source = "extends Button
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.add(10)
+"
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Button
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.add(1)
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends Button
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.add(-1)
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends Button
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.add(-10)
+"
+
+[sub_resource type="GDScript" id="GDScript_348ts"]
+script/source = "extends Button
+
+@export var root: Node2D
+@export var label: Label
+@export var on: Sprite2D
+
+var _switch: int = 0
+
+func _pressed() -> void:
+	_switch = wrapi(_switch + 1, 0, 4)
+	root.sound_mode = _switch
+	label.text = \"offset_test.sound_\" + str(_switch)
+	on.visible = false if _switch == 0 else true
+"
+
+[sub_resource type="GDScript" id="GDScript_xeyld"]
+script/source = "extends Button
+
+@export var root: Node2D
+@export var label: Label
+@export var on: Sprite2D
+
+var _switch: int = 2
+
+func _pressed() -> void:
+	_switch = wrapi(_switch + 1, 1, 5)
+	root.beat_filter = 2 ** ( 4 - _switch )
+	label.text = \"offset_test.div_\" + str(_switch)
+	on.visible = false if _switch == 1 else true
+"
+
+[node name="offset_test" type="Node2D" unique_id=995876046]
+process_mode = 1
+script = SubResource("GDScript_emhwf")
+metadata/_edit_vertical_guides_ = [960.0, 632.0, 1292.0, 320.0, 1600.0]
+metadata/_edit_horizontal_guides_ = [804.0, 777.0, 791.0]
+
+[node name="background" type="ColorRect" parent="." unique_id=1615410579]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="contour" type="Sprite2D" parent="." unique_id=973207246]
+process_mode = 4
+material = SubResource("ShaderMaterial_lnp0k")
+position = Vector2(958.99994, 642)
+rotation = -3.1415925
+scale = Vector2(0.6, 1)
+texture = ExtResource("3_qso03")
+
+[node name="mask" type="ColorRect" parent="." unique_id=1567819912]
+process_mode = 4
+clip_children = 1
+offset_left = 294.0
+offset_top = 310.0
+offset_right = 1626.0
+offset_bottom = 744.0
+mouse_filter = 2
+
+[node name="note_multimesh" type="MultiMeshInstance2D" parent="mask" unique_id=55543659]
+process_mode = 4
+position = Vector2(667, 230)
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=17418717]
+offset_left = 959.0
+offset_top = 420.0
+offset_right = 961.0
+offset_bottom = 660.0
+color = Color(0.654902, 0.654902, 0.654902, 1)
+
+[node name="frame" type="Sprite2D" parent="." unique_id=1006304022]
+process_mode = 4
+position = Vector2(962, 527)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_2ldk1")
+
+[node name="title" type="Node2D" parent="." unique_id=744529899]
+process_mode = 4
+
+[node name="plots" type="Sprite2D" parent="title" unique_id=315080608]
+process_mode = 4
+position = Vector2(830, 258)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("5_uma2r")
+
+[node name="header" type="Label" parent="title" unique_id=389371522]
+process_mode = 4
+offset_top = 215.0
+offset_right = 1920.0
+offset_bottom = 239.0
+theme_override_fonts/font = ExtResource("6_hvjuj")
+theme_override_font_sizes/font_size = 20
+text = "offset_test.header"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="title" type="Label" parent="title" unique_id=754327971]
+process_mode = 4
+offset_top = 246.0
+offset_right = 1920.0
+offset_bottom = 318.0
+theme_override_fonts/font = ExtResource("7_m8mf7")
+theme_override_font_sizes/font_size = 50
+text = "offset_test.title"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="subtitle" type="Label" parent="title" unique_id=998352959]
+process_mode = 4
+offset_top = 316.0
+offset_right = 1920.0
+offset_bottom = 338.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("6_hvjuj")
+theme_override_font_sizes/font_size = 17
+text = "offset_test.subtitle"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="confirm" type="Button" parent="." unique_id=87063592 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 906.0
+offset_top = 775.0
+offset_right = 1093.0
+offset_bottom = 859.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("9_60850")
+flat = true
+script = SubResource("GDScript_n53g3")
+root = NodePath("..")
+metadata/_edit_use_anchors_ = true
+
+[node name="tip" type="Node2D" parent="." unique_id=1835557943]
+process_mode = 4
+
+[node name="ring" type="Sprite2D" parent="tip" unique_id=1656255123]
+process_mode = 4
+position = Vector2(477.2, 367.00003)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("10_rrkpw")
+
+[node name="text" type="Label" parent="tip" unique_id=226051501]
+process_mode = 4
+custom_maximum_size = Vector2(916, -1)
+offset_left = 502.2
+offset_top = 355.0
+offset_right = 1418.2
+offset_bottom = 379.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("11_vele0")
+theme_override_font_sizes/font_size = 18
+text = "offset_test.tip"
+autowrap_mode = 2
+
+[node name="offset" type="Node2D" parent="." unique_id=1280663237]
+process_mode = 4
+
+[node name="label" type="Sprite2D" parent="offset" unique_id=755231905]
+process_mode = 4
+position = Vector2(960, 682)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("12_pqg3u")
+
+[node name="value" type="Label" parent="offset" unique_id=1656024423]
+process_mode = 4
+offset_top = 688.0
+offset_right = 1920.0
+offset_bottom = 725.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("13_tc6ub")
+theme_override_font_sizes/font_size = 36
+text = "0 ms"
+horizontal_alignment = 1
+
+[node name="suggested" type="Label" parent="offset" unique_id=1215918370]
+process_mode = 4
+offset_top = 727.0
+offset_right = 1920.0
+offset_bottom = 752.0
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("13_tc6ub")
+theme_override_font_sizes/font_size = 24
+text = "(0 ms)"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="+10" type="Node2D" parent="." unique_id=1272356670]
+process_mode = 4
+
+[node name="button" type="Button" parent="+10" unique_id=1668218415 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 514.0
+offset_top = 660.0
+offset_right = 715.0
+offset_bottom = 816.66675
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("14_ueeem")
+flat = true
+script = SubResource("GDScript_wlyqo")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="+10" unique_id=1357498894]
+process_mode = 4
+offset_left = 516.0
+offset_top = 690.0
+offset_right = 632.0
+offset_bottom = 724.0
+theme_override_fonts/font = ExtResource("13_tc6ub")
+theme_override_font_sizes/font_size = 31
+text = "+10"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="+1" type="Node2D" parent="." unique_id=1481645948]
+process_mode = 4
+
+[node name="button" type="Button" parent="+1" unique_id=2031629206 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 681.0
+offset_top = 660.0
+offset_right = 882.0
+offset_bottom = 816.66675
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("14_ueeem")
+flat = true
+script = SubResource("GDScript_wvhbo")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="+1" unique_id=944412884]
+process_mode = 4
+offset_left = 683.0
+offset_top = 690.0
+offset_right = 799.0
+offset_bottom = 724.0
+theme_override_fonts/font = ExtResource("13_tc6ub")
+theme_override_font_sizes/font_size = 31
+text = "+1"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="-1" type="Node2D" parent="." unique_id=1393364078]
+process_mode = 4
+
+[node name="button" type="Button" parent="-1" unique_id=314556269 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 1118.0
+offset_top = 660.0
+offset_right = 1319.0
+offset_bottom = 816.66675
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("14_ueeem")
+flat = true
+script = SubResource("GDScript_ifow5")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="-1" unique_id=800184058]
+process_mode = 4
+offset_left = 1120.0
+offset_top = 690.0
+offset_right = 1236.0
+offset_bottom = 724.0
+theme_override_fonts/font = ExtResource("13_tc6ub")
+theme_override_font_sizes/font_size = 31
+text = "-1"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="-10" type="Node2D" parent="." unique_id=1769716579]
+process_mode = 4
+
+[node name="button" type="Button" parent="-10" unique_id=265674013 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 1289.0
+offset_top = 660.0
+offset_right = 1490.0
+offset_bottom = 816.66675
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("14_ueeem")
+flat = true
+script = SubResource("GDScript_abi3o")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="-10" unique_id=1262630287]
+process_mode = 4
+offset_left = 1291.0
+offset_top = 690.0
+offset_right = 1407.0
+offset_bottom = 724.0
+theme_override_fonts/font = ExtResource("13_tc6ub")
+theme_override_font_sizes/font_size = 31
+text = "-10"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="switch_sound" type="Node2D" parent="." unique_id=1775838896]
+process_mode = 4
+position = Vector2(-1, 0)
+
+[node name="text" type="Label" parent="switch_sound" unique_id=1286508203]
+process_mode = 4
+offset_left = 696.1
+offset_top = 774.0
+offset_right = 1208.1
+offset_bottom = 805.0
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("7_m8mf7")
+theme_override_font_sizes/font_size = 27
+text = "offset_test.sound_0"
+metadata/_edit_use_anchors_ = true
+
+[node name="frame" type="Sprite2D" parent="switch_sound" unique_id=391927818]
+process_mode = 4
+position = Vector2(633.1, 791.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("15_jnsas")
+
+[node name="on" type="Sprite2D" parent="switch_sound" unique_id=2002133063]
+process_mode = 4
+visible = false
+position = Vector2(633.1, 791.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("16_1pxok")
+
+[node name="button" type="Button" parent="switch_sound" unique_id=1163348596 node_paths=PackedStringArray("root", "label", "on")]
+process_mode = 1
+offset_left = 593.1
+offset_top = 751.1
+offset_right = 673.1
+offset_bottom = 831.1
+flat = true
+script = SubResource("GDScript_348ts")
+root = NodePath("../..")
+label = NodePath("../text")
+on = NodePath("../on")
+metadata/_edit_use_anchors_ = true
+
+[node name="switch_filter" type="Node2D" parent="." unique_id=1152275064]
+process_mode = 4
+position = Vector2(-1, 0)
+
+[node name="text" type="Label" parent="switch_filter" unique_id=1468679370]
+process_mode = 4
+offset_left = 720.0
+offset_top = 774.1
+offset_right = 1232.0
+offset_bottom = 805.1
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("7_m8mf7")
+theme_override_font_sizes/font_size = 27
+text = "offset_test.div_2"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="frame" type="Sprite2D" parent="switch_filter" unique_id=1788951909]
+process_mode = 4
+position = Vector2(1293, 791.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("15_jnsas")
+
+[node name="on" type="Sprite2D" parent="switch_filter" unique_id=1783585603]
+process_mode = 4
+position = Vector2(1293, 791.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("16_1pxok")
+
+[node name="button" type="Button" parent="switch_filter" unique_id=1737967240 node_paths=PackedStringArray("root", "label", "on")]
+process_mode = 1
+offset_left = 1253.0
+offset_top = 751.1
+offset_right = 1333.0
+offset_bottom = 831.1
+flat = true
+script = SubResource("GDScript_xeyld")
+root = NodePath("../..")
+label = NodePath("../text")
+on = NodePath("../on")
+metadata/_edit_use_anchors_ = true

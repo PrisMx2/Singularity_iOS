@@ -1,0 +1,154 @@
+keys,en,zh_CN,ja
+
+generic.on,"ON","开启","オン"
+generic.off,"OFF","关闭","オフ"
+generic.notice,"NOTICE","提示","お知らせ"
+generic.warning,"WARNING","警告","警告"
+
+generic.confirm,"Confirm","确认","確認"
+generic.confirm.tip," ","Confirm","Confirm"
+generic.cancel,"Cancel","取消","キャンセル"
+generic.cancel.tip," ","Cancel","Cancel"
+generic.copy,"Copy","复制","コピー"
+generic.copy.tip," ","Copy","Copy"
+
+generic.unknown,"This feature is not supported in the current version.","当前版本暂不支持该功能。","この機能は現在のバージョンではサポートされておりません。"
+
+title.headphone.title,"Best experienced with headphones","佩戴耳机以获得最佳体验","ヘッドホンで最高の体験を"
+title.headphone.subtitle," ","For the best experience, please use headphones.","For the best experience, please use headphones."
+
+title.epilepsy.title,"EPILEPSY WARNING","光敏性癫痫警告","光感受性発作警告"
+title.epilepsy.subtitle," ","EPILEPSY WARNING","EPILEPSY WARNING"
+title.epilepsy.readme,"Please read before playing","警告：请在游戏前阅读","警告：プレイ前に必ずお読みください"
+title.epilepsy.text,"A very small number of people may experience epileptic seizures when viewing certain images, including\nflashing lights or strobing patterns present in game visuals. Seizures may occur even in individuals with\nno prior history of epilepsy, who could have undiagnosed photosensitive epilepsy.\n\nSymptoms may include dizziness, visual disturbances, eye‑facial twitching, limb convulsions,\nloss of consciousness, and disorientation.\n\nIf you or any family member has a history of epilepsy, consult a doctor before playing. Should you experience\nany of the above symptoms during gameplay, stop playing immediately and seek medical attention.\n\nChildren and adolescents are more susceptible to such seizures. Guardians should keep close watch.\n\nRisk‑reduction tips: Play in a well‑lit room, maintain adequate distance from the screen.\nAvoid playing while fatigued or drowsy. Take regular breaks every hour.","有极少数人在观看某些影像时，可能突发癫痫发作，包括游戏画面中的闪光、频闪图案。即使既往没有癫痫病史，也有可\n能出现未被确诊的光敏性癫痫。\n\n发作症状包括：头晕、视物异常、眼部或面部抽动、肢体抽搐、意识丧失、方向感混乱。\n\n若您或家人有癫痫相关病史，请游玩前咨询医生。游玩时一旦出现以上任意症状，请立刻停止游戏，并就医。\n\n儿童与青少年更容易出现相关发作，请监护人留意。\n\n降低风险建议：在明亮环境游玩，与屏幕保持足够距离，避免疲劳、困倦状态下游戏，每小时适当休息。","プレイ前に必ずお読みください\n\n映像の閃光やちらつき模様などにより、稀にてんかん発作を引き起こす場合があります。過去にてんかんの既往歴\nがない方でも、未診断の光感受性てんかんを発症する可能性があります。\n\n発作の症状には、めまい、視覚異常、目や顔の痙攣、手足のけいれん、意識喪失、感覚の混乱などがあります。\n\nご自身またはご家族にてんかんの既往がある方は、プレイ前に医師にご相談ください。プレイ中に上記の症状が現れた\n場合は、直ちにプレイを中止し、医療機関を受診してください。\n\n子どもや青少年は発作を起こしやすいため、保護者の方は十分にご注意ください。\n\nリスクを抑えるためのアドバイス：明るい環境でプレイし、画面から十分な距離を保ってください。疲労や眠い状態\nでのプレイを避け、1 時間ごとに適度な休憩を取ってください。"
+
+title.presents,"PRESENTED BY","出品","制作"
+
+title.enter,"T O U C H   T O   S T A R T","点   击   任   意   处   开   始","タ  ッ  プ  し  て  ス  タ  ー  ト"
+title.tip,"Test build – not indicative of final quality","测试包体，不代表最终品质","テスト版であり、最終品質を保証するものではありません"
+
+login.header,"W E L C O M E","欢 迎 登 录","よ う こ そ"
+login.title,"Enter username","请键入您的用户名","ユーザー名を入力"
+login.subtitle," ","Please Enter Username","Please Enter Your Username"
+
+login.hint,"Enter Your Username","请输入用户名","ユーザー名を入力してください"
+login.too_short,"Username must be at least 4 characters.","用户名至少需要4个字符。","ユーザー名は少なくとも4文字必要です。"
+
+login.verify.fail,"Failed","验证失败","検証失敗"
+login.verify.fail.disc,"If you confirm you have testing eligibility, please submit the device fingerprint.\nThe fingerprint is generated from your nickname,\nAnd the same nickname must be used for next verification.","如确认有测试资格，请提交设备指纹。\n指纹由您的昵称生成，下次验证需使用相同昵称。","テスト資格を確認したら、デバイス指紋を提出してください。\n指紋はニックネームから生成され、次回の検証には同じニックネームを使用してください。"
+
+login.connection.fail,"Connection failure","连接失败","接続失敗"
+login.connection.fail.disc,"Connection failure, status code:","连接失败，状态码：","接続失敗、ステータスコード："
+
+main.story.text,"STORY","故事","ストーリー"
+main.story.subtext," ","STORY","STORY"
+main.shop,"SHOP","商店","ショップ"
+main.files,"FILES","档案","ファイル"
+
+main.explore.text,"EXPLORE","探索","探索"
+main.explore.subtext," ","EXPLORE","EXPLORE"
+
+chapter_confirm.enter.text,"ENTER","进入","進む"
+chapter_confirm.enter.subtext," ","ENTER","ENTER"
+
+chapter.progress,"Completed:","已完成：","完了："
+
+chapter.singles.title_main,"Shattered Echoes","破碎的回响","砕けた残響"
+chapter.singles.title_tip,"The Past","The Past","The Past"
+chapter.singles.title_en," ","// Shattered Echoes","// Shattered Echoes"
+chapter.singles.context,"Can you hear the souls that cry?\nCan you recall the time that flows?"
+
+chapter.preface.title_main,"Lost One","遗孤","ロストワン"
+chapter.preface.title_tip,"Preface","序章","プロローグ"
+chapter.preface.title_en," ","Preface","Preface"
+chapter.preface.context,"Are you ready for this [ Known Voyage ] ?","准备好迎接这场 [ 可知 ] 的旅途了吗？","この [ 已知 ] の旅路に、君は備えているか？"
+
+chapter.chapter_1.title_main,"Night’s Eternity · Day’s Infinity","极夜·永昼","極夜·永昼"
+chapter.chapter_1.title_tip,"Chapter 1","第一章","第一章"
+chapter.chapter_1.title_en," ","Chapter 1","Chapter 1"
+chapter.chapter_1.context,"Preview Content - Stay Tuned","前瞻内容，敬请期待","予告コンテンツ、お楽しみに"
+
+selection.settings,"SETTINGS","游玩设置","ゲーム設定"
+selection.sorting_0,"DEFAULT","默认排序","デフォルト順"
+selection.sorting_1,"DIFFICULTY","难度排序","難易度順"
+selection.sorting_2,"RANK","评级排序","レーティング"
+
+unlock.title,"Required","解锁条件","解除条件"
+
+unlock.play,"Explore {0}","探索 {0}","探索 {0}"
+unlock.reach_rank,"Reach a rank of {1} in {0}","在 {0} 达到 {1} 评级","{0} で {1} ランクを達成"
+
+pv.challenging,"CHAPTER CHALLENGE SONG","章节挑战曲目","チャプター挑戦曲"
+
+player.quit,"QUIT","退出","終了"
+player.resume,"RESUME","继续","続ける"
+player.restart,"RESTART","重新开始","リスタート"
+
+settings.autoplay,"Autoplay","自动播放","オートプレイ"
+settings.autoplay.disc,"Automatically play all notes, not counted toward score.","自动演奏所有音符，不计入成绩。","すべてのノーツを自動演奏し、スコアには反映されません。"
+settings.judgement_method,"Judgement","判定方式","判定方式"
+settings.judgement_method_0,"Nearest","近邻","近傍"
+settings.judgement_method_1,"Order","顺序","順序"
+settings.judgement_method_2,"Horizontal","水平","水平"
+settings.judgement_method.disc,"Nearest: Select the Note closest to the current time point.\nOrder: Select the earliest Note within the judgment range.\nHorizontal: Select the Note with the smallest horizontal distance to the touch point.","近邻：选择距离当前时间点最近的Note。\n顺序：选择判定范围内最早的Note。\n水平：选择与触点水平距离最小的Note。","近傍：現在の時点に最も近いNoteを選択します。\n順序：判定範囲内で最も早いNoteを選択します。\n水平：タッチポイントとの水平距離が最も小さいNoteを選択します。"
+settings.offset_test,"Offset","延迟调整","タイミング調整"
+settings.offset_test.disc,"Due to plugin limitations, audio latency may be very high. \nWe sincerely apologize if this affects your gaming experience.","由于插件限制，音频延迟可能很高。\n若对您的游戏体验产生影响，我们十分抱歉。","プラグインの制限により、オーディオ遅延が大きくなる可能性があります。\nゲーム体験に影響が出る場合、大変申し訳ございません。"
+settings.offset,"Offset Test","点击进入延迟调整","タップで調整画面へ"
+settings.music_offset,"Audio offset","音频延迟","オフセット"
+settings.judgement_offset,"Touch offset","判定延迟","タップタイミング"
+settings.judgement_offset.disc,"Adds an extra offset to the judgment window for Tap/Hold.\ntypically used to compensate for touch latency.","进行Tap/Hold的判定时，额外加在判定区间上，一般用于抵消触摸延迟。","Tap/Holdの判定時に、判定区間に追加でオフセットを加えます。\n通常はタッチ遅延を相殺するために使用します。"
+settings.display_el,"Display Early/Late","显示Early/Late","アーリー/レイト表示"
+settings.effect_size,"Hit Effect Size","打击特效大小","ヒットエフェクトサイズ"
+settings.judgement_rate,"Judgement Rate","判定回报率","判定フィードバックレート",
+settings.judgement_rate.disc,"Frequency of Drag/Flick/Auto/Miss judgments.\nNot recommended to change unless on entry-level processors.","进行Drag/Flick/Auto/Miss判定的频率。\n除非是入门处理器，否则不建议更改。","Drag/Flick/Auto/Missの判定頻度。\nエントリー向けプロセッサでない限り、変更は推奨しません。"
+settings.music_volume,"Music Volume","音乐音量","音楽音量"
+settings.effect_volume,"Hit Sound Volume","打击音效音量","ヒットサウンド音量"
+settings.ui_volume,"UI Sound Volume","界面音效音量","UIサウンド音量"
+settings.bgm_volume,"Background Music Volume","背景音乐音量","背景音楽の音量"
+settings.max_fps,"Max FPS","最大帧数","最大フレームレート"
+settings.anti_aliasing,"Anti-aliasing","抗锯齿","アンチエイリアシング"
+settings.anti_aliasing.disc,"Use 4x MSAA for anti-aliasing.","使用4x MSAA进行抗锯齿。","4x MSAAでアンチエイリアスを有効にします。"
+settings.low_resolution,"Low resolution","低分辨率","低解像度モード"
+settings.low_resolution.disc,"Reduces the rendering resolution of the gameplay screen to 75%.","将游玩界面的渲染分辨率降低到75%。","プレイ画面のレンダリング解像度を75%に低下させます。"
+settings.thanks,"Info","信息","情報"
+settings.credits,"Credits","关于我们","クレジット"
+settings.licence,"Licence","许可证","ライセンス"
+settings.reset,"Reset","重置","リセット"
+settings.reset_settings,"Reset All Settings","重置所有设置","全設定をリセット"
+settings.reset_settings.warning,"Confirm reset all settings?","确认重置所有设置？","すべての設定をリセットしてもよろしいですか？"
+
+offset_test.header,"S E T T I N G","设 置","設 定"
+offset_test.title,"Offset Test","延迟调整","オフセットテスト"
+offset_test.subtitle," ","Offset Test","Offset Test"
+
+offset_test.tip,"When the music reaches the fourth beat, tap the screen and adjust the delay value so that the beat line aligns as closely as possible with the reference line.","在音乐进行到第四拍时，点击屏幕并调节延迟数值，使节拍线与参考线尽量重合。","音楽が4拍目に達したら、画面をタップし、遅延値を調整して、ビートラインが参照ラインにできるだけ重なるようにしてください。"
+offset_test.sound_0,"OFF","关闭","オフ"
+offset_test.sound_1,"All Sounds","全部音效","全ての効果音"
+offset_test.sound_2,"Notes Only","仅限Note","Noteのみ"
+offset_test.sound_3,"Touch Only","仅限点击","タップのみ"
+offset_test.div_1,"OFF","关闭","オフ"
+offset_test.div_2,"1/4 Note","4 分音符","4 分音符"
+offset_test.div_3,"1/8 Note","8 分音符","8 分音符"
+offset_test.div_4,"1/16 Note","16 分音符","16 分音符"
+
+char.shio,"Shio","汐","汐"
+char.shio.sub," ","-- Shio","-- Shio"
+
+credits.planning,"Planning","策划","企画"
+credits.co_planning,"Co-Planning","副策","企画補佐"
+credits.programming,"Programming","程序","プログラム"
+credits.chart_design,"Chart Design","谱师组","譜面制作チーム"
+credits.ui,"UI","UI","UI"
+credits.ux,"UX","UX","UX"
+credits.composer,"Composer","曲师组","作曲チーム"
+credits.music_provide,"Music Providing","曲目提供","楽曲提供"
+credits.pv,"Video Team","视频制作","映像制作"
+credits.art,"Art Team","美术组","アートチーム"
+credits.external_liaison,"External Liaison","外部联系","外部連絡"
+credits.art_director,"Art Director","美术监督","美術監督"
+credits.music_director,"Music Director","音乐监督","音楽監督"
+credits.sfx,"SFX Production","音效制作","効果音制作"
+credits.operations,"Operations","运营","運営"
+credits.kitagon,"Kitagon Game Studio","猫龙工作室","猫龙工作室"
+credits.special_thanks,"Special Thanks","特别鸣谢","スペシャルサンクス"
+credits.technology,"Technology","技术","技術"

@@ -1,0 +1,105 @@
+; FMOD OGG GDExtension configuration.
+;
+; NOTE on iOS: the extension is built as a *static* library, so godot-cpp and
+; FMOD are NOT linked into it (a static archive never resolves symbols). Both
+; must be provided at the final Xcode link, which is what the ios [dependencies]
+; entries below do. libgodot-cpp.ios.*.xcframework is a build artifact produced
+; next to the extension by .github/workflows/build-ios.yml -- it is not checked
+; into the repository.
+;
+; Deliverable naming (see the SConstruct header comment for the rationale):
+;   - Android's exporter rejects any .so whose file name does not start with
+;     "lib", so linux/android binaries are libfmod_ogg.so / libfmod_ogg_debug.so.
+;   - Each build variant lives in its own directory, so the variant marker in the
+;     file name is just a trailing "_debug" instead of a full
+;     "<platform>.<target>.<arch>" tag.
+;
+; Paths here MUST match what SConstruct installs, and every [dependencies] path
+; must be a res:// absolute path.
+
+[configuration]
+
+entry_symbol = "fmod_ogg_init"
+compatibility_minimum = 4.7
+
+[libraries]
+
+windows.editor.x86_64 = "res://addons/fmod_ogg/libs/windows/fmod_ogg_debug.dll"
+windows.debug.x86_64 = "res://addons/fmod_ogg/libs/windows/fmod_ogg_debug.dll"
+windows.release.x86_64 = "res://addons/fmod_ogg/libs/windows/fmod_ogg.dll"
+
+linux.editor.x86_64 = "res://addons/fmod_ogg/libs/linux/libfmod_ogg_debug.so"
+linux.debug.x86_64 = "res://addons/fmod_ogg/libs/linux/libfmod_ogg_debug.so"
+linux.release.x86_64 = "res://addons/fmod_ogg/libs/linux/libfmod_ogg.so"
+
+macos.editor = "res://addons/fmod_ogg/libs/macos/fmod_ogg_debug.framework"
+macos.debug = "res://addons/fmod_ogg/libs/macos/fmod_ogg_debug.framework"
+macos.release = "res://addons/fmod_ogg/libs/macos/fmod_ogg.framework"
+
+android.debug.arm64 = "res://addons/fmod_ogg/libs/android/arm64/libfmod_ogg_debug.so"
+android.release.arm64 = "res://addons/fmod_ogg/libs/android/arm64/libfmod_ogg.so"
+android.debug.x86_64 = "res://addons/fmod_ogg/libs/android/x86_64/libfmod_ogg_debug.so"
+android.release.x86_64 = "res://addons/fmod_ogg/libs/android/x86_64/libfmod_ogg.so"
+
+ios.debug = "res://addons/fmod_ogg/libs/ios/fmod_ogg_debug.xcframework"
+ios.release = "res://addons/fmod_ogg/libs/ios/fmod_ogg.xcframework"
+
+[dependencies]
+
+windows.editor.x86_64 = {
+"res://addons/fmod_ogg/libs/windows/fmodL.dll": ""
+}
+windows.debug.x86_64 = {
+"res://addons/fmod_ogg/libs/windows/fmodL.dll": ""
+}
+windows.release.x86_64 = {
+"res://addons/fmod_ogg/libs/windows/fmod.dll": ""
+}
+
+linux.editor.x86_64 = {
+"res://addons/fmod_ogg/libs/linux/libfmodL.so": "",
+"res://addons/fmod_ogg/libs/linux/libfmodL.so.14": "",
+"res://addons/fmod_ogg/libs/linux/libfmodL.so.14.6": ""
+}
+linux.debug.x86_64 = {
+"res://addons/fmod_ogg/libs/linux/libfmodL.so": "",
+"res://addons/fmod_ogg/libs/linux/libfmodL.so.14": "",
+"res://addons/fmod_ogg/libs/linux/libfmodL.so.14.6": ""
+}
+linux.release.x86_64 = {
+"res://addons/fmod_ogg/libs/linux/libfmod.so": "",
+"res://addons/fmod_ogg/libs/linux/libfmod.so.14": "",
+"res://addons/fmod_ogg/libs/linux/libfmod.so.14.6": ""
+}
+
+macos.editor = {
+"res://addons/fmod_ogg/libs/macos/libfmodL.dylib": ""
+}
+macos.debug = {
+"res://addons/fmod_ogg/libs/macos/libfmodL.dylib": ""
+}
+macos.release = {
+"res://addons/fmod_ogg/libs/macos/libfmod.dylib": ""
+}
+
+android.debug.arm64 = {
+"res://addons/fmod_ogg/libs/android/arm64/libfmodL.so": ""
+}
+android.release.arm64 = {
+"res://addons/fmod_ogg/libs/android/arm64/libfmod.so": ""
+}
+android.debug.x86_64 = {
+"res://addons/fmod_ogg/libs/android/x86_64/libfmodL.so": ""
+}
+android.release.x86_64 = {
+"res://addons/fmod_ogg/libs/android/x86_64/libfmod.so": ""
+}
+
+ios.debug = {
+"res://addons/fmod_ogg/libs/ios/libgodot-cpp.ios.template_debug.xcframework": "",
+"res://addons/fmod_ogg/libs/ios/libfmodL_iphoneos.a": ""
+}
+ios.release = {
+"res://addons/fmod_ogg/libs/ios/libgodot-cpp.ios.template_release.xcframework": "",
+"res://addons/fmod_ogg/libs/ios/libfmod_iphoneos.a": ""
+}

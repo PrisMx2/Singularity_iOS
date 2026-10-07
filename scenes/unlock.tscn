@@ -1,0 +1,282 @@
+[gd_scene format=3 uid="uid://cq8pu48awk7tq"]
+
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="1_6xo1x"]
+[ext_resource type="Texture2D" uid="uid://c0cawanimg53q" path="res://textures/unlock/title.png" id="3_4n3vj"]
+[ext_resource type="Texture2D" uid="uid://c4af41wt37y60" path="res://textures/main_chapters/grid.png" id="3_m1e48"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="3_rjv1j"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="4_4n3vj"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="4_7uc43"]
+[ext_resource type="Texture2D" uid="uid://qtpj4kyimhk6" path="res://textures/unlock/unlock.png" id="4_o1mj6"]
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="5_o1mj6"]
+[ext_resource type="Texture2D" uid="uid://clq67plffwvwn" path="res://textures/generic/confirm_noglowing.png" id="7_o1mj6"]
+[ext_resource type="Shader" uid="uid://dkpjv042pb1qb" path="res://shaders/player/glitch.gdshader" id="10_m1e48"]
+
+[sub_resource type="GDScript" id="GDScript_crkbu"]
+script/source = "extends Node2D
+
+@onready var unlock_page: VBoxContainer = $center/fit
+
+var _unlock_items: Array = []
+
+var current_chart: Dictionary = {}
+
+func _tween_before() -> void:
+	modulate.a = 0.0
+
+func _tween_enter() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_interval(0.1)
+	tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
+	await tween.finished
+
+func _tween_leave() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 0.0, 0.2).from(1.0)
+	tween.tween_interval(0.1)
+	await tween.finished
+
+func load_data(chart: Dictionary) -> void:
+	current_chart = chart
+	for item: Control in _unlock_items:
+		unlock_page.remove_child(item)
+	var test: Dictionary = chart.test[1]
+	var display: Array = test.display.duplicate_deep()
+	var size: int = display.size()
+	var tree: Array = [ false ]
+	for i: int in size:
+		var data: Array = display[i]
+		data.append_array( [ false, 0.0 ] )
+		var depth: int = data[2]
+		var _size: int = tree.size() - 1
+		if depth > _size:
+			data[4] = true
+			tree.append( [ i, data ] )
+			var rec: Array = tree[depth - 1]
+			rec[1][5] = ( i - rec[0] ) * 97.0 - 5.0
+		elif i > 0:
+			if data[3]:
+				var rec: Array = tree[depth]
+				rec[1][5] = 0.0
+			else:
+				var rec: Array = tree[depth]
+				rec[1][5] = ( i - rec[0] ) * 97.0 - 17.0
+		if depth == _size:
+			tree[depth] = [ i, data ]
+		elif depth < _size:
+			var rec: Array = tree.pop_back()
+			rec[1][5] = 0.0
+	for data: Array in display:
+		var new_item: Control = preload(\"res://scenes/unlock_item.tscn\").instantiate()
+		_unlock_items.append(new_item)
+		unlock_page.add_child(new_item)
+		new_item.load_data(data)
+
+func unlock() -> void:
+	var test: Array = current_chart.test
+	if test[0]:
+		var override: Dictionary = test[1]
+		var execute: Callable = (func(_unlock: Node) -> void:
+			if override.has(\"stardust\"):
+				var consume: int = override.stardust[0].to_int()
+				var stardust: int = DataManager.get_save(\"stardust\") - consume
+				DataManager.set_save(\"stardust\", stardust)
+			var save_data: Dictionary = DataManager.get_save(current_chart.save)
+			save_data.merge({
+				unlock = true
+			}, true)
+			DataManager.set_save(current_chart.save, save_data)
+			DataManager.save_save()
+
+			var autoplay: bool = DataManager.get_save(\"settings.autoplay\")
+			DataManager.set_save(\"settings.autoplay\", false)
+			var player: Node3D = await SceneManager.change_scene_and_leave(\"player\", _unlock)
+			player.load_chart(current_chart)
+			player.load_ui()
+			DataManager.set_save(\"settings.autoplay\", autoplay)
+		)
+		if override.has(\"special\"):
+			await SceneManager.leave(self)
+			var node: Node2D = await SceneManager.insert(\"unlock_sp\")
+			node.load_data(current_chart, execute)
+		else:
+			execute.call(self)
+	else:
+		SceneManager.leave(self)
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uqf5h"]
+shader = ExtResource("1_6xo1x")
+shader_parameter/strength = 2.0
+
+[sub_resource type="GDScript" id="GDScript_wyndt"]
+script/source = "extends Button
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		accept_event()
+"
+
+[sub_resource type="GDScript" id="GDScript_3bh38"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.leave(root)
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhbo"]
+shader = ExtResource("5_o1mj6")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(0.64, 0.64, 0.64, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 0.0
+
+[sub_resource type="GDScript" id="GDScript_uqf5h"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.unlock()
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rjv1j"]
+shader = ExtResource("10_m1e48")
+shader_parameter/frequency = 48.0
+shader_parameter/density = 16.0
+shader_parameter/percent = 0.85
+shader_parameter/strength = 0.007
+
+[node name="unlock" type="Node2D" unique_id=976733192]
+process_mode = 1
+script = SubResource("GDScript_crkbu")
+metadata/_edit_vertical_guides_ = [3201.0]
+
+[node name="buffer_copy" type="BackBufferCopy" parent="." unique_id=422159508]
+process_mode = 4
+copy_mode = 2
+
+[node name="blur" type="ColorRect" parent="." unique_id=1767051785]
+process_mode = 4
+material = SubResource("ShaderMaterial_uqf5h")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="stop_touch" type="Button" parent="." unique_id=330078031]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_right = 1920.0
+offset_bottom = 1080.0
+disabled = true
+flat = true
+script = SubResource("GDScript_wyndt")
+
+[node name="darkness" type="ColorRect" parent="." unique_id=2071341902]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.4509804)
+
+[node name="grid" type="Sprite2D" parent="." unique_id=1568169008]
+process_mode = 4
+position = Vector2(942, 200)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_m1e48")
+
+[node name="edge_light" type="Sprite2D" parent="." unique_id=2040818139]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, -260)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("3_rjv1j")
+
+[node name="back" type="Button" parent="." unique_id=280928070 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 11.0
+offset_right = 415.0
+offset_bottom = 289.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("4_7uc43")
+flat = true
+script = SubResource("GDScript_3bh38")
+root = NodePath("..")
+
+[node name="title" type="Sprite2D" parent="." unique_id=454575687]
+process_mode = 4
+position = Vector2(1690, 128)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_4n3vj")
+
+[node name="text" type="Label" parent="." unique_id=1949802935]
+process_mode = 4
+clip_children = 1
+offset_left = 136.0
+offset_top = 464.0
+offset_right = 316.0
+offset_bottom = 563.0
+theme_override_fonts/font = ExtResource("4_4n3vj")
+theme_override_font_sizes/font_size = 82
+text = "unlock.title"
+vertical_alignment = 1
+
+[node name="disaplay" type="ColorRect" parent="text" unique_id=54072043]
+process_mode = 4
+material = SubResource("ShaderMaterial_wvhbo")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="unlock" type="Sprite2D" parent="." unique_id=328318157]
+process_mode = 4
+position = Vector2(400.00003, 515.00006)
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("4_o1mj6")
+
+[node name="center" type="CenterContainer" parent="." unique_id=1846992444]
+process_mode = 4
+offset_left = 637.0
+offset_right = 637.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="fit" type="VBoxContainer" parent="center" unique_id=144698187]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 97
+
+[node name="confirm" type="Button" parent="." unique_id=1044136817 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 890.00006
+offset_top = 889.0
+offset_right = 1077.0
+offset_bottom = 973.0
+scale = Vector2(0.75, 0.75)
+icon = ExtResource("7_o1mj6")
+flat = true
+script = SubResource("GDScript_uqf5h")
+root = NodePath("..")
+
+[node name="buffer_copy_2" type="BackBufferCopy" parent="." unique_id=1288680536]
+process_mode = 4
+copy_mode = 2
+
+[node name="glitch" type="ColorRect" parent="." unique_id=1490347675]
+process_mode = 4
+material = SubResource("ShaderMaterial_rjv1j")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0.87058824)

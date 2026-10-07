@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" format=3 uid="uid://b1qphw0bnli0r"]
+
+[ext_resource type="FontFile" uid="uid://bbb0pk7itj3m8" path="res://fonts/IosevkaAile_Heavy.ttf" id="1_pndld"]
+[ext_resource type="FontFile" uid="uid://bx60leu3r5cna" path="res://fonts/SourceHanSansCN_Heavy.otf" id="2_4c0in"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_4c0in")])
+base_font = ExtResource("1_pndld")
+spacing_bottom = -5

@@ -1,0 +1,206 @@
+[gd_scene format=3 uid="uid://cpahusewxghv1"]
+
+[ext_resource type="Texture2D" uid="uid://d1k2gfxsupauj" path="res://textures/generic/background.png" id="1_g2svp"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="4_03gy8"]
+[ext_resource type="Texture2D" uid="uid://2nsite21pcwx" path="res://textures/chapter_selection/background_text.png" id="4_26mhb"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="5_0xn8j"]
+[ext_resource type="FontFile" uid="uid://dlvrskx6wh5px" path="res://fonts/IosevkaEtoile_Heavy.ttf" id="5_ua0p4"]
+[ext_resource type="Texture2D" uid="uid://c1mnnyq83ilh3" path="res://textures/chapter_selection/chapters_main.png" id="6_ap4km"]
+[ext_resource type="Texture2D" uid="uid://dps68vyk445ul" path="res://textures/chapter_selection/chapters_sidestory.png" id="7_s7l85"]
+[ext_resource type="Texture2D" uid="uid://bxe8x7pvlfmm2" path="res://textures/chapter_selection/chapters_singles.png" id="8_ngv4h"]
+
+[sub_resource type="GDScript" id="GDScript_0xn8j"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.change_scene(\"main\")
+"
+
+[sub_resource type="GDScript" id="GDScript_gqmmt"]
+script/source = "extends Sprite2D
+
+var tweens: Array = []
+
+func _tween_before() -> void:
+	for tween: Tween in tweens:
+		tween.kill()
+	position.y = 1200.0
+	self_modulate.a = 0.0
+
+func _tween_enter() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(self, \"position:y\", 247.0, 0.4).from(1200.0)
+	tweens.append(tween)
+
+	tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUART)
+	tween.tween_property(self, \"self_modulate:a\", 1.0, 0.25).from(0.0)
+	tweens.append(tween)
+"
+
+[sub_resource type="GDScript" id="GDScript_26mhb"]
+script/source = "extends Node
+
+@onready var main: Button = $main
+@onready var sidestory: Button = $sidestory
+@onready var singles: Button = $singles
+
+var tweens: Array = []
+
+func _tween_before() -> void:
+	for tween: Tween in tweens:
+		tween.kill()
+	main.position.y = 1500.0
+	sidestory.position.y = 1500.0
+	singles.position.y = 1500.0
+
+func _tween_enter() -> void:
+
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_interval(0.15)
+	tween.tween_property(sidestory, \"position:y\", 215.0, 0.5).from(1500.0)
+	tweens.append(tween)
+
+	tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(main, \"position:y\", 178.0, 0.5).from(1500.0)
+	tweens.append(tween)
+
+	tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_interval(0.15)
+	tween.tween_property(singles, \"position:y\", 215.0, 0.5).from(1500.0)
+	tweens.append(tween)
+"
+
+[sub_resource type="GDScript" id="GDScript_dp3eg"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_2lqgn"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.change_scene(\"main_chapters\")
+"
+
+[sub_resource type="GDScript" id="GDScript_mhf34"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var last_scene: String = \"\"
+@export var chapter: String = \"\"
+@export var title_color: Color = Color(1.0, 1.0, 1.0, 1.0)
+
+func _pressed() -> void:
+	var node: Node2D = SceneManager.get_scene(\"song_select\")
+	node.last_scene = last_scene
+	node.chapter = chapter
+	node.chapter_data = DataManager.get_chapter(chapter)
+	node.title_color = title_color
+	await SceneManager.change_scene(\"song_select\")
+	node.reset()
+"
+
+[node name="chapter_selection" type="Node2D" unique_id=1464726482]
+process_mode = 4
+
+[node name="background" type="Sprite2D" parent="." unique_id=625079144]
+process_mode = 4
+position = Vector2(960, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_g2svp")
+
+[node name="edge_light" type="Sprite2D" parent="." unique_id=1007737829]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, -260)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_03gy8")
+
+[node name="back" type="Button" parent="." unique_id=1751914684 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 7.000002
+offset_top = -5.0
+offset_right = 411.0
+offset_bottom = 284.0
+scale = Vector2(0.65, 0.65)
+icon = ExtResource("5_0xn8j")
+flat = true
+script = SubResource("GDScript_0xn8j")
+root = NodePath("..")
+metadata/_edit_use_anchors_ = true
+
+[node name="background_text" type="Sprite2D" parent="." unique_id=144102554]
+process_mode = 1
+position = Vector2(962, 247)
+scale = Vector2(0.52, 0.52)
+texture = ExtResource("4_26mhb")
+script = SubResource("GDScript_gqmmt")
+
+[node name="select_a_chapter" type="Label" parent="." unique_id=18209878]
+process_mode = 4
+offset_top = 100.0
+offset_right = 1920.0
+offset_bottom = 143.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("5_ua0p4")
+theme_override_font_sizes/font_size = 34
+text = "SELECT A CHAPTER"
+horizontal_alignment = 1
+
+[node name="chapter_types" type="Node2D" parent="." unique_id=1629812883]
+process_mode = 1
+script = SubResource("GDScript_26mhb")
+
+[node name="sidestory" type="Button" parent="chapter_types" unique_id=187677154]
+process_mode = 1
+offset_left = 223.0
+offset_top = 215.0
+offset_right = 910.0
+offset_bottom = 1468.0
+scale = Vector2(0.59993356, 0.59993356)
+icon = ExtResource("7_s7l85")
+flat = true
+script = SubResource("GDScript_dp3eg")
+metadata/_edit_use_anchors_ = true
+
+[node name="main" type="Button" parent="chapter_types" unique_id=991146205 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 721.0
+offset_top = 178.0
+offset_right = 1513.0
+offset_bottom = 1528.0
+scale = Vector2(0.61, 0.61)
+icon = ExtResource("6_ap4km")
+flat = true
+script = SubResource("GDScript_2lqgn")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="singles" type="Button" parent="chapter_types" unique_id=1112693562]
+process_mode = 1
+offset_left = 1288.0
+offset_top = 215.0
+offset_right = 1975.0
+offset_bottom = 1468.0
+scale = Vector2(0.59993356, 0.59993356)
+icon = ExtResource("8_ngv4h")
+flat = true
+script = SubResource("GDScript_mhf34")
+last_scene = "chapter_selection"
+chapter = "singles"
+metadata/_edit_use_anchors_ = true

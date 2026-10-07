@@ -1,0 +1,359 @@
+[gd_scene format=3 uid="uid://babsgjxcwvabh"]
+
+[ext_resource type="Texture2D" uid="uid://bnl1xghfljsli" path="res://textures/settings/background.png" id="1_7kvyq"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="3_6dbjw"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="4_g5y2q"]
+[ext_resource type="Texture2D" uid="uid://dav3tyq2u78ya" path="res://textures/settings/frame_top.png" id="5_k00b3"]
+[ext_resource type="Texture2D" uid="uid://kvq1jbw4e3s7" path="res://textures/generic/ruler.png" id="5_oe2nd"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="5_ql1j0"]
+[ext_resource type="Script" uid="uid://dpx0v374tl21e" path="res://scripts/generic_text_anim.gd" id="6_6dbjw"]
+[ext_resource type="Texture2D" uid="uid://ch0uvlk7hdmi7" path="res://textures/settings/title.png" id="7_f1e71"]
+[ext_resource type="Texture2D" uid="uid://cpfpiqmpc1fav" path="res://textures/generic/divider.png" id="7_oe2nd"]
+[ext_resource type="FontVariation" uid="uid://cyswer0i5ipj2" path="res://fonts/IosevkaAileMix.Light.tres" id="8_7kvyq"]
+[ext_resource type="Texture2D" uid="uid://bkol8rd6h0je2" path="res://textures/settings/frame_left.png" id="8_gcetw"]
+[ext_resource type="Texture2D" uid="uid://m26qu1e6742i" path="res://textures/settings/category_playing.png" id="9_i24gk"]
+[ext_resource type="Texture2D" uid="uid://3igm51boh2st" path="res://textures/settings/category_audio.png" id="10_3gwh8"]
+[ext_resource type="Texture2D" uid="uid://crpuk6ol0nkkj" path="res://textures/settings/category_display.png" id="11_q4e06"]
+[ext_resource type="Texture2D" uid="uid://3d0q2hrqq7rx" path="res://textures/settings/category_misc.png" id="12_7kvyq"]
+[ext_resource type="Texture2D" uid="uid://deifvaypk5jyb" path="res://textures/settings/category_pointer.png" id="14_6dg6e"]
+[ext_resource type="Script" uid="uid://bbcleecvi77hc" path="res://scripts/generic_vscroll.gd" id="15_ql1j0"]
+
+[sub_resource type="GDScript" id="GDScript_g5y2q"]
+script/source = "extends Node2D
+
+@onready var pointer: Sprite2D = $category/pointer
+@onready var category: Label = $selected/category
+@onready var settings_page: Array = [
+	$transform/anchor_0,
+	$transform/anchor_1,
+	$transform/anchor_2,
+	$transform/anchor_3
+]
+@onready var settings_data: Array = SettingManager.settings_data
+
+var last_scene: String = \"\"
+
+func _tween_before() -> void:
+	for _type: int in 4:
+		for data: Dictionary in settings_data[_type]:
+			data.read.call()
+
+func load_category(type: int) -> void:
+	for data: Dictionary in settings_data[type]:
+		data.read.call()
+	for _type: int in 4:
+		var page: Control = settings_page[_type]
+		if _type == type:
+			page.visible = true
+			page.process_mode = Node.PROCESS_MODE_PAUSABLE
+		else:
+			page.visible = false
+			page.process_mode = Node.PROCESS_MODE_DISABLED
+	category.set_decrease_override()
+	category.set_increase(SettingManager.settings_dategory[type])
+	pointer.set_value(float(type))
+
+func _ready() -> void:
+	for _type: int in 4:
+		var page: Control = settings_page[_type]
+		var y: float = -192.0
+		for data: Dictionary in settings_data[_type]:
+			var new_item: Node = preload(\"res://scenes/settings_item.tscn\").instantiate()
+			y += 150.0 if data.connected else 192.0
+			new_item.position.y = y
+			page.add_child(new_item)
+			data.item = new_item
+			data.read.call()
+		y += 192.0
+		page.scroll_max = max(y - 813.0, 0.0)
+	load_category(0)
+"
+
+[sub_resource type="GDScript" id="GDScript_7kvyq"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	DataManager.save_save()
+	await SceneManager.change_scene(root.last_scene)
+"
+
+[sub_resource type="GDScript" id="GDScript_qlg0r"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.load_category(0)
+"
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.load_category(1)
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.load_category(2)
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.load_category(3)
+"
+
+[sub_resource type="GDScript" id="GDScript_6dbjw"]
+script/source = "extends Sprite2D
+
+@export var length: float = 240.0
+@export var easing: int = 8
+
+var _value_time: float = 0.0
+var _value_base: float = 0.0
+var _value_target: float = 0.0
+var _value_target_rec: float = 0.0
+
+func _get_time() -> float:
+	return Time.get_ticks_usec() / 1000.0
+
+func _calcuate() -> float:
+	var time: float = _get_time()
+	var progress: float = clampf( ( time - _value_time ) / length, 0.0, 1.0 )
+	progress = Easings.Function[easing].call(progress)
+	var cut: float = _value_base + ( _value_target - _value_base ) * progress
+
+	if _value_target != _value_target_rec:
+		_value_base = cut
+		_value_target = _value_target_rec
+		_value_time = time
+		cut = _calcuate()
+
+	return cut
+
+func set_value(value: float) -> void:
+	_value_target_rec = value
+
+func _process(_delta: float) -> void:
+	position.y = 423.0 + _calcuate() * 120.0
+"
+
+[node name="settings" type="Node2D" unique_id=1119604360]
+process_mode = 1
+script = SubResource("GDScript_g5y2q")
+
+[node name="background" type="Sprite2D" parent="." unique_id=659893126]
+process_mode = 4
+position = Vector2(960, 576)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_7kvyq")
+
+[node name="edge_light" type="Sprite2D" parent="." unique_id=722115192]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, -260)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_g5y2q")
+
+[node name="back" type="Button" parent="." unique_id=1641891890 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 11.0
+offset_right = 415.0
+offset_bottom = 289.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("3_6dbjw")
+flat = true
+script = SubResource("GDScript_7kvyq")
+root = NodePath("..")
+metadata/_edit_use_anchors_ = true
+
+[node name="title" type="Sprite2D" parent="." unique_id=547885663]
+process_mode = 4
+position = Vector2(1784, 95)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("7_f1e71")
+
+[node name="selected" type="ColorRect" parent="." unique_id=1236613763]
+process_mode = 4
+offset_left = 204.0
+offset_top = 207.0
+offset_right = 340.0
+offset_bottom = 237.0
+mouse_filter = 2
+color = Color(0.6, 0.8, 0.9372549, 1)
+
+[node name="category" type="Label" parent="selected" unique_id=1292075077]
+process_mode = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("5_ql1j0")
+theme_override_font_sizes/font_size = 21
+text = "DISPLAY"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("6_6dbjw")
+
+[node name="ruler" type="Sprite2D" parent="." unique_id=1584150503]
+process_mode = 4
+position = Vector2(960.00006, 177)
+scale = Vector2(0.6, 0.5)
+texture = ExtResource("5_oe2nd")
+
+[node name="frame_top" type="Sprite2D" parent="." unique_id=1588301475]
+process_mode = 4
+position = Vector2(1101, 220)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("5_k00b3")
+
+[node name="frame_left" type="Sprite2D" parent="." unique_id=1279147030]
+process_mode = 4
+position = Vector2(74, 631)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("8_gcetw")
+
+[node name="category" type="Node2D" parent="." unique_id=324637972]
+process_mode = 4
+
+[node name="deco" type="Sprite2D" parent="category" unique_id=1669005781]
+process_mode = 4
+position = Vector2(23, 203)
+rotation = -1.5707964
+scale = Vector2(0.6, 0.1)
+texture = ExtResource("7_oe2nd")
+
+[node name="type" type="Label" parent="category" unique_id=1046811907]
+process_mode = 4
+offset_left = 41.0
+offset_top = 192.0
+offset_right = 105.0
+offset_bottom = 213.0
+theme_override_fonts/font = ExtResource("8_7kvyq")
+text = "设置类型"
+
+[node name="playing" type="Button" parent="category" unique_id=1218019615 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 15.0
+offset_top = 363.0
+offset_right = 215.0
+offset_bottom = 563.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("9_i24gk")
+flat = true
+icon_alignment = 1
+script = SubResource("GDScript_qlg0r")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="audio" type="Button" parent="category" unique_id=1925304532 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 15.0
+offset_top = 483.00003
+offset_right = 215.0
+offset_bottom = 683.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("10_3gwh8")
+flat = true
+icon_alignment = 1
+script = SubResource("GDScript_wvhbo")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="display" type="Button" parent="category" unique_id=489854388 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 15.0
+offset_top = 603.0
+offset_right = 215.0
+offset_bottom = 803.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("11_q4e06")
+flat = true
+icon_alignment = 1
+script = SubResource("GDScript_ifow5")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="misc" type="Button" parent="category" unique_id=316136171 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 15.0
+offset_top = 723.0
+offset_right = 215.0
+offset_bottom = 923.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("12_7kvyq")
+flat = true
+icon_alignment = 1
+script = SubResource("GDScript_abi3o")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="pointer" type="Sprite2D" parent="category" unique_id=186959630]
+process_mode = 1
+position = Vector2(150, 423)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("14_6dg6e")
+script = SubResource("GDScript_6dbjw")
+
+[node name="transform" type="Control" parent="." unique_id=1784326709]
+process_mode = 4
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_left = 204.0
+offset_top = 267.0
+offset_right = 1843.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="anchor_0" type="Control" parent="transform" unique_id=1029670079]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 0
+offset_right = 1639.0
+offset_bottom = 813.0
+mouse_filter = 2
+script = ExtResource("15_ql1j0")
+
+[node name="anchor_1" type="Control" parent="transform" unique_id=809879309]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 0
+offset_right = 1639.0
+offset_bottom = 813.0
+mouse_filter = 2
+script = ExtResource("15_ql1j0")
+
+[node name="anchor_2" type="Control" parent="transform" unique_id=1770456154]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 0
+offset_right = 1639.0
+offset_bottom = 813.0
+mouse_filter = 2
+script = ExtResource("15_ql1j0")
+
+[node name="anchor_3" type="Control" parent="transform" unique_id=2088427067]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 0
+offset_right = 1639.0
+offset_bottom = 813.0
+mouse_filter = 2
+script = ExtResource("15_ql1j0")

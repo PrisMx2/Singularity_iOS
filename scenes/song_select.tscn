@@ -1,0 +1,1463 @@
+[gd_scene format=3 uid="uid://bld0dya871cot"]
+
+[ext_resource type="Texture2D" uid="uid://2y27mneaxgw1" path="res://textures/song_select/background.png" id="1_f7aea"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="2_rnl63"]
+[ext_resource type="FontFile" uid="uid://c43k772p3a8c0" path="res://fonts/IosevkaEtoile_ExtraLightItalic.ttf" id="2_rtea6"]
+[ext_resource type="Texture2D" uid="uid://cpfpiqmpc1fav" path="res://textures/generic/divider.png" id="3_rtea6"]
+[ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="4_ibsnk"]
+[ext_resource type="Texture2D" uid="uid://c2bpbhrtd8oo" path="res://textures/generic/explore_plots.png" id="8_cbght"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="8_otu50"]
+[ext_resource type="Texture2D" uid="uid://gwjnwgc4mtl1" path="res://textures/generic/explore_ongoing.png" id="9_46p8o"]
+[ext_resource type="Texture2D" uid="uid://ddcucyn4r1gek" path="res://textures/generic/explore_completed.png" id="10_iw0ol"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="11_pckyg"]
+[ext_resource type="Texture2D" uid="uid://deqfmv10qx1bi" path="res://textures/generic/progress_bar_frame.png" id="11_rnl63"]
+[ext_resource type="PackedScene" uid="uid://dn18jp3rn4mgd" path="res://scenes/stardust.tscn" id="12_tsdmu"]
+[ext_resource type="Texture2D" uid="uid://bx5tf6uegnb7" path="res://textures/song_select/current_selection.png" id="14_vefgq"]
+[ext_resource type="Texture2D" uid="uid://tj3btia86ufa" path="res://textures/song_select/song_frame.png" id="16_dnvbp"]
+[ext_resource type="Texture2D" uid="uid://dvb364gelnaas" path="res://textures/generic/missing_illust.jpg" id="16_dpdup"]
+[ext_resource type="Shader" uid="uid://lhvcka6q0h8" path="res://shaders/ui/clrcle_blur.gdshader" id="19_8fkps"]
+[ext_resource type="Texture2D" uid="uid://yvpgpaiwhbax" path="res://textures/song_select/selected_highlight.png" id="19_pd52e"]
+[ext_resource type="Script" uid="uid://botwor1ubbxtu" path="res://scripts/generic_rotate.gd" id="20_es4y3"]
+[ext_resource type="Texture2D" uid="uid://xqlivpnmmr4u" path="res://textures/song_select/frame.png" id="20_gy22s"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="20_vefgq"]
+[ext_resource type="Shader" uid="uid://bcdc387itvblt" path="res://shaders/ui/edge.gdshader" id="21_xxsld"]
+[ext_resource type="Script" uid="uid://dpx0v374tl21e" path="res://scripts/generic_text_anim.gd" id="22_2aude"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="22_otu50"]
+[ext_resource type="FontFile" uid="uid://c4gs46c5j52of" path="res://fonts/Symvola_Trio_2.ttf" id="23_dpdup"]
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="23_vefgq"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="24_otu50"]
+[ext_resource type="Script" uid="uid://cbl6us0r0toin" path="res://scripts/generic_slice_anim.gd" id="24_tsdmu"]
+[ext_resource type="Texture2D" uid="uid://677rpaqmud5e" path="res://textures/song_select/settings.png" id="25_2a80n"]
+[ext_resource type="Shader" uid="uid://0koppdb0n8j8" path="res://shaders/ui/circle.gdshader" id="25_fnb7a"]
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="25_otu50"]
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="26_jida4"]
+[ext_resource type="Texture2D" uid="uid://dr26t5yimukv7" path="res://textures/song_select/ordering.png" id="26_kxhhx"]
+[ext_resource type="Texture2D" uid="uid://d0ga6hswwndo5" path="res://textures/song_select/difficulty_selection.png" id="26_rnl63"]
+[ext_resource type="Texture2D" uid="uid://cgmquha7w28sy" path="res://textures/song_select/difficulty_arc.png" id="27_1oyvk"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="27_2aude"]
+[ext_resource type="Texture2D" uid="uid://dcn1gms56coya" path="res://textures/generic/ring.png" id="27_jida4"]
+[ext_resource type="PackedScene" uid="uid://kfjuwnut88lx" path="res://scenes/difficulty.tscn" id="28_ul3ih"]
+[ext_resource type="Texture2D" uid="uid://co5wok7dbv0b3" path="res://textures/song_select/lock.png" id="29_tsdmu"]
+[ext_resource type="Script" uid="uid://dtmac32wg1t2w" path="res://scripts/generic_text_scroll.gd" id="30_rnl63"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="31_jida4"]
+[ext_resource type="Texture2D" uid="uid://bt64akllo1l7w" path="res://textures/song_select/arc.png" id="32_ul3ih"]
+
+[sub_resource type="GDScript" id="GDScript_6fkkf"]
+script/source = "extends Node2D
+
+const diff_data: Array = [
+	[\"EASY\", \"TIER #0\", Color(0x99CCEFFF), Color(0x99CCEFFF)],
+	[\"NORMAL\", \"TIER #1\", Color(0xF0C040FF), Color(0xF0C040FF)],
+	[\"HARD\", \"TIER #2\", Color(0xFF5080FF), Color(0xFF5080FF)],
+	[\"ALOOF\", \"TIER #3\", Color(0xCCCCFFFF), Color(0xCCCCFFFF)],
+	[\"EXPR\", \"TIER #4\", Color(0x7EF6AEFF), Color(0x7EF6AEFF)],
+	[\"SPECIAL\", \"TIER #5\", Color(0x8FFFDCFF), Color(0x7CC0FFFF)],
+	[\"UNKNOWN\", \"TIER #?\", Color(0xD3D3D3FF), Color(0xD3D3D3FF)],
+]
+
+@onready var title: Label = $chapter/title
+@onready var title_tip: Label = $chapter/title_tip
+@onready var title_en: Label = $chapter/title_en
+
+@onready var song_selection_anchor: Node2D = $song_selection/anchor
+@onready var song_selection_item: Label = $song_selection/anchor/title
+@onready var song_selected_title: Label = $selected/song/mask/title
+@onready var song_selected_artist: Label = $selected/song/mask/artist
+@onready var song_tag: Label = $song/fit_tag/tag
+@onready var song_title: Label = $song/fit_info/title
+@onready var song_artist: Label = $song/fit_info/artist
+@onready var song_score: Label = $song/personal_best/score
+@onready var song_divider: ColorRect = $song/personal_best/divider
+@onready var song_acc: Label = $song/personal_best/acc_value
+@onready var song_rank: Label = $song/personal_best/rank
+@onready var song_rank_background: ColorRect = $song/personal_best/rank/display
+@onready var diff_selection_anchor: Node2D = $difficulty_selection/rotation/anchor
+@onready var diff_selection_item: Control = $difficulty_selection/rotation/anchor/transform
+@onready var diff_selected: Control = $selected/difficulty/difficulty
+@onready var ongoing: Sprite2D = $chapter/explore/ongoing
+@onready var completed: Sprite2D = $chapter/explore/completed
+@onready var progress: ColorRect = $chapter/progress_bar/frame/value
+@onready var play: Button = $song/play
+@onready var lock: Control = $song/play/lock
+
+var _song_index: int = -1
+var _song_items: Array = []
+
+var _diff_index: int = -1
+var _diff_items: Array = []
+
+var _stable: Array = [ true, true ]
+
+var _preview: AudioStreamPlayer
+var _preview_stream: AudioStreamOggVorbis
+var _preview_stream_status: int = 0
+var _preview_tween: Tween = create_tween()
+var _preview_status: int = 0
+var _focus_record: bool = false
+
+var last_scene: String = \"\"
+
+var chapter: String = \"\"
+var chapter_data: Array = []
+var title_color: Color = Color(1.0, 1.0, 1.0, 1.0)
+
+var current_chart: Dictionary = {}
+
+func _tween_before() -> void:
+	load_chapter()
+	started(0)
+	song_title.set_decrease_override()
+	song_artist.set_decrease_override()
+	song_score.set_value_override(0)
+	song_acc.set_value_override(0)
+	song_rank.set_hide_override()
+
+func _tween_enter() -> void:
+	stopped(0)
+
+func _tween_leave() -> void:
+	await stop_preview()
+	_preview_status = 0
+
+func _ready() -> void:
+	song_selection_anchor.started.connect(started.bind(0))
+	song_selection_anchor.stopped.connect(stopped.bind(0))
+	diff_selection_anchor.started.connect(started.bind(1))
+	diff_selection_anchor.stopped.connect(stopped.bind(1))
+
+	_preview = AudioStreamPlayer.new()
+	add_child(_preview)
+	_preview.bus = \"bgm\"
+	_preview.volume_linear = 0.0
+
+func started(key: int) -> void:
+	_stable[key] = false
+	song_tag.set_value(false)
+	song_title.set_decrease()
+	song_artist.set_decrease()
+	song_score.set_value(0)
+	song_acc.set_value(0)
+	song_rank.set_hide()
+	stop_preview()
+
+func stopped(key: int) -> void:
+	_stable[key] = true
+	if _stable[0] and _stable[1]:
+
+		var test: Array = current_chart.test
+		var overrides: Dictionary = {} if test.is_empty() else test[1]
+		lock.visible = not test.is_empty()
+
+		var tag: String = current_chart.tag
+		if overrides.has(\"tag\"):
+			tag = overrides.tag[0]
+		if tag.length() > 0:
+			song_tag.text = tag
+			song_tag.set_value(true)
+		if overrides.has(\"title\"):
+			song_title.set_increase(overrides.title[0])
+		else:
+			song_title.set_increase(current_chart.title)
+		if overrides.has(\"artist\"):
+			song_artist.set_increase(overrides.artist[0])
+		else:
+			song_artist.set_increase(current_chart.artist)
+
+		if current_chart.save:
+			var save: Dictionary = DataManager.get_save(current_chart.save)
+			song_score.set_value(save.score)
+			song_acc.set_value(save.accuracy)
+			song_rank.text = DataManager.rank[save.rank]
+			var color: Array = DataManager.rank_color[save.rank]
+			var _material: ShaderMaterial = song_rank_background.material
+			_material.set_shader_parameter(\"color_a\", color[0])
+			_material.set_shader_parameter(\"color_b\", color[1])
+			song_rank.set_unhide()
+		else:
+			song_score.set_value(randi_range(0, 99999999))
+			song_acc.set_value(randf_range(0.0, 9.99))
+			song_rank.set_hide()
+
+		var song_count: int = 0
+		var clear_count: int = 0
+
+		for song_data: Dictionary in chapter_data:
+			song_count += 1 
+			for chart: Dictionary in song_data.chart:
+				if chart.save:
+					var data: Dictionary = DataManager.get_save(chart.save)
+					if data.rank > 0:
+						clear_count += 1
+					break
+
+		var percent: float = float(clear_count) / song_count if song_count > 0 else 0.0
+		progress.set_value_break(percent)
+
+		if clear_count == song_count:
+			ongoing.visible = false
+			completed.visible = true
+		else:
+			ongoing.visible = true
+			completed.visible = false
+
+		if current_chart.path and ( test.is_empty() or not overrides.has(\"hide_preview\") ):
+			var song_path: String = current_chart.path
+			var chart_path: String = song_path.path_join(current_chart.id)
+			var music_path: String = chart_path.path_join(\"music.ogg\")
+			if not ResourceLoader.exists(music_path):
+				music_path = song_path.path_join(\"music.ogg\")
+			WorkerThreadPool.add_task(thread_preview.bind(music_path))
+
+func unload_illust() -> void:
+	for song_data: Dictionary in chapter_data:
+		for chart: Dictionary in song_data.chart:
+			if current_chart != chart:
+				chart.erase(\"illust_image\")
+
+func reset() -> void:
+	song_selection_anchor.reset()
+	diff_selection_anchor.reset()
+
+func load_chapter() -> void:
+
+	_song_index = -1
+	_diff_index = -1
+
+	title.add_theme_color_override(\"font_color\", title_color)
+	title.text = \"chapter.\" + chapter + \".title_main\"
+	title_tip.text = \"chapter.\" + chapter + \".title_tip\"
+	title_en.text = \"chapter.\" + chapter + \".title_en\"
+
+	chapter_data = DataManager.get_chapter(chapter).duplicate_deep()
+	for i: int in range(chapter_data.size()-1, -1, -1):
+		var chart_list: Array = chapter_data[i].chart
+		for j: int in range(chart_list.size()-1, -1, -1):
+			var chart: Dictionary = chart_list[j]
+			chart.test = []
+			if chart.save:
+				var save_data: Dictionary = DataManager.get_save(chart.save)
+				if not save_data.unlock:
+					var test: Array = Unlock.test_visibility(chart.save)
+					if not test.is_empty() and not test[0]:
+						chart_list.remove_at(j)
+					else:
+						test = Unlock.test_accessibility(chart.save)
+						if test.is_empty():
+							chart.test = []
+							save_data.merge({
+								unlock = true
+							}, true)
+							DataManager.set_save(chart.save, save_data)
+						else:
+							chart.test = test
+		if chart_list.size() == 0:
+			chapter_data.remove_at(i)
+	var rotate_limit: Vector2 = Vector2( 1.0 - chapter_data.size(), 0.0 )
+	rotate_limit += Vector2(-0.5, 0.5)
+	song_selection_anchor.rotate_limit = rotate_limit
+
+	for item: Label in _song_items:
+		song_selection_anchor.remove_child(item)
+	_song_items = []
+	for i: int in 12:
+		var new_item: Label = song_selection_item.duplicate()
+		new_item.rotation = TAU * i / 12.0
+		new_item.visible = true
+		_song_items.append(new_item)
+		song_selection_anchor.add_child(new_item)
+
+	for item: Control in _diff_items:
+		diff_selection_anchor.remove_child(item)
+	_diff_items = []
+	for i: int in 20:
+		var new_item: Control = diff_selection_item.duplicate()
+		new_item.offset_transform_rotation = TAU * i / 20.0
+		new_item.visible = true
+		_diff_items.append(new_item)
+		diff_selection_anchor.add_child(new_item)
+
+	load_illust()
+
+func load_illust() -> void:
+	for song_data: Dictionary in chapter_data:
+		for chart: Dictionary in song_data.chart:
+			if chart.has(\"illust_image\"):
+				continue
+			if chart.path:
+				var chart_illust_path: String = chart.path.path_join(chart.id + \".png\")
+				var song_illust_path: String = chart.path.path_join(\"illust.png\")
+				if ResourceLoader.exists(chart_illust_path):
+					chart.illust_image = ResourceLoader.load(chart_illust_path)
+					continue
+				elif ResourceLoader.exists(song_illust_path):
+					chart.illust_image = ResourceLoader.load(song_illust_path)
+					continue
+			chart.illust_image = preload(\"res://textures/generic/missing_illust.jpg\")
+
+func stop() -> bool:
+	if current_chart.test.is_empty():
+		song_selection_anchor.stop()
+		diff_selection_anchor.stop()
+		return true
+	else:
+		return false
+
+func stop_preview() -> bool:
+	var rec: int = _preview_status
+	_preview_status = -( absi(rec) + 1 )
+	if _preview_tween.is_running():
+		if rec >= 0:
+			_preview_tween.kill()
+		else:
+			return false
+	_preview_tween = create_tween()
+	_preview_tween.set_ease(Tween.EASE_IN)
+	_preview_tween.set_trans(Tween.TRANS_SINE)
+	_preview_tween.tween_property(_preview, \"volume_linear\", 0.0, 0.5)
+	await _preview_tween.finished
+	_preview.stop()
+	return true
+
+func play_preview(stream: AudioStreamOggVorbis) -> bool:
+	var rec: int = _preview_status
+	_preview_status = ( absi(rec) + 1 ) * signi(rec)
+	rec = _preview_status
+	if _preview_tween.is_running():
+		await _preview_tween.finished
+	if _preview_status == rec and is_inside_tree():
+		_preview_status = 0
+	else:
+		return false
+	_preview.stream = stream
+	_preview.play(current_chart.preview.begin / 1000.0)
+	_preview_tween = create_tween()
+	_preview_tween.set_ease(Tween.EASE_IN)
+	_preview_tween.set_trans(Tween.TRANS_SINE)
+	_preview_tween.tween_property(_preview, \"volume_linear\", 1.0, 0.5)
+	await _preview_tween.finished
+	return true
+
+func thread_preview(path: String) -> void:
+	_preview_stream_status += 1
+	var rec: int = _preview_stream_status
+	_preview_stream = AudioStreamOggVorbis.load_from_file(path)
+	if _preview_stream_status == rec:
+		call_deferred(\"play_preview\",_preview_stream)
+
+func _notification(what: int) -> void:
+	if what == MainLoop.NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_focus_record = _preview.playing
+		_preview.stream_paused = true
+	elif what == MainLoop.NOTIFICATION_APPLICATION_FOCUS_IN:
+		if _focus_record:
+			await get_tree().process_frame
+			_preview.stream_paused = false
+
+func _process(_delta: float) -> void:
+
+	if chapter_data.is_empty():
+		return
+
+	for item: Label in _song_items:
+		item.text = \"\"
+
+	for _index: int in chapter_data.size():
+		var index: int = _index + song_selection_anchor.index
+		var chart_list: Array = chapter_data[_index].chart
+		if index >= -4 and index <= 4:
+			var item_index: int = wrapi(_index, 0, 12)
+			var chart: Dictionary = chart_list[0]
+
+			var test: Array = chart.test
+			var overrides: Dictionary = {} if test.is_empty() else test[1]
+
+			if overrides.has(\"title\"):
+				_song_items[item_index].text = overrides.title[0]
+			else:
+				_song_items[item_index].text = chart.title
+			if index == 0 and _song_index != _index:
+				_song_index = _index
+				_diff_index = -1
+				var rotate_limit: Vector2 = Vector2( 1.0 - chart_list.size(), 0.0 )
+				rotate_limit += Vector2(-0.5, 0.5)
+				diff_selection_anchor.rotate_limit = rotate_limit
+
+	for item: Control in _diff_items:
+		item.visible = false
+
+	var current_chart_list: Array = chapter_data[_song_index].chart
+	for _index: int in current_chart_list.size():
+		var index: int = _index + diff_selection_anchor.index
+		var chart: Dictionary = current_chart_list[_index]
+
+		var test: Array = chart.test
+		var overrides: Dictionary = {} if test.is_empty() else test[1]
+
+		var diff: Dictionary = chart.difficulty
+		if overrides.has(\"difficulty\"):
+			diff.override = overrides.difficulty[0]
+		var display: Array = diff_data[diff.index]
+		diff.display = display
+		if index >= -6 and index <= 6:
+			var item_index: int = wrapi(_index, 0, 20)
+			var item: Control = _diff_items[item_index]
+			item.visible = true
+			item.set_difficulty(diff)
+			if index == 0 and _diff_index != _index:
+				_diff_index = _index
+				current_chart = chart
+
+				song_selected_title.load_text(chart.title)
+				song_selected_artist.load_text(chart.artist)
+
+				diff_selected.set_difficulty(diff)
+				var _material: ShaderMaterial = song_divider.material
+				_material.set_shader_parameter(\"color_a\", display[2])
+				_material.set_shader_parameter(\"color_b\", display[3])
+
+				lock.visible = not test.is_empty()
+				if overrides.has(\"title\"):
+					song_selected_title.load_text(overrides.title[0])
+				if overrides.has(\"artist\"):
+					song_selected_artist.load_text(overrides.artist[0])
+
+	var test: Array = current_chart.test
+	var overrides: Dictionary = {} if test.is_empty() else test[1]
+	if test.is_empty() or not overrides.has(\"hide_illust\"):
+		play.icon = current_chart.illust_image
+	else:
+		play.icon = preload(\"res://textures/generic/unknown_illust.png\")
+
+	if _preview.playing and _preview_status == 0:
+		var time: float = _preview.get_playback_position() * 1000.0
+		if current_chart.preview.end - time < 500.0:
+			if await stop_preview():
+				play_preview(_preview_stream)
+"
+
+[sub_resource type="GDScript" id="GDScript_crkbu"]
+script/source = "extends \"res://scripts/generic_progress_bar.gd\"
+
+@export var label: Label
+
+func _process(_delta: float) -> void:
+	label.text = str(int(_update() * 100.0)) + \"%\"
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vefgq"]
+shader = ExtResource("25_fnb7a")
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Button
+
+@export var root: Node
+
+@onready var center: Vector2 = size / 2.0
+
+var _touch_index: int = -1
+
+func _tween_break() -> void:
+	_touch_index = -1
+	button_up.emit()
+
+func _pressed() -> void:
+	if root.stop():
+		if root.chapter == \"editor\":
+			var editor: Node2D = await SceneManager.change_scene(\"editor\")
+			var chart_info: Dictionary = root.current_chart
+			editor.load_chart(chart_info)
+		else:
+			var player: Node3D = await SceneManager.change_scene(\"player\")
+			var chart_info: Dictionary = root.current_chart
+			player.load_chart(chart_info)
+			player.load_ui()
+		root.unload_illust()
+	else:
+		var unlock: Node2D = await SceneManager.insert(\"unlock\")
+		unlock.load_data(root.current_chart)
+
+func _ready() -> void:
+	disabled = true
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	add_theme_color_override(\"icon_disabled_color\", Color.WHITE)
+	connect(\"pressed\", func():
+		SoundManager.play(\"play\")
+		_pressed()
+	)
+	connect(\"button_down\", func():
+		self_modulate.v = 0.8
+	)
+	connect(\"button_up\", func():
+		self_modulate.v = 1.0
+	)
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed == true:
+			if _touch_index == -1:
+				if ( event.position - center ).length() > center.x:
+					return
+				_touch_index = event.index
+				button_down.emit()
+				accept_event()
+		elif event.index == _touch_index:
+			_touch_index = -1
+			pressed.emit()
+			button_up.emit()
+			accept_event()
+	elif event is InputEventScreenDrag:
+		if event.index == _touch_index:
+			if ( event.position - center ).length() > center.x:
+				_touch_index = -1
+				button_up.emit()
+			accept_event()
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fqclb"]
+shader = ExtResource("25_fnb7a")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_abi3o"]
+shader = ExtResource("25_fnb7a")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xeyld"]
+shader = ExtResource("19_8fkps")
+shader_parameter/strength = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_esite"]
+shader = ExtResource("21_xxsld")
+shader_parameter/left = 0.2
+shader_parameter/right = 0.0
+shader_parameter/top = 1.0
+shader_parameter/bottom = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ix2lb"]
+shader = ExtResource("21_xxsld")
+shader_parameter/left = 0.0
+shader_parameter/right = 0.2
+shader_parameter/top = 1.0
+shader_parameter/bottom = 1.0
+
+[sub_resource type="GDScript" id="GDScript_xxsld"]
+script/source = "extends Label
+
+var _tween: Tween = create_tween()
+
+func set_value(value: bool):
+	_tween.kill()
+	_tween = create_tween()
+	_tween.set_ease(Tween.EASE_OUT)
+	_tween.set_trans(Tween.TRANS_QUAD)
+	if value:
+		_tween.tween_property(self, \"modulate:a\", 1.0, 0.25)
+	else:
+		_tween.tween_property(self, \"modulate:a\", 0.0, 0.25)
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dpdup"]
+shader = ExtResource("23_vefgq")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 90.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jrdhs"]
+shader = ExtResource("23_vefgq")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ifow5"]
+shader = ExtResource("26_jida4")
+shader_parameter/mask_texture = ExtResource("27_2aude")
+shader_parameter/mask_color = Vector3(0, 0, 0)
+shader_parameter/mask_speed = Vector2(0, 5)
+shader_parameter/mask_zoom = 2.4
+shader_parameter/mask_strength = 0.03
+
+[sub_resource type="GDScript" id="GDScript_vefgq"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_int()).pad_zeros(8)
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tsdmu"]
+shader = ExtResource("23_vefgq")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 0.0
+
+[sub_resource type="GDScript" id="GDScript_tsdmu"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_float(0.0001) * 100.0).pad_decimals(2) + \"%\"
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends ColorRect
+
+const columns: int = 150
+const radius_begin: float = 368.0
+const radius_range: float = 127.0
+const angle_begin: float = deg_to_rad(-130.0)
+const angle_range: float = deg_to_rad(260.0)
+const max_freq: float = 9600.0
+
+var spectrum: AudioEffectSpectrumAnalyzerInstance
+
+func _ready() -> void:
+	spectrum = AudioServer.get_bus_effect_instance(AudioServer.get_bus_index(\"bgm\"), 0)
+
+func _draw() -> void:
+	draw_set_transform(size / 2.0, angle_begin)
+	var step: float = max_freq / columns
+	var angle_step: float = angle_range / columns
+	for column: int in columns:
+		var begin_freq: float = column * step
+		var end_freq: float = begin_freq + step
+		var magnitude: Vector2 = spectrum.get_magnitude_for_frequency_range(begin_freq, end_freq)
+		var energy: float = magnitude.length()
+		var normalized: float = pow(clamp((linear_to_db(energy) + 60.0) / 60.0, 0.0, 1.0), 2.0)
+		var angle: float = ( column + 0.2 ) * angle_step
+		var radius: float = radius_range * normalized
+		draw_arc(Vector2(0.0, 0.0), radius_begin + radius / 2.0, angle, angle + angle_step * 0.6, 24, Color(0xFFFFFF44), radius, true)
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ibjym"]
+shader = ExtResource("26_jida4")
+shader_parameter/mask_texture = ExtResource("27_2aude")
+shader_parameter/mask_color = Vector3(1, 1, 1)
+shader_parameter/mask_speed = Vector2(-5, 0)
+shader_parameter/mask_zoom = 1.25
+shader_parameter/mask_strength = 0.035
+
+[sub_resource type="GDScript" id="GDScript_jida4"]
+script/source = "extends Control
+
+func _ready() -> void:
+	var ring: Sprite2D = get_child(0)
+	var new_material: ShaderMaterial = ShaderMaterial.new()
+	new_material.shader = preload(\"res://shaders/ui/gradient.gdshader\")
+	ring.material = new_material
+
+func set_difficulty(diff: Dictionary) -> void:
+	var ring: Sprite2D = get_child(0)
+	var display: Array = diff.display
+	ring.material.set_shader_parameter(\"color_a\", display[2])
+	ring.material.set_shader_parameter(\"color_b\", display[3])
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rnl63"]
+shader = ExtResource("25_otu50")
+shader_parameter/strength = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhbo"]
+shader = ExtResource("26_jida4")
+shader_parameter/mask_texture = ExtResource("27_2aude")
+shader_parameter/mask_color = Vector3(1, 1, 1)
+shader_parameter/mask_speed = Vector2(5, 0)
+shader_parameter/mask_zoom = 1.25
+shader_parameter/mask_strength = 0.05
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ul3ih"]
+shader = ExtResource("25_otu50")
+shader_parameter/strength = 2.0
+
+[sub_resource type="GDScript" id="GDScript_bhjxd"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node
+
+func _pressed() -> void:
+	await SceneManager.change_scene(root.last_scene)
+	root.unload_illust()
+"
+
+[sub_resource type="GDScript" id="GDScript_8fkps"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	var node: Node2D = await SceneManager.change_scene(\"settings\")
+	node.last_scene = \"song_select\"
+"
+
+[sub_resource type="GDScript" id="GDScript_vl0iy"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[node name="song_select" type="Node2D" unique_id=704441186]
+process_mode = 1
+script = SubResource("GDScript_6fkkf")
+
+[node name="background" type="Sprite2D" parent="." unique_id=1842809563]
+process_mode = 4
+position = Vector2(971, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_f7aea")
+
+[node name="chapter" type="Node2D" parent="." unique_id=1936641809]
+process_mode = 4
+
+[node name="frame_left" type="Sprite2D" parent="chapter" unique_id=114905424]
+process_mode = 4
+position = Vector2(82, 115)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("3_rtea6")
+
+[node name="title" type="Label" parent="chapter" unique_id=773292596]
+process_mode = 4
+offset_left = 97.0
+offset_top = 101.99997
+offset_right = 1121.0
+offset_bottom = 147.99997
+theme_override_fonts/font = ExtResource("4_ibsnk")
+theme_override_font_sizes/font_size = 36
+text = "Example"
+metadata/_edit_use_anchors_ = true
+
+[node name="title_tip" type="Label" parent="chapter" unique_id=110531641]
+process_mode = 4
+offset_left = 97.0
+offset_top = 79.0
+offset_right = 1121.0
+offset_bottom = 104.0
+theme_override_fonts/font = ExtResource("8_otu50")
+theme_override_font_sizes/font_size = 19
+text = "Example"
+metadata/_edit_use_anchors_ = true
+
+[node name="title_en" type="Label" parent="chapter" unique_id=1875395209]
+process_mode = 4
+offset_left = 97.0
+offset_top = 57.0
+offset_right = 1121.0
+offset_bottom = 79.0
+theme_override_fonts/font = ExtResource("2_rtea6")
+theme_override_font_sizes/font_size = 17
+text = "Example"
+metadata/_edit_use_anchors_ = true
+
+[node name="progress_bar" type="Node2D" parent="chapter" unique_id=99155529]
+process_mode = 4
+
+[node name="prefix" type="Label" parent="chapter/progress_bar" unique_id=1186288235]
+process_mode = 4
+offset_left = 97.0
+offset_top = 150.0
+offset_right = 190.0
+offset_bottom = 171.0
+theme_override_fonts/font = ExtResource("24_otu50")
+theme_override_font_sizes/font_size = 16
+text = "chapter.progress"
+clip_text = true
+metadata/_edit_use_anchors_ = true
+
+[node name="percent" type="Label" parent="chapter/progress_bar" unique_id=1072836036]
+process_mode = 4
+offset_left = 349.0
+offset_top = 150.0
+offset_right = 605.0
+offset_bottom = 173.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("11_pckyg")
+theme_override_font_sizes/font_size = 21
+text = "100%"
+horizontal_alignment = 2
+
+[node name="frame" type="NinePatchRect" parent="chapter/progress_bar" unique_id=1252436546]
+process_mode = 4
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+texture_filter = 1
+offset_left = 194.0
+offset_top = 155.0
+offset_right = 551.0
+offset_bottom = 167.0
+texture = ExtResource("11_rnl63")
+draw_center = false
+patch_margin_left = 4
+patch_margin_top = 2
+patch_margin_right = 4
+patch_margin_bottom = 2
+
+[node name="value" type="ColorRect" parent="chapter/progress_bar/frame" unique_id=1912051796 node_paths=PackedStringArray("label")]
+process_mode = 1
+layout_mode = 0
+offset_left = 7.0
+offset_top = 3.0
+offset_right = 350.0
+offset_bottom = 9.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+script = SubResource("GDScript_crkbu")
+label = NodePath("../../percent")
+
+[node name="explore" type="Node2D" parent="chapter" unique_id=2117696361]
+process_mode = 4
+
+[node name="plots" type="Sprite2D" parent="chapter/explore" unique_id=1701984483]
+process_mode = 4
+position = Vector2(454.3, 104.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("8_cbght")
+
+[node name="ongoing" type="Sprite2D" parent="chapter/explore" unique_id=1641262850]
+process_mode = 4
+visible = false
+position = Vector2(454.3, 104.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("9_46p8o")
+
+[node name="completed" type="Sprite2D" parent="chapter/explore" unique_id=262790461]
+process_mode = 4
+visible = false
+position = Vector2(455.3, 104.1)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("10_iw0ol")
+
+[node name="stardust" parent="." unique_id=346441057 instance=ExtResource("12_tsdmu")]
+position = Vector2(64, 195)
+
+[node name="song" type="Node2D" parent="." unique_id=853904283]
+process_mode = 4
+
+[node name="current_selection" type="Sprite2D" parent="song" unique_id=764098409]
+process_mode = 4
+position = Vector2(973.00006, 212)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("14_vefgq")
+
+[node name="frame" type="Sprite2D" parent="song" unique_id=230564695]
+process_mode = 4
+position = Vector2(973, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("16_dnvbp")
+
+[node name="play" type="Button" parent="song" unique_id=318900692 node_paths=PackedStringArray("root")]
+process_mode = 1
+material = SubResource("ShaderMaterial_vefgq")
+offset_left = 668.0
+offset_top = 235.0
+offset_right = 1278.0
+offset_bottom = 845.0
+icon = ExtResource("16_dpdup")
+expand_icon = true
+script = SubResource("GDScript_wvhbo")
+root = NodePath("../..")
+
+[node name="darkness" type="ColorRect" parent="song/play" unique_id=1761693855]
+material = SubResource("ShaderMaterial_fqclb")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.15686275)
+
+[node name="darkness_top" type="TextureRect" parent="song/play" unique_id=133296971]
+process_mode = 4
+material = SubResource("ShaderMaterial_abi3o")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("31_jida4")
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="darkness_bottom" type="TextureRect" parent="song/play" unique_id=981244872]
+process_mode = 4
+material = SubResource("ShaderMaterial_abi3o")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("31_jida4")
+expand_mode = 1
+flip_v = true
+metadata/_edit_use_anchors_ = true
+
+[node name="lock" type="Control" parent="song/play" unique_id=1751793643]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="blur" type="ColorRect" parent="song/play/lock" unique_id=775458810]
+material = SubResource("ShaderMaterial_xeyld")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="darkness" type="ColorRect" parent="song/play/lock" unique_id=1499305694]
+material = SubResource("ShaderMaterial_fqclb")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.6431373)
+
+[node name="icon" type="Sprite2D" parent="song/play/lock" unique_id=1100721583]
+process_mode = 4
+modulate = Color(0.827451, 0.827451, 0.827451, 1)
+position = Vector2(305, 305)
+scale = Vector2(0.375, 0.375)
+texture = ExtResource("29_tsdmu")
+
+[node name="line_0" type="ColorRect" parent="song/play/lock" unique_id=1773192197]
+process_mode = 4
+material = SubResource("ShaderMaterial_esite")
+layout_mode = 0
+offset_left = 1.5497208e-05
+offset_top = 303.0
+offset_right = 272.00003
+offset_bottom = 307.0
+mouse_filter = 2
+color = Color(0.827451, 0.827451, 0.827451, 1)
+
+[node name="line_1" type="ColorRect" parent="song/play/lock" unique_id=32843337]
+process_mode = 4
+material = SubResource("ShaderMaterial_ix2lb")
+layout_mode = 0
+offset_left = 338.00003
+offset_top = 303.0
+offset_right = 610.0
+offset_bottom = 307.0
+mouse_filter = 2
+color = Color(0.827451, 0.827451, 0.827451, 1)
+
+[node name="fit_tag" type="HBoxContainer" parent="song" unique_id=922272335]
+process_mode = 4
+offset_left = 13.0
+offset_top = 265.0
+offset_right = 1933.0
+offset_bottom = 285.0
+mouse_filter = 2
+
+[node name="tag" type="Label" parent="song/fit_tag" unique_id=1034656024]
+process_mode = 1
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_ibsnk")
+theme_override_font_sizes/font_size = 15
+text = "Example"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = SubResource("GDScript_xxsld")
+
+[node name="margin" type="MarginContainer" parent="song/fit_tag/tag" unique_id=597932914]
+process_mode = 4
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/margin_left = -8
+theme_override_constants/margin_right = -8
+
+[node name="display" type="ColorRect" parent="song/fit_tag/tag/margin" unique_id=899481728]
+process_mode = 4
+material = SubResource("ShaderMaterial_dpdup")
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.6, 0.8, 0.9372549, 1)
+
+[node name="fit_info" type="VBoxContainer" parent="song" unique_id=2092706562]
+process_mode = 4
+offset_left = 785.0
+offset_top = 299.0
+offset_right = 1160.0
+offset_bottom = 403.0
+mouse_filter = 2
+
+[node name="title" type="Label" parent="song/fit_info" unique_id=34175629]
+process_mode = 1
+custom_minimum_size = Vector2(375, 0)
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/shadow_outline_size = -1
+theme_override_fonts/font = ExtResource("22_otu50")
+theme_override_font_sizes/font_size = 30
+text = "Example"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("22_2aude")
+metadata/_edit_use_anchors_ = true
+
+[node name="artist" type="Label" parent="song/fit_info" unique_id=1901002256]
+process_mode = 1
+custom_minimum_size = Vector2(375, 0)
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = -7
+theme_override_fonts/font = ExtResource("24_otu50")
+theme_override_font_sizes/font_size = 16
+text = "Example"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("22_2aude")
+metadata/_edit_use_anchors_ = true
+
+[node name="personal_best" type="Node2D" parent="song" unique_id=324371591]
+process_mode = 4
+
+[node name="rank_darkness" type="Sprite2D" parent="song/personal_best" unique_id=308625082]
+process_mode = 4
+visible = false
+self_modulate = Color(0, 0, 0, 0.6784314)
+position = Vector2(973, 688)
+scale = Vector2(0.075, 0.075)
+texture = ExtResource("20_vefgq")
+
+[node name="rank" type="Label" parent="song/personal_best" unique_id=1846486733]
+process_mode = 1
+clip_children = 1
+custom_maximum_size = Vector2(53, -1)
+offset_left = 947.0
+offset_top = 651.0
+offset_right = 1000.0
+offset_bottom = 735.0
+theme_override_fonts/font = ExtResource("23_dpdup")
+theme_override_font_sizes/font_size = 84
+text = "0"
+clip_text = true
+script = ExtResource("24_tsdmu")
+
+[node name="display" type="ColorRect" parent="song/personal_best/rank" unique_id=349785565]
+process_mode = 4
+material = SubResource("ShaderMaterial_jrdhs")
+layout_mode = 1
+offset_top = 10.0
+offset_right = 55.0
+offset_bottom = 65.0
+mouse_filter = 2
+
+[node name="contour" type="ColorRect" parent="song/personal_best/rank" unique_id=2126804533]
+process_mode = 4
+material = SubResource("ShaderMaterial_ifow5")
+layout_mode = 0
+offset_top = 10.0
+offset_right = 55.0
+offset_bottom = 65.0
+mouse_filter = 2
+
+[node name="title" type="Label" parent="song/personal_best" unique_id=109885117]
+process_mode = 4
+offset_left = 878.0
+offset_top = 729.0
+offset_right = 984.0
+offset_bottom = 744.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.87058824)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.22352941)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("24_otu50")
+theme_override_font_sizes/font_size = 15
+text = "Personal Best"
+metadata/_edit_use_anchors_ = true
+
+[node name="score" type="Label" parent="song/personal_best" unique_id=1605654127]
+process_mode = 1
+offset_left = 717.0
+offset_top = 741.0
+offset_right = 1229.0
+offset_bottom = 794.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.22352941)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_outline_size = 4
+theme_override_fonts/font = ExtResource("11_pckyg")
+theme_override_font_sizes/font_size = 50
+text = "00000000"
+horizontal_alignment = 1
+script = SubResource("GDScript_vefgq")
+metadata/_edit_use_anchors_ = true
+
+[node name="divider" type="ColorRect" parent="song/personal_best" unique_id=114964979]
+process_mode = 4
+material = SubResource("ShaderMaterial_tsdmu")
+offset_left = 878.0
+offset_top = 790.0
+offset_right = 1068.0
+offset_bottom = 794.0
+mouse_filter = 2
+
+[node name="acc" type="Label" parent="song/personal_best" unique_id=332322755]
+process_mode = 4
+offset_left = 954.0
+offset_top = 796.0
+offset_right = 997.0
+offset_bottom = 812.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.22352941)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("24_otu50")
+theme_override_font_sizes/font_size = 16
+text = "Acc :"
+metadata/_edit_use_anchors_ = true
+
+[node name="acc_value" type="Label" parent="song/personal_best" unique_id=1334011695]
+process_mode = 1
+offset_left = 940.0
+offset_top = 796.0
+offset_right = 1068.0
+offset_bottom = 812.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.22352941)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("22_otu50")
+theme_override_font_sizes/font_size = 16
+text = "0.00%"
+horizontal_alignment = 2
+script = SubResource("GDScript_tsdmu")
+
+[node name="spectrum" type="ColorRect" parent="song" unique_id=1533772037]
+process_mode = 1
+offset_left = 433.0
+offset_right = 1513.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+script = SubResource("GDScript_ifow5")
+
+[node name="difficulty_selection" type="ColorRect" parent="." unique_id=740955145]
+process_mode = 4
+clip_children = 1
+offset_left = 970.00006
+offset_top = 539.99994
+offset_right = 1720.0
+offset_bottom = 1290.0
+rotation = 2.3561945
+scale = Vector2(0.99999994, 0.99999994)
+mouse_filter = 2
+
+[node name="contour" type="Sprite2D" parent="difficulty_selection" unique_id=1320828143]
+process_mode = 4
+material = SubResource("ShaderMaterial_ibjym")
+position = Vector2(246.07324, 246.07317)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("26_rnl63")
+
+[node name="rotation" type="Node2D" parent="difficulty_selection" unique_id=2068319641]
+process_mode = 4
+rotation = 0.7853982
+scale = Vector2(0.99999994, 0.99999994)
+
+[node name="anchor" type="Node2D" parent="difficulty_selection/rotation" unique_id=1852808687]
+process_mode = 1
+script = ExtResource("20_es4y3")
+touch_angle_limit = Vector2(-90, 90)
+touch_distance_limit = Vector2(353, inf)
+align_angle = 18.0
+
+[node name="transform" type="Control" parent="difficulty_selection/rotation/anchor" unique_id=1906617077]
+process_mode = 1
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 427.00012
+offset_top = -6.103516e-05
+offset_right = 427.00012
+offset_bottom = -6.103516e-05
+rotation = 3.1415927
+offset_transform_enabled = true
+offset_transform_pivot = Vector2(427, 0)
+script = SubResource("GDScript_jida4")
+metadata/_edit_vertical_guides_ = [111.0]
+
+[node name="ring" type="Sprite2D" parent="difficulty_selection/rotation/anchor/transform" unique_id=604875111]
+process_mode = 4
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("27_jida4")
+
+[node name="song_selection" type="ColorRect" parent="." unique_id=761399423]
+process_mode = 4
+clip_children = 1
+offset_left = 973.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="anchor" type="Node2D" parent="song_selection" unique_id=1901148158]
+process_mode = 1
+position = Vector2(0, 540)
+script = ExtResource("20_es4y3")
+touch_angle_limit = Vector2(-90, 90)
+touch_distance_limit = Vector2(353, inf)
+
+[node name="title" type="Label" parent="song_selection/anchor" unique_id=1133295843]
+process_mode = 4
+visible = false
+offset_left = 545.0
+offset_top = -32.0
+offset_right = 920.0
+offset_bottom = 3.0
+pivot_offset = Vector2(-545, 32)
+theme_override_colors/font_color = Color(1, 1, 1, 0.7137255)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("24_otu50")
+theme_override_font_sizes/font_size = 27
+text = "Example"
+text_overrun_behavior = 5
+
+[node name="buffer_copy" type="BackBufferCopy" parent="." unique_id=1641795916]
+process_mode = 4
+copy_mode = 2
+
+[node name="selected" type="Node2D" parent="." unique_id=1820473797]
+process_mode = 4
+
+[node name="song" type="Node2D" parent="selected" unique_id=2015847110]
+process_mode = 4
+
+[node name="blur" type="ColorRect" parent="selected/song" unique_id=1020335436]
+process_mode = 4
+material = SubResource("ShaderMaterial_rnl63")
+offset_left = 1485.0
+offset_top = 469.0
+offset_right = 1921.0
+offset_bottom = 617.0
+mouse_filter = 2
+
+[node name="darkness" type="Sprite2D" parent="selected/song" unique_id=982272283]
+process_mode = 4
+position = Vector2(1842, 543)
+rotation = -1.5707964
+scale = Vector2(0.046, 0.8)
+texture = ExtResource("31_jida4")
+
+[node name="contour" type="Sprite2D" parent="selected/song" unique_id=1529416769]
+process_mode = 4
+material = SubResource("ShaderMaterial_wvhbo")
+position = Vector2(1842, 543)
+rotation = -1.5707964
+scale = Vector2(0.046, 0.8)
+texture = ExtResource("31_jida4")
+
+[node name="frame" type="Sprite2D" parent="selected/song" unique_id=1601374607]
+process_mode = 4
+position = Vector2(1676, 543)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("20_gy22s")
+
+[node name="arc" type="Sprite2D" parent="selected/song" unique_id=1275703679]
+process_mode = 4
+self_modulate = Color(0.8, 0.8, 1, 1)
+position = Vector2(1479, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("32_ul3ih")
+
+[node name="highlight" type="Sprite2D" parent="selected/song" unique_id=256095402]
+process_mode = 4
+position = Vector2(1675.0001, 549)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("19_pd52e")
+
+[node name="mask" type="Control" parent="selected/song" unique_id=1089385257]
+process_mode = 4
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1518.0
+offset_top = 470.0
+offset_right = 1894.0
+offset_bottom = 616.0
+mouse_filter = 2
+
+[node name="title" type="Label" parent="selected/song/mask" unique_id=942025338]
+process_mode = 1
+custom_minimum_size = Vector2(376, 0)
+layout_mode = 0
+offset_top = 38.0
+offset_right = 376.0
+offset_bottom = 74.0
+offset_transform_enabled = true
+theme_override_colors/font_color = Color(1, 1, 1, 0.7137255)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("22_otu50")
+theme_override_font_sizes/font_size = 32
+text = "Example"
+script = ExtResource("30_rnl63")
+
+[node name="artist" type="Label" parent="selected/song/mask" unique_id=635270700]
+process_mode = 1
+custom_minimum_size = Vector2(376, 0)
+layout_mode = 0
+offset_top = 81.0
+offset_right = 376.0
+offset_bottom = 102.0
+offset_transform_enabled = true
+theme_override_colors/font_color = Color(1, 1, 1, 0.7137255)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("24_otu50")
+theme_override_font_sizes/font_size = 20
+text = "Example"
+script = ExtResource("30_rnl63")
+
+[node name="difficulty" type="Node2D" parent="selected" unique_id=528457468]
+process_mode = 4
+
+[node name="blur" type="ColorRect" parent="selected/difficulty" unique_id=1574149223]
+process_mode = 4
+material = SubResource("ShaderMaterial_ul3ih")
+offset_left = 467.0
+offset_top = 480.0
+offset_right = 617.0
+offset_bottom = 600.0
+mouse_filter = 2
+
+[node name="darkness" type="Sprite2D" parent="selected/difficulty" unique_id=1759183885]
+process_mode = 4
+position = Vector2(315, 540)
+rotation = 1.5707964
+scale = Vector2(0.037, 0.6971534)
+texture = ExtResource("31_jida4")
+
+[node name="frame" type="Sprite2D" parent="selected/difficulty" unique_id=2092888852]
+process_mode = 4
+position = Vector2(435.99997, 540)
+rotation = 3.1415927
+scale = Vector2(0.6, 0.49)
+texture = ExtResource("20_gy22s")
+
+[node name="arc_text" type="Sprite2D" parent="selected/difficulty" unique_id=2031225030]
+process_mode = 4
+position = Vector2(470.99997, 540)
+scale = Vector2(0.59999996, 0.59999996)
+texture = ExtResource("27_1oyvk")
+
+[node name="arc" type="Sprite2D" parent="selected/difficulty" unique_id=963203649]
+process_mode = 4
+self_modulate = Color(0.75, 0.75, 0.75, 1)
+position = Vector2(633, 540)
+rotation = -3.1415925
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("32_ul3ih")
+
+[node name="difficulty" parent="selected/difficulty" unique_id=2078010977 instance=ExtResource("28_ul3ih")]
+offset_left = 543.0
+offset_top = 540.0
+offset_right = 543.0
+offset_bottom = 540.0
+
+[node name="back" type="Button" parent="." unique_id=1777949476 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = -34.0
+offset_top = 462.00003
+offset_right = 370.0
+offset_bottom = 751.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("2_rnl63")
+flat = true
+script = SubResource("GDScript_bhjxd")
+root = NodePath("..")
+
+[node name="settings" type="Node2D" parent="." unique_id=658923050]
+process_mode = 4
+
+[node name="settings" type="Button" parent="settings" unique_id=1694494176 node_paths=PackedStringArray("root", "follow_modulate")]
+process_mode = 1
+offset_left = 1403.0
+offset_top = 986.0
+offset_right = 1733.0
+offset_bottom = 1061.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("25_2a80n")
+flat = true
+script = SubResource("GDScript_8fkps")
+root = NodePath("../..")
+follow_modulate = [NodePath("../text")]
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="settings" unique_id=1780749740]
+process_mode = 4
+offset_left = 1406.0
+offset_top = 989.0
+offset_right = 1577.0
+offset_bottom = 1027.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("22_otu50")
+theme_override_font_sizes/font_size = 18
+text = "selection.settings"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="ordering" type="Node2D" parent="." unique_id=1108656699]
+process_mode = 4
+
+[node name="ordering" type="Button" parent="ordering" unique_id=1353907696 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+offset_left = 1644.0
+offset_top = 986.0
+offset_right = 1974.0
+offset_bottom = 1061.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("26_kxhhx")
+flat = true
+script = SubResource("GDScript_vl0iy")
+follow_modulate = [NodePath("../text")]
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="ordering" unique_id=937666222]
+process_mode = 4
+offset_left = 1647.0
+offset_top = 989.0
+offset_right = 1817.0
+offset_bottom = 1027.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("22_otu50")
+theme_override_font_sizes/font_size = 18
+text = "selection.sorting_0"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true

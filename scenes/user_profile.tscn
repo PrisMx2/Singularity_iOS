@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://6mndwqflxei"]
+
+[ext_resource type="Shader" uid="uid://bcdc387itvblt" path="res://shaders/ui/edge.gdshader" id="1_36tim"]
+[ext_resource type="Shader" uid="uid://dqnnrd6aa3lg2" path="res://shaders/ui/edge_blur.gdshader" id="2_12plv"]
+[ext_resource type="Texture2D" uid="uid://dww5cusvdb3et" path="res://textures/generic/profile.png" id="3_fe3ey"]
+[ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="4_v05n3"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="5_p43ye"]
+[ext_resource type="PackedScene" uid="uid://dn18jp3rn4mgd" path="res://scenes/stardust.tscn" id="6_h88v3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_le6tq"]
+shader = ExtResource("1_36tim")
+shader_parameter/left = 0.5
+shader_parameter/right = 0.5
+shader_parameter/top = 0.5
+shader_parameter/bottom = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0od80"]
+shader = ExtResource("2_12plv")
+shader_parameter/strength = 2.0
+shader_parameter/left = 1.0
+shader_parameter/right = 1.0
+shader_parameter/top = 1.0
+shader_parameter/bottom = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gwr70"]
+shader = ExtResource("1_36tim")
+shader_parameter/left = 0.025
+shader_parameter/right = 0.025
+shader_parameter/top = 0.025
+shader_parameter/bottom = 0.025
+
+[sub_resource type="GDScript" id="GDScript_bjiko"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_fv4fg"]
+script/source = "extends Label
+
+func _tween_before() -> void:
+	text = DataManager.get_save(\"username\", \"Unknown\")
+	add_theme_font_size_override(\"font_size\", 40 - text.length() / 2 )
+"
+
+[node name="user_profile" type="Node2D" unique_id=557689118]
+process_mode = 4
+
+[node name="darkness" type="ColorRect" parent="." unique_id=265390697]
+process_mode = 4
+material = SubResource("ShaderMaterial_le6tq")
+offset_right = 471.0
+offset_bottom = 151.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.2901961)
+
+[node name="blur" type="ColorRect" parent="darkness" unique_id=19500594]
+process_mode = 4
+material = SubResource("ShaderMaterial_0od80")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="user_profile" type="Button" parent="darkness" unique_id=1894678719 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+material = SubResource("ShaderMaterial_gwr70")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1274.0
+offset_bottom = 412.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.27, 0.27)
+icon = ExtResource("3_fe3ey")
+flat = true
+script = SubResource("GDScript_bjiko")
+follow_modulate = [NodePath("../../username"), NodePath("../../rating")]
+metadata/_edit_use_anchors_ = true
+
+[node name="username" type="Label" parent="." unique_id=2104105434]
+process_mode = 1
+offset_left = 35.0
+offset_right = 291.0
+offset_bottom = 82.0
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("4_v05n3")
+theme_override_font_sizes/font_size = 32
+text = "1234567890123456"
+vertical_alignment = 2
+script = SubResource("GDScript_fv4fg")
+
+[node name="rating" type="Label" parent="." unique_id=1920269532]
+process_mode = 4
+offset_left = 63.0
+offset_top = 107.0
+offset_right = 136.0
+offset_bottom = 134.0
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("5_p43ye")
+theme_override_font_sizes/font_size = 26
+text = "10.789"
+metadata/_edit_use_anchors_ = true
+
+[node name="stardust" parent="." unique_id=346441057 instance=ExtResource("6_h88v3")]
+position = Vector2(189, 162)

@@ -1,0 +1,502 @@
+[gd_scene format=3 uid="uid://bceul7pdsh7yq"]
+
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="2_wsb5h"]
+[ext_resource type="FontFile" uid="uid://bbb0pk7itj3m8" path="res://fonts/IosevkaAile_Heavy.ttf" id="3_17uas"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="4_1c0bc"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="5_bkx2g"]
+[ext_resource type="Script" uid="uid://b2srymmhl05ka" path="res://scripts/generic_progress_bar.gd" id="6_g4s8q"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="7_17uas"]
+[ext_resource type="Texture2D" uid="uid://kvq1jbw4e3s7" path="res://textures/generic/ruler.png" id="7_g4s8q"]
+[ext_resource type="FontVariation" uid="uid://cyswer0i5ipj2" path="res://fonts/IosevkaAileMix.Light.tres" id="8_1c0bc"]
+[ext_resource type="Texture2D" uid="uid://bgedk2sgegr28" path="res://textures/player_ui/pause.png" id="8_1jr8s"]
+
+[sub_resource type="GDScript" id="GDScript_qhqgy"]
+script/source = "extends Node2D
+
+@onready var pause_button: Button = $pause
+
+@onready var start_info: Node2D = $pre_start_info
+@onready var pre_title: Label = $pre_start_info/title
+@onready var pre_artist: Label = $pre_start_info/fit/artist
+@onready var pre_illustrator: Label = $pre_start_info/illust/illust
+@onready var pre_chart: Label = $pre_start_info/chart/chart
+@onready var pre_difficulty: Label = $pre_start_info/fit/margin/difficulty
+@onready var pre_difficulty_background: ColorRect = $pre_start_info/fit/margin/difficulty/display
+
+@onready var difficulty: Label = $autowarp/difficulty
+@onready var difficulty_background: ColorRect = $autowarp/difficulty/margin/display
+@onready var title: Label = $autowarp/title
+@onready var combo_title: Label = $combo/combo
+@onready var combo: Label = $combo/value
+@onready var score: Label = $score/value
+@onready var accuracy: Label = $accuracy/value
+
+@onready var progress: ColorRect = $progress_bar/value
+
+var _tween: Tween = create_tween()
+
+var player: Node3D
+var judgement: Node3D
+
+var paused: bool = false
+
+func _tween_before() -> void:
+	_tween.kill()
+	start_info.modulate.a = 1.0
+
+func _tween_enter() -> void:
+	_tween = create_tween()
+	_tween.set_ease(Tween.EASE_IN)
+	_tween.set_trans(Tween.TRANS_QUAD)
+	_tween.tween_interval(1.0)
+	_tween.tween_property(start_info, \"modulate:a\", 0.0, 1.0).from(1.0)
+	_tween.tween_interval(0.75)
+	_tween.finished.connect(player.start)
+
+func pause() -> bool:
+	paused = false
+	if _tween.is_valid():
+		_tween.pause()
+		return false
+	else:
+		return true
+
+func resume() -> bool:
+	paused = false
+	if _tween.is_valid():
+		_tween.play()
+		return false
+	else:
+		return true
+
+func load_info(info: Dictionary) -> void:
+	_tween_before()
+
+	var diff: Dictionary = info.difficulty
+	var display: Array
+	if diff.has(\"display\"):
+		display = diff.display
+	else:
+		display = [\"EXTERNAL\", \"TIER #?\", Color(0xA67FD4FF), Color(0xA67FD4FF)]
+	var _material: ShaderMaterial = pre_difficulty_background.material
+	_material.set_shader_parameter(\"color_a\", display[2])
+	_material.set_shader_parameter(\"color_b\", display[3])
+	_material = difficulty_background.material
+	_material.set_shader_parameter(\"color_a\", display[2])
+	_material.set_shader_parameter(\"color_b\", display[3])
+	pre_difficulty.text = display[0] + \" Lv.\" + str(int(diff.value)) + ( \"+\" if diff.plus else \"\" )
+
+	pre_title.text = info.title
+	pre_artist.text = info.artist
+	pre_illustrator.text = info.illust
+	pre_chart.text = info.chart
+	difficulty.text = info.level
+	title.text = info.title
+
+	var autoplay = player.autoplay
+	combo_title.text = \"AUTOPLAY\" if autoplay else \"COMBO\"
+
+func _process(_delta: float) -> void:
+	progress.set_value_break(player.music_progress)
+	var playing_stat: Array = judgement.playing_stat
+	combo.text = str(playing_stat[5])
+	score.set_value(playing_stat[8])
+	accuracy.set_value(playing_stat[7])
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wsb5h"]
+shader = ExtResource("2_wsb5h")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 90.0
+
+[sub_resource type="GDScript" id="GDScript_dqkch"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	var score_text: String = str(_calcuate_int()).pad_zeros(8)
+	for i: int in range(score_text.length() - 1, 0, -1):
+		if i % 3 == 0:
+			score_text = score_text.insert(score_text.length() - i, \",\")
+	text = score_text
+"
+
+[sub_resource type="GDScript" id="GDScript_1c0bc"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+func _process(_delta: float) -> void:
+	text = str(_calcuate_float(0.0001) * 100.0).pad_decimals(2) + \"%\"
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhbo"]
+shader = ExtResource("2_wsb5h")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 90.0
+
+[sub_resource type="GDScript" id="GDScript_wsb5h"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	if root.pause():
+		root.player.pause()
+	root.paused = true
+	var node: Node2D = await SceneManager.insert(\"pause_ui\")
+	node.player = root.player
+	node.player_ui = root
+"
+
+[node name="player_ui" type="Node2D" unique_id=1590837032]
+process_mode = 1
+script = SubResource("GDScript_qhqgy")
+metadata/_edit_vertical_guides_ = [960.0, 1832.0]
+metadata/_edit_horizontal_guides_ = [812.0, 771.0, 721.0]
+
+[node name="autowarp" type="VBoxContainer" parent="." unique_id=1201154059]
+process_mode = 4
+offset_left = 168.0
+offset_top = 66.0
+offset_right = 818.0
+offset_bottom = 151.0
+mouse_filter = 2
+
+[node name="title" type="Label" parent="autowarp" unique_id=1477285755]
+process_mode = 4
+custom_maximum_size = Vector2(650, -1)
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = -1
+theme_override_fonts/font = ExtResource("7_17uas")
+theme_override_font_sizes/font_size = 24
+text = "Title"
+autowrap_mode = 1
+
+[node name="difficulty" type="Label" parent="autowarp" unique_id=712463183]
+process_mode = 4
+layout_mode = 2
+size_flags_horizontal = 0
+offset_transform_enabled = true
+offset_transform_position = Vector2(16, 5)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_1c0bc")
+theme_override_font_sizes/font_size = 24
+text = "Difficulty"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="margin" type="MarginContainer" parent="autowarp/difficulty" unique_id=973466439]
+process_mode = 4
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/margin_left = -16
+theme_override_constants/margin_right = -16
+
+[node name="display" type="ColorRect" parent="autowarp/difficulty/margin" unique_id=1138932554]
+process_mode = 4
+material = SubResource("ShaderMaterial_wsb5h")
+layout_mode = 2
+mouse_filter = 2
+
+[node name="combo" type="Node2D" parent="." unique_id=134753788]
+process_mode = 4
+
+[node name="combo" type="Label" parent="combo" unique_id=539502122]
+process_mode = 4
+offset_left = 832.0
+offset_top = 43.0
+offset_right = 1088.0
+offset_bottom = 82.0
+theme_override_colors/font_color = Color(0.82606, 0.82606006, 0.82606, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = -1
+theme_override_fonts/font = ExtResource("8_1c0bc")
+theme_override_font_sizes/font_size = 30
+text = "COMBO"
+horizontal_alignment = 1
+
+[node name="value" type="Label" parent="combo" unique_id=2012951621]
+process_mode = 4
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 448.0
+offset_top = 75.0
+offset_right = 1472.0
+offset_bottom = 143.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = -1
+theme_override_fonts/font = ExtResource("4_1c0bc")
+theme_override_font_sizes/font_size = 67
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="score" type="Node2D" parent="." unique_id=458728722]
+process_mode = 4
+
+[node name="score" type="Label" parent="score" unique_id=601326751]
+process_mode = 4
+offset_left = 1765.0
+offset_top = 60.0
+offset_right = 1832.0
+offset_bottom = 90.0
+theme_override_colors/font_color = Color(0.82606, 0.82606006, 0.82606, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = -1
+theme_override_fonts/font = ExtResource("8_1c0bc")
+theme_override_font_sizes/font_size = 23
+text = "Score"
+
+[node name="value" type="Label" parent="score" unique_id=71964454]
+process_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 1322.0
+offset_top = 87.0
+offset_right = 1834.0
+offset_bottom = 143.0
+grow_horizontal = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = -1
+theme_override_fonts/font = ExtResource("4_1c0bc")
+theme_override_font_sizes/font_size = 55
+text = "00,000,000"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = SubResource("GDScript_dqkch")
+length = 1200.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="accuracy" type="Node2D" parent="." unique_id=397147034]
+process_mode = 4
+
+[node name="value" type="Label" parent="accuracy" unique_id=811773965]
+process_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 1320.0
+offset_top = 140.0
+offset_right = 1832.0
+offset_bottom = 172.0
+grow_horizontal = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = -1
+theme_override_fonts/font = ExtResource("4_1c0bc")
+theme_override_font_sizes/font_size = 32
+text = "100.00%"
+horizontal_alignment = 2
+vertical_alignment = 1
+script = SubResource("GDScript_1c0bc")
+length = 1200.0
+easing = 8
+metadata/_edit_use_anchors_ = true
+
+[node name="progress_bar" type="Node2D" parent="." unique_id=525911478]
+process_mode = 4
+
+[node name="texture" type="Sprite2D" parent="progress_bar" unique_id=366711639]
+process_mode = 4
+position = Vector2(960, 7.5)
+scale = Vector2(0.6, 0.75)
+texture = ExtResource("7_g4s8q")
+
+[node name="value" type="ColorRect" parent="progress_bar" unique_id=1833947891]
+process_mode = 1
+texture_filter = 2
+offset_left = -6.1035156e-05
+offset_top = -1.0
+offset_right = 1920.0
+offset_bottom = 5.0
+mouse_filter = 2
+script = ExtResource("6_g4s8q")
+metadata/_edit_use_anchors_ = true
+
+[node name="pre_start_info" type="Node2D" parent="." unique_id=1309358596]
+process_mode = 1
+
+[node name="songinfo_cover" type="ColorRect" parent="pre_start_info" unique_id=1415520211]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.8039216)
+metadata/_edit_use_anchors_ = true
+
+[node name="song_info" type="Label" parent="pre_start_info" unique_id=53532862]
+process_mode = 1
+offset_left = 174.0
+offset_top = 563.0
+offset_right = 1832.0
+offset_bottom = 587.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("4_1c0bc")
+theme_override_font_sizes/font_size = 23
+text = "Song Info"
+
+[node name="illust" type="Node2D" parent="pre_start_info" unique_id=1049105268]
+process_mode = 1
+
+[node name="prefix" type="Label" parent="pre_start_info/illust" unique_id=1083057748]
+process_mode = 4
+offset_left = 174.0
+offset_top = 748.0
+offset_right = 393.0
+offset_bottom = 777.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("3_17uas")
+theme_override_font_sizes/font_size = 22
+text = "Illustrator"
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="illust" type="Label" parent="pre_start_info/illust" unique_id=1132743506]
+process_mode = 4
+offset_left = 320.0
+offset_top = 748.0
+offset_right = 1344.0
+offset_bottom = 778.0
+theme_override_fonts/font = ExtResource("5_bkx2g")
+theme_override_font_sizes/font_size = 22
+text = "Illustrator"
+metadata/_edit_use_anchors_ = true
+
+[node name="chart" type="Node2D" parent="pre_start_info" unique_id=1377514582]
+process_mode = 1
+
+[node name="prefix" type="Label" parent="pre_start_info/chart" unique_id=661635432]
+process_mode = 4
+offset_left = 174.0
+offset_top = 789.0
+offset_right = 297.0
+offset_bottom = 818.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("3_17uas")
+theme_override_font_sizes/font_size = 22
+text = "Charter"
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="chart" type="Label" parent="pre_start_info/chart" unique_id=1180238283]
+process_mode = 4
+offset_left = 320.0
+offset_top = 789.0
+offset_right = 1344.0
+offset_bottom = 819.0
+theme_override_fonts/font = ExtResource("5_bkx2g")
+theme_override_font_sizes/font_size = 22
+text = "Charter"
+metadata/_edit_use_anchors_ = true
+
+[node name="title" type="Label" parent="pre_start_info" unique_id=924649999]
+process_mode = 4
+offset_left = 174.0
+offset_top = 593.0
+offset_right = 1832.0
+offset_bottom = 681.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("7_17uas")
+theme_override_font_sizes/font_size = 70
+text = "Title"
+vertical_alignment = 1
+
+[node name="fit" type="HBoxContainer" parent="pre_start_info" unique_id=96524696]
+process_mode = 4
+offset_left = 172.0
+offset_top = 689.0
+offset_right = 960.0
+offset_bottom = 728.0
+mouse_filter = 2
+
+[node name="artist" type="Label" parent="pre_start_info/fit" unique_id=1217977640]
+process_mode = 4
+custom_minimum_size = Vector2(556, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("8_1c0bc")
+theme_override_font_sizes/font_size = 30
+text = "Artist"
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="margin" type="MarginContainer" parent="pre_start_info/fit" unique_id=563561766]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 2
+
+[node name="difficulty" type="Label" parent="pre_start_info/fit/margin" unique_id=1460866999]
+process_mode = 4
+clip_children = 1
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("4_1c0bc")
+theme_override_font_sizes/font_size = 38
+text = "Difficulty"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="display" type="ColorRect" parent="pre_start_info/fit/margin/difficulty" unique_id=1519669532]
+process_mode = 4
+material = SubResource("ShaderMaterial_wvhbo")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_stretch_ratio = 0.0
+
+[node name="pause" type="Button" parent="." unique_id=177406051 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 39.0
+offset_top = 43.0
+offset_right = 219.0
+offset_bottom = 223.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("8_1jr8s")
+flat = true
+icon_alignment = 1
+script = SubResource("GDScript_wsb5h")
+root = NodePath("..")
+metadata/_edit_use_anchors_ = true

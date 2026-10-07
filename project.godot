@@ -1,0 +1,100 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[Fmod]
+
+DSP/dsp_buffer_size=128
+DSP/dsp_buffer_count=2
+
+[accessibility]
+
+general/accessibility_support=2
+
+[application]
+
+config/name="Singularity"
+config/version="Internal Test 1.0.2"
+run/main_scene="uid://dtwrfu3kky48p"
+config/quit_on_go_back=false
+config/features=PackedStringArray("4.7", "Mobile")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/show_image=false
+config/icon="uid://c38wu3jbua3gb"
+
+[audio]
+
+buses/default_bus_layout="uid://ca1lyolhvvujc"
+driver/output_latency=12
+
+[autoload]
+
+DataManager="*uid://i1cx1ojx16rb"
+SceneManager="*uid://biw7pbn76kfqb"
+SoundManager="*uid://rjc0a0c1vavs"
+SettingManager="*uid://b1qkg3oexxt5v"
+ChartServer="*uid://nov5e6ta15f"
+ChartClient="*uid://bxr1r5nndgvdt"
+Unlock="*uid://dghi86im2s4mr"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/frame_pacing/android/enable_frame_pacing=false
+window/stretch/mode="canvas_items"
+window/handheld/orientation=4
+
+[editor]
+
+movie_writer/movie_file="D:/Godot/record.avi"
+export/texture=""
+
+[gui]
+
+theme/default_font_subpixel_positioning=0
+
+[input_devices]
+
+buffering/agile_event_flushing=true
+pointing/emulate_touch_from_mouse=true
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://lang/lang.en.translation", "res://lang/lang.ja.translation", "res://lang/lang.zh_CN.translation")
+
+[network]
+
+limits/debugger/max_queued_messages=16384
+
+[physics]
+
+2d/run_on_separate_thread=true
+3d/run_on_separate_thread=true
+common/physics_ticks_per_second=180
+common/physics_jitter_fix=0.0
+2d/physics_engine="Dummy"
+3d/physics_engine="Dummy"
+common/enable_object_picking=false
+
+[rendering]
+
+renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
+limits/time/time_rollover_secs=16.0
+driver/depth_prepass/enable=false
+environment/glow/upscale_mode=0
+mesh_lod/lod_change/threshold_pixels=0.2
+
+[shader_globals]
+
+time={
+"type": "float",
+"value": 0.0
+}

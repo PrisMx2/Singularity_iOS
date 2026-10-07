@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" format=3 uid="uid://cyswer0i5ipj2"]
+
+[ext_resource type="FontFile" uid="uid://d2b0klbatiddv" path="res://fonts/IosevkaAile_Light.ttf" id="1_ic511"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="2_thyxn"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_thyxn")])
+base_font = ExtResource("1_ic511")
+spacing_bottom = -5

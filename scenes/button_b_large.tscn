@@ -1,0 +1,153 @@
+[gd_scene format=3 uid="uid://dtfh41ch5xo6j"]
+
+[ext_resource type="Texture2D" uid="uid://cdxjbckbux712" path="res://textures/button/button_a_large.png" id="1_jqss7"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="2_g28e2"]
+[ext_resource type="Texture2D" uid="uid://cmbpidd2uydda" path="res://textures/button/arrow.png" id="4_sfb27"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="5_e8clh"]
+[ext_resource type="Texture2D" uid="uid://qqdogcxjfr6e" path="res://textures/icon/explore.png" id="6_undwv"]
+
+[sub_resource type="GDScript" id="GDScript_2itja"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Control
+
+func _tween_before() -> void:
+	self_modulate = root.self_modulate
+	_modulate = self_modulate
+
+func _pressed() -> void:
+	if root.has_method(\"_pressed\"):
+		root._pressed()
+"
+
+[sub_resource type="GDScript" id="GDScript_jqss7"]
+script/source = "extends Label
+
+@export var root: Control
+
+func _ready() -> void:
+	text = root.get_meta(\"text\", \"\")
+"
+
+[sub_resource type="GDScript" id="GDScript_lhna5"]
+script/source = "extends Label
+
+@export var root: Control
+
+func _ready() -> void:
+	text = root.get_meta(\"subtext\", \"\")
+"
+
+[sub_resource type="GDScript" id="GDScript_sfb27"]
+script/source = "extends Sprite2D
+
+@export var root: Control
+
+func _ready() -> void:
+	texture = root.get_meta(\"icon\", preload(\"res://textures/icon/explore.png\"))
+"
+
+[node name="button_b_large" type="Control" unique_id=1706733175]
+process_mode = 4
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+metadata/_edit_vertical_guides_ = [447.0, 327.0, 307.0, 291.0]
+metadata/_edit_horizontal_guides_ = [134.0, 409.0, 162.0, 225.0, 198.0, 188.0, 219.0, 158.0]
+
+[node name="button" type="Button" parent="." unique_id=1123812853 node_paths=PackedStringArray("root", "follow_modulate")]
+process_mode = 1
+layout_mode = 0
+offset_top = 6.1035156e-05
+offset_right = 1451.0
+offset_bottom = 653.00006
+scale = Vector2(0.36, 0.36)
+icon = ExtResource("1_jqss7")
+flat = true
+script = SubResource("GDScript_2itja")
+root = NodePath("..")
+follow_modulate = [NodePath("margin/fit/text"), NodePath("margin/fit/transform/arrow"), NodePath("margin/fit/transform/subtext"), NodePath("icon")]
+
+[node name="background" type="ColorRect" parent="button" unique_id=1096680864]
+process_mode = 4
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.33333334, 0.33333334, 0.33333334, 0.5019608)
+
+[node name="margin" type="MarginContainer" parent="button" unique_id=239215714]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_right = 315
+theme_override_constants/margin_bottom = 89
+
+[node name="fit" type="HBoxContainer" parent="button/margin" unique_id=1039872423]
+process_mode = 4
+layout_mode = 2
+size_flags_vertical = 8
+layout_direction = 3
+mouse_filter = 2
+
+[node name="text" type="Label" parent="button/margin/fit" unique_id=627826740 node_paths=PackedStringArray("root")]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.13333334, 0.13333334, 1)
+theme_override_fonts/font = ExtResource("2_g28e2")
+theme_override_font_sizes/font_size = 175
+text = "E.G."
+horizontal_alignment = 1
+vertical_alignment = 1
+script = SubResource("GDScript_jqss7")
+root = NodePath("../../../..")
+
+[node name="transform" type="Control" parent="button/margin/fit" unique_id=1582600199]
+process_mode = 4
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="arrow" type="TextureRect" parent="button/margin/fit/transform" unique_id=1541470783]
+process_mode = 4
+self_modulate = Color(0.13333334, 0.13333334, 0.13333334, 1)
+layout_mode = 0
+offset_left = 43.888977
+offset_top = -64.66684
+offset_right = 107.88898
+offset_bottom = -1.6668396
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("4_sfb27")
+
+[node name="subtext" type="Label" parent="button/margin/fit/transform" unique_id=26089270 node_paths=PackedStringArray("root")]
+process_mode = 1
+layout_mode = 0
+offset_left = 34.333313
+offset_top = 1.9998322
+offset_right = 316.3333
+offset_bottom = 77.99983
+theme_override_colors/font_color = Color(0.13333334, 0.13333334, 0.13333334, 1)
+theme_override_fonts/font = ExtResource("5_e8clh")
+theme_override_font_sizes/font_size = 64
+text = "EXAMPLE"
+script = SubResource("GDScript_lhna5")
+root = NodePath("../../../../..")
+
+[node name="icon" type="Sprite2D" parent="button" unique_id=1422010207 node_paths=PackedStringArray("root")]
+process_mode = 1
+self_modulate = Color(0.13333334, 0.13333334, 0.13333334, 1)
+position = Vector2(1335.555, 525)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("6_undwv")
+script = SubResource("GDScript_sfb27")
+root = NodePath("../..")

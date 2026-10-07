@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://dn18jp3rn4mgd"]
+
+[ext_resource type="Texture2D" uid="uid://00063ki1krje" path="res://textures/generic/stardust.png" id="1_sdpuy"]
+[ext_resource type="FontFile" uid="uid://bbb0pk7itj3m8" path="res://fonts/IosevkaAile_Heavy.ttf" id="2_48fuo"]
+
+[sub_resource type="GDScript" id="GDScript_xy1l3"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_wyndt"]
+script/source = "extends Label
+
+func _tween_before() -> void:
+	var stardust: int = DataManager.get_save(\"stardust\", 325)
+	var stardust_text: String = str(absi(stardust))
+	for i: int in range(stardust_text.length() - 1, 0, -1):
+		if i % 3 == 0:
+			stardust_text = stardust_text.insert(stardust_text.length() - i, \",\")
+	text = ( \"-\" if stardust < 0 else \"\" ) + stardust_text
+"
+
+[node name="stardust" type="Node2D" unique_id=346441057]
+process_mode = 4
+
+[node name="stardust" type="Button" parent="." unique_id=597000723 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+offset_right = 487.0
+offset_bottom = 151.0
+scale = Vector2(0.5, 0.5)
+icon = ExtResource("1_sdpuy")
+flat = true
+script = SubResource("GDScript_xy1l3")
+follow_modulate = [NodePath("../count")]
+metadata/_edit_use_anchors_ = true
+
+[node name="count" type="Label" parent="." unique_id=2054633006]
+process_mode = 1
+offset_left = -105.0
+offset_top = 14.0
+offset_right = 407.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.9255597, 0.926101, 0.9999996, 1)
+theme_override_fonts/font = ExtResource("2_48fuo")
+theme_override_font_sizes/font_size = 28
+text = "114,514"
+horizontal_alignment = 1
+script = SubResource("GDScript_wyndt")
+metadata/_edit_use_anchors_ = true

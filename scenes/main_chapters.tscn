@@ -1,0 +1,327 @@
+[gd_scene format=3 uid="uid://gf6hk4evybvn"]
+
+[ext_resource type="Script" uid="uid://b7csi85ej2evd" path="res://scripts/generic_hscroll.gd" id="1_tt4sw"]
+[ext_resource type="Texture2D" uid="uid://d1k2gfxsupauj" path="res://textures/generic/background.png" id="2_tt4sw"]
+[ext_resource type="Texture2D" uid="uid://c4af41wt37y60" path="res://textures/main_chapters/grid.png" id="3_jnpdl"]
+[ext_resource type="Texture2D" uid="uid://drf362c1p7a2i" path="res://textures/main_chapters/title.png" id="4_mhf34"]
+[ext_resource type="Shader" uid="uid://bcdc387itvblt" path="res://shaders/ui/edge.gdshader" id="5_tt4sw"]
+[ext_resource type="Texture2D" uid="uid://c77vwkr034cga" path="res://textures/main_chapters/switch_chapter.png" id="8_ycbpg"]
+[ext_resource type="Texture2D" uid="uid://bgsg04tnfg1jq" path="res://textures/main_chapters/orbit.png" id="9_y46f0"]
+[ext_resource type="Texture2D" uid="uid://cxotchhw6kvho" path="res://textures/main_chapters/chapter_0.png" id="10_v7h7m"]
+[ext_resource type="Texture2D" uid="uid://bwv2wd4xgr760" path="res://textures/main_chapters/chapter_1.png" id="11_5c27h"]
+[ext_resource type="FontFile" uid="uid://c43k772p3a8c0" path="res://fonts/IosevkaEtoile_ExtraLightItalic.ttf" id="11_mhf34"]
+[ext_resource type="Script" uid="uid://b5hwa51m6hdxa" path="res://scripts/generic_chapter.gd" id="11_tt4sw"]
+[ext_resource type="Texture2D" uid="uid://brrwuyfod3ljg" path="res://textures/main_chapters/chapter_1_orbit.png" id="12_djfsm"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="12_mhf34"]
+[ext_resource type="Texture2D" uid="uid://b5oxe0qn2781a" path="res://textures/main_chapters/chapter_1_satellite_1.png" id="13_s2865"]
+[ext_resource type="FontVariation" uid="uid://b6k1uq85imkt6" path="res://fonts/IosevkaAileMix.SemiBold.tres" id="13_tt4sw"]
+[ext_resource type="Texture2D" uid="uid://d3ntyxfolgrda" path="res://textures/main_chapters/chapter_1_satellite_2.png" id="14_lorqp"]
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="17_mhf34"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_clxaf"]
+shader = ExtResource("17_mhf34")
+shader_parameter/strength = 4.0
+
+[sub_resource type="GDScript" id="GDScript_mhf34"]
+script/source = "extends Sprite2D
+
+func _process(_delta: float) -> void:
+	rotation -= _delta / 6.0
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mhf34"]
+shader = ExtResource("5_tt4sw")
+shader_parameter/left = 0.15
+shader_parameter/right = 0.15
+shader_parameter/top = 2.0
+shader_parameter/bottom = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tt4sw"]
+shader = ExtResource("5_tt4sw")
+shader_parameter/left = 0.15
+shader_parameter/right = 0.15
+shader_parameter/top = 2.0
+shader_parameter/bottom = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vsyg0"]
+shader = ExtResource("5_tt4sw")
+shader_parameter/left = 0.15
+shader_parameter/right = 0.15
+shader_parameter/top = 2.0
+shader_parameter/bottom = 2.0
+
+[sub_resource type="GDScript" id="GDScript_2lqgn"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	await SceneManager.change_scene(\"chapter_selection\")
+"
+
+[sub_resource type="GDScript" id="GDScript_ycbpg"]
+script/source = "extends Sprite2D
+
+func _process(_delta: float) -> void:
+	rotation += _delta / 12.0
+"
+
+[sub_resource type="GDScript" id="GDScript_tt4sw"]
+script/source = "extends Sprite2D
+
+const anchor: Vector2 = Vector2(1421.0, 514.0)
+const distance: float = 96.5
+
+func _get_time() -> float:
+	return Time.get_ticks_usec() / 1000.0
+
+func _process(_delta: float) -> void:
+	var angle: float = _get_time() / 3200.0
+	position = anchor + Vector2(distance, 0.0).rotated(angle)
+"
+
+[sub_resource type="GDScript" id="GDScript_clxaf"]
+script/source = "extends Sprite2D
+
+const anchor: Vector2 = Vector2(1421.0, 514.0)
+const distance: float = 155.5
+
+func _get_time() -> float:
+	return Time.get_ticks_usec() / 1000.0
+
+func _process(_delta: float) -> void:
+	var angle: float = _get_time() / -5000.0 + PI / 2.0
+	position = anchor + Vector2(distance, 0.0).rotated(angle)
+"
+
+[node name="main_chapters" type="Node2D" unique_id=791148394]
+process_mode = 4
+metadata/_edit_horizontal_guides_ = [514.0]
+metadata/_edit_vertical_guides_ = [1421.0, 442.0]
+
+[node name="background" type="Sprite2D" parent="." unique_id=1085092276]
+process_mode = 4
+position = Vector2(960, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("2_tt4sw")
+
+[node name="blur" type="ColorRect" parent="." unique_id=385518469]
+process_mode = 4
+material = SubResource("ShaderMaterial_clxaf")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="grid" type="Sprite2D" parent="." unique_id=136790713]
+process_mode = 4
+modulate = Color(1, 1, 1, 0.6745098)
+position = Vector2(942, 200)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_jnpdl")
+
+[node name="title" type="Sprite2D" parent="." unique_id=93703430]
+process_mode = 4
+position = Vector2(1625, 163)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_mhf34")
+
+[node name="scroller" type="Control" parent="." unique_id=1904714899]
+process_mode = 1
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_tt4sw")
+scroll_min = -325.0
+scroll_max = 325.0
+
+[node name="orbit" type="Sprite2D" parent="scroller" unique_id=1723174355]
+process_mode = 1
+position = Vector2(442, 514)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("9_y46f0")
+script = SubResource("GDScript_mhf34")
+
+[node name="lines" type="Node2D" parent="scroller" unique_id=773596225]
+process_mode = 4
+
+[node name="line_0" type="ColorRect" parent="scroller/lines" unique_id=2062798717]
+process_mode = 4
+material = SubResource("ShaderMaterial_mhf34")
+offset_left = 634.99994
+offset_top = 514.0
+offset_right = 923.0
+offset_bottom = 516.0
+mouse_filter = 2
+color = Color(0.7372549, 0.7372549, 0.7372549, 1)
+
+[node name="line_1" type="ColorRect" parent="scroller/lines" unique_id=613010085]
+process_mode = 4
+material = SubResource("ShaderMaterial_tt4sw")
+offset_left = 988.0
+offset_top = 514.0
+offset_right = 1229.0
+offset_bottom = 516.0
+mouse_filter = 2
+color = Color(0.7372549, 0.7372549, 0.7372549, 1)
+
+[node name="line_2" type="ColorRect" parent="scroller/lines" unique_id=1641481858]
+process_mode = 4
+material = SubResource("ShaderMaterial_vsyg0")
+offset_left = 1612.0
+offset_top = 514.0
+offset_right = 2612.0
+offset_bottom = 516.0
+mouse_filter = 2
+color = Color(0.7372549, 0.7372549, 0.7372549, 1)
+
+[node name="switch_chapter" type="Button" parent="scroller" unique_id=801197341 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+layout_mode = 0
+offset_left = 194.44446
+offset_top = 266.0
+offset_right = 712.44446
+offset_bottom = 784.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("8_ycbpg")
+flat = true
+script = SubResource("GDScript_2lqgn")
+pixel_button = true
+scroller = NodePath("..")
+metadata/_edit_use_anchors_ = true
+
+[node name="chapter_0" type="Node2D" parent="scroller" unique_id=201025416]
+process_mode = 4
+
+[node name="button" type="Button" parent="scroller/chapter_0" unique_id=2105993014 node_paths=PackedStringArray("root", "scroller")]
+process_mode = 1
+offset_left = 862.0
+offset_top = 422.0
+offset_right = 1184.0
+offset_bottom = 745.0
+scale = Vector2(0.58, 0.58)
+icon = ExtResource("10_v7h7m")
+flat = true
+script = ExtResource("11_tt4sw")
+root = NodePath("../../..")
+last_scene = "main_chapters"
+chapter = "preface"
+scroller = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="title" type="Label" parent="scroller/chapter_0" unique_id=1509064959]
+process_mode = 4
+offset_left = 444.0
+offset_top = 439.0
+offset_right = 1468.0
+offset_bottom = 475.0
+theme_override_fonts/font = ExtResource("13_tt4sw")
+theme_override_font_sizes/font_size = 28
+text = "chapter.preface.title_main"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="title_tip" type="Label" parent="scroller/chapter_0" unique_id=1058827526]
+process_mode = 4
+offset_left = 444.0
+offset_top = 414.0
+offset_right = 1468.0
+offset_bottom = 436.0
+theme_override_colors/font_color = Color(0.80784315, 0.80784315, 0.80784315, 1)
+theme_override_fonts/font = ExtResource("12_mhf34")
+theme_override_font_sizes/font_size = 17
+text = "chapter.preface.title_tip"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="title_en" type="Label" parent="scroller/chapter_0" unique_id=1052564982]
+process_mode = 4
+offset_left = 444.0
+offset_top = 393.0
+offset_right = 1468.0
+offset_bottom = 411.0
+theme_override_colors/font_color = Color(0.80784315, 0.80784315, 0.80784315, 1)
+theme_override_fonts/font = ExtResource("11_mhf34")
+theme_override_font_sizes/font_size = 14
+text = "chapter.preface.title_en"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="chapter_1" type="Node2D" parent="scroller" unique_id=1179089503]
+process_mode = 4
+
+[node name="button" type="Button" parent="scroller/chapter_1" unique_id=1812206817 node_paths=PackedStringArray("root", "scroller")]
+process_mode = 1
+offset_left = 1224.0
+offset_top = 318.0
+offset_right = 1893.0
+offset_bottom = 987.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("11_5c27h")
+flat = true
+script = ExtResource("11_tt4sw")
+root = NodePath("../../..")
+last_scene = "main_chapters"
+chapter = "chapter_1"
+title_color = Color(0.6, 0.8, 0.9372549, 1)
+scroller = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="orbit" type="Sprite2D" parent="scroller/chapter_1" unique_id=358320302]
+process_mode = 1
+position = Vector2(1421, 514)
+scale = Vector2(0.60000014, 0.60000014)
+texture = ExtResource("12_djfsm")
+script = SubResource("GDScript_ycbpg")
+
+[node name="satellite_1" type="Sprite2D" parent="scroller/chapter_1" unique_id=1096289417]
+process_mode = 1
+position = Vector2(1353, 448.02905)
+scale = Vector2(0.6, 0.6000001)
+texture = ExtResource("13_s2865")
+script = SubResource("GDScript_tt4sw")
+
+[node name="satellite_2" type="Sprite2D" parent="scroller/chapter_1" unique_id=54129133]
+process_mode = 1
+position = Vector2(1543.0001, 611.02905)
+scale = Vector2(0.6, 0.6000001)
+texture = ExtResource("14_lorqp")
+script = SubResource("GDScript_clxaf")
+
+[node name="title" type="Label" parent="scroller/chapter_1" unique_id=991297945]
+process_mode = 4
+offset_left = 908.0
+offset_top = 722.0
+offset_right = 1932.0
+offset_bottom = 758.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("13_tt4sw")
+theme_override_font_sizes/font_size = 28
+text = "chapter.chapter_1.title_main"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="title_tip" type="Label" parent="scroller/chapter_1" unique_id=1885191633]
+process_mode = 4
+offset_left = 908.0
+offset_top = 761.0
+offset_right = 1932.0
+offset_bottom = 783.0
+theme_override_colors/font_color = Color(0.80784315, 0.80784315, 0.80784315, 1)
+theme_override_fonts/font = ExtResource("12_mhf34")
+theme_override_font_sizes/font_size = 17
+text = "chapter.chapter_1.title_tip"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="title_en" type="Label" parent="scroller/chapter_1" unique_id=2040941826]
+process_mode = 4
+offset_left = 908.0
+offset_top = 786.0
+offset_right = 1932.0
+offset_bottom = 804.0
+theme_override_colors/font_color = Color(0.80784315, 0.80784315, 0.80784315, 1)
+theme_override_fonts/font = ExtResource("11_mhf34")
+theme_override_font_sizes/font_size = 14
+text = "chapter.chapter_1.title_en"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true

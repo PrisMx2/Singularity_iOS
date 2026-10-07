@@ -1,0 +1,1055 @@
+[gd_scene format=3 uid="uid://cegrsk3k334nw"]
+
+[ext_resource type="Script" uid="uid://b0h83d3wnukvb" path="res://scripts/editor.gd" id="1_pxqd5"]
+[ext_resource type="Texture2D" uid="uid://ctnv84ielfh1h" path="res://textures/settings/item_scroll_pointer.png" id="3_ba0ut"]
+[ext_resource type="Texture2D" uid="uid://deqfmv10qx1bi" path="res://textures/generic/progress_bar_frame.png" id="3_q68jb"]
+[ext_resource type="Script" uid="uid://b7csi85ej2evd" path="res://scripts/generic_hscroll.gd" id="4_q68jb"]
+[ext_resource type="Texture2D" uid="uid://ockm8cxhau1m" path="res://textures/editor/play.png" id="5_3vi5u"]
+[ext_resource type="Script" uid="uid://bbcleecvi77hc" path="res://scripts/generic_vscroll.gd" id="5_wyx26"]
+[ext_resource type="Script" uid="uid://pdt47crmc5fq" path="res://scripts/generic_button.gd" id="6_78fwb"]
+[ext_resource type="Texture2D" uid="uid://cx2hgmb3hsm3u" path="res://textures/editor/copy.png" id="7_74j0u"]
+[ext_resource type="Texture2D" uid="uid://f17ppj6m56lr" path="res://textures/editor/cut.png" id="8_sdh1e"]
+[ext_resource type="Texture2D" uid="uid://k3tibrc2kheq" path="res://textures/editor/paste.png" id="9_2w0at"]
+[ext_resource type="Texture2D" uid="uid://bi4pvytkos77y" path="res://textures/editor/fillevent.png" id="10_5tdu1"]
+[ext_resource type="Texture2D" uid="uid://dc4hwdu1drnva" path="res://textures/editor/layer.png" id="11_q8l03"]
+[ext_resource type="Shader" uid="uid://0koppdb0n8j8" path="res://shaders/ui/circle.gdshader" id="12_74j0u"]
+[ext_resource type="Texture2D" uid="uid://b4uxp3vwroefj" path="res://textures/editor/delete.png" id="12_78fwb"]
+[ext_resource type="Script" uid="uid://c8kjkc8kjurek" path="res://scripts/editor_ui.gd" id="13_74j0u"]
+[ext_resource type="Texture2D" uid="uid://jw2wee67knw4" path="res://textures/editor/undo.png" id="13_aa8l6"]
+[ext_resource type="Texture2D" uid="uid://bwtkuefd8wjk0" path="res://textures/editor/redo.png" id="14_k1sck"]
+[ext_resource type="Texture2D" uid="uid://djm65saxigupn" path="res://textures/editor/page.png" id="15_wyx26"]
+[ext_resource type="Texture2D" uid="uid://e86tke7wp11s" path="res://textures/editor/page_mode.png" id="16_4jiep"]
+[ext_resource type="Texture2D" uid="uid://birlt0tajnenp" path="res://textures/editor/zoom_in.png" id="17_fce0a"]
+[ext_resource type="Texture2D" uid="uid://d4kjwc175s1ii" path="res://textures/editor/zoom_out.png" id="18_m12ww"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="23_4jiep"]
+[ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="23_fce0a"]
+[ext_resource type="Script" uid="uid://bgh0aooa60sj0" path="res://scripts/generic_input.gd" id="24_fce0a"]
+[ext_resource type="Texture2D" uid="uid://b8wakx5wmtlso" path="res://textures/generic/confirm.png" id="25_7msgv"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="26_bn54a"]
+
+[sub_resource type="GDScript" id="GDScript_bn54a"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+var index: int = -1
+
+func _draw() -> void:
+	if root.valid():
+		var line: Array = root.chart_data[1][index]
+		var status: Array = line[7]
+		draw_rect(Rect2(0.0, 105.0, 190.0, 2.0), Color(0x99CCEFFF), true, -1.0, true)
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k1sck"]
+shader = ExtResource("12_74j0u")
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends ColorRect
+
+const font: FontVariation = preload(\"res://fonts/IosevkaAileMix.Regular.tres\")
+
+@export var root: Node2D
+@export var drawer: Node2D
+
+@onready var center: Vector2 = size / 2.0
+@onready var arc_radius: float = center.x * 2.4
+
+var _touch_index: int = -1
+var _select_chain: Array = []
+var _current_selected: Variant = null
+
+func _ready() -> void:
+	drawer.draw.connect(__draw)
+
+func _tween_break() -> void:
+	_touch_index = -1
+
+func __draw() -> void:
+	var next: Array = root.drag_menu
+	var radius: float = center.x - arc_radius / 2.0
+	for i: int in _select_chain.size():
+
+		var arc: float = - PI / 2.0 / next.size()
+		for j: int in next.size():
+			var item: Array = next[j]
+			var angle: float = arc * j
+			radius = center.x + arc_radius * ( i + 0.5 )
+			drawer.draw_set_transform(center, angle + PI)
+			var _color: Color = Color(0xCCCCFFBB) if j == _select_chain[i] else Color(0xCCCCFFFF)
+			drawer.draw_arc(Vector2(0.0, 0.0), radius, 0.0, arc, 128, _color, arc_radius, true)
+			angle += arc / 2.0
+			var text_position: Vector2 = center - Vector2(radius + arc_radius / 2.0, 0.0).rotated(angle)
+			drawer.draw_set_transform(text_position, angle)
+			var text: String = item[0]
+			drawer.draw_string(font, Vector2(0.0, 10.0), text, HORIZONTAL_ALIGNMENT_CENTER, arc_radius, 36, Color(0x000000FF))
+
+		next = next[_select_chain[i]]
+		if next[1] is Array:
+			next = next[1]
+		else:
+			return
+
+	if _touch_index == -1:
+		return
+
+	radius += arc_radius
+	drawer.draw_set_transform(center, 0.0)
+	drawer.draw_arc(Vector2(0.0, 0.0), radius, 0.0, TAU, 128, Color(0xCCCCFFFF), arc_radius, true)
+
+	var _arc: float = - PI / 2.0 / next.size()
+	var index: int = 0
+	for item: Array in next:
+		var angle: float = _arc * ( index + 0.5 )
+		var text_position: Vector2 = center - Vector2(radius + arc_radius / 2.0, 0.0).rotated(angle)
+		drawer.draw_set_transform(text_position, angle)
+		var text: String = item[0]
+		drawer.draw_string(font, Vector2(0.0, 10.0), text, HORIZONTAL_ALIGNMENT_CENTER, arc_radius, 36, Color(0x000000FF))
+		index += 1
+
+func _calc(_position: Vector2) -> void:
+	_position.x = maxf(_position.x, 0.0)
+	_position.y = minf(_position.y, 0.0)
+	var depth: int = roundi( ( _position.length() - center.x ) / arc_radius + 0.5 )
+	var next: Variant = root.drag_menu
+	var chain: Array = []
+	for i: int in depth:
+		var chain_size: int = _select_chain.size()
+		var division: int = next.size()
+		var select: int
+		if i >= chain_size - 1:
+			select = - floori(_position.angle() / ( PI / division / 2.0 )) - 1
+			select = clampi(select, 0, division - 1)
+			chain.append(select)
+		else:
+			select = _select_chain[i]
+			chain.append(select)
+		next = next.get(select)
+		_current_selected = next[1]
+		if next == null or next[1] is Callable:
+			break
+		next = next[1]
+	_select_chain = chain
+	drawer.queue_redraw()
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed == true:
+			if _touch_index == -1:
+				var _position: Vector2 = center - event.position
+				if _position.length() > center.x:
+					return
+				_touch_index = event.index
+				_calc(_position)
+				accept_event()
+		elif event.index == _touch_index:
+			_touch_index = -1
+			_select_chain = []
+			if _current_selected is Callable:
+				_current_selected.call()
+			_current_selected = null
+			drawer.queue_redraw()
+			accept_event()
+	elif event is InputEventScreenDrag:
+		if event.index == _touch_index:
+			var _position: Vector2 = center - event.position
+			_calc(_position)
+			accept_event()
+"
+
+[sub_resource type="GDScript" id="GDScript_6lm8n"]
+script/source = "extends ColorRect
+
+const basic_width: float = 19.2
+const basic_height: float = 10.8
+const basic_center: Vector3 = Vector3(basic_width / 2.0, basic_height / 2.0, 0.0)
+
+@export var root: Node2D
+@export var name_text: LineEdit
+@export var index_text: Label
+
+var _half_size: Vector2 = Vector2(190.0, 107.0) / 2.0
+
+var index: int = -1
+
+func _draw() -> void:
+	if root.valid() and index > -1:
+		var line: Array = root.chart_data[1][index]
+		var status: Array = line[7]
+		var style: int = status[1]
+		if style == 0 or style == 2:
+			var base_xyz: Vector3 = status[11] / basic_center
+			var base: Vector2 = Vector2(base_xyz.x, base_xyz.y) + _half_size
+			var half: Vector2 = Vector2(status[13] / basic_width * _half_size.x, 0.0).rotated(status[12].z)
+			if style == 0:
+				var multiplier: float = status[14]
+				var begin: Vector2 = base - half * multiplier
+				var end: Vector2 = base + half * multiplier
+				draw_line(begin, end, Color(0x99CCEFC4), 5.0, true)
+			elif style == 2:
+				var begin: Vector2 = base - half
+				var end: Vector2 = base + half
+				var bezier: Vector2 = status[16] / basic_center
+				var points: Array = []
+				for i: int in 128:
+					var progress: float = float(i) / 127.0
+					var point: Vector2 = begin.lerp(bezier, progress).lerp(bezier.lerp(end, progress), progress)
+					points.append(point)
+				draw_polyline(points, Color(0x99CCEFC4), 5.0, true)
+		elif style == 1:
+			pass
+		draw_rect(Rect2(0.0, 105.0, 190.0, 2.0), Color(0xCCCCFFFF), true, -1.0, true)
+
+func func_solo() -> void:
+	pass
+
+func func_events() -> void:
+	var pages: Array = root.edit_pages
+	var page_index: int = index * 2
+	pages.erase(page_index)
+	pages.insert(0, page_index)
+
+func func_notes() -> void:
+	var pages: Array = root.edit_pages
+	var page_index: int = index * 2 + 1
+	pages.erase(page_index)
+	pages.insert(0, page_index)
+
+func func_record() -> void:
+	pass
+
+func _ready() -> void:
+	if root.valid() and index > -1:
+		var line: Array = root.chart_data[1][index]
+		name_text.text = line[8]
+		index_text.text = str(index)
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7msgv"]
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: ColorRect
+
+func _pressed() -> void:
+	parent.func_solo()
+"
+
+[sub_resource type="GDScript" id="GDScript_v24q3"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: ColorRect
+
+func _pressed() -> void:
+	parent.func_events()
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: ColorRect
+
+func _pressed() -> void:
+	parent.func_notes()
+"
+
+[sub_resource type="GDScript" id="GDScript_ibjym"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: ColorRect
+
+func _pressed() -> void:
+	parent.func_record()
+"
+
+[sub_resource type="GDScript" id="GDScript_q68jb"]
+script/source = "extends \"res://scripts/generic_progress_bar.gd\"
+
+@export var pointer: Sprite2D
+
+func _process(_delta: float) -> void:
+	var value: float = _update()
+	pointer.offset.x = value * size.x / 0.6
+"
+
+[sub_resource type="GDScript" id="GDScript_xg7d5"]
+script/source = "extends Button
+
+@export var root: Node2D
+@export var value: ColorRect
+
+var _touch_index: int = -1
+
+func _tween_break() -> void:
+	_touch_index = -1
+
+func _calcuate(event: InputEvent) -> void:
+	event = make_input_local(event)
+	var progress: float = clampf( ( event.position.x - 15.0 ) / value.size.x, 0.0, 1.0 )
+	value.set_value_break(progress)
+	root.drag_time(progress)
+
+func _input(event: InputEvent) -> void:
+	if can_process():
+		if event is InputEventScreenTouch:
+			if event.pressed and not event.canceled:
+				var rect: Rect2 = get_global_rect()
+				if rect.has_point(event.position):
+					_touch_index = event.index
+					_calcuate(event)
+			elif event.index == _touch_index:
+				_touch_index = -1
+		elif event is InputEventScreenDrag:
+			if _touch_index == event.index:
+				_calcuate(event)
+"
+
+[sub_resource type="GDScript" id="GDScript_nhltt"]
+script/source = "extends ColorRect
+
+func _input(event: InputEvent) -> void:
+	if can_process() and is_visible_in_tree():
+		if event is InputEventScreenTouch or event is InputEventScreenDrag:
+			if not get_global_rect().has_point(event.position):
+				accept_event()	
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_m12ww"]
+
+[sub_resource type="GDScript" id="GDScript_1abrv"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.exit()
+"
+
+[sub_resource type="GDScript" id="GDScript_7msgv"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	root.new_chart()
+"
+
+[node name="editor" type="Node2D" unique_id=1901070755]
+process_mode = 1
+script = ExtResource("1_pxqd5")
+metadata/_edit_vertical_guides_ = [12.0, 97.0, 109.0, 194.0, 206.0, 291.0, 303.0, 388.0, 400.0, 485.0, 497.0, 582.0, 594.0, 679.0, 691.0, 776.0, 788.0, 873.0, 885.0, 970.0, 982.0, 1067.0, 1079.0, 1164.0, 1176.0, 178.0, 1730.0, 1261.0, 1273.0, 1358.0, 1370.0, 1900.0, 960.0]
+metadata/_edit_horizontal_guides_ = [1068.0, 983.0, 971.0, 12.0, 81.0, 886.0, 874.0, 864.0, 137.0, 20.0, 139.0, 83.0]
+
+[node name="background" type="ColorRect" parent="." unique_id=1970906857]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.17254902, 0.17254902, 0.17254902, 1)
+
+[node name="main_ui" type="Control" parent="." unique_id=140787449 node_paths=PackedStringArray("root")]
+process_mode = 1
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_left = 192.0
+offset_right = 1728.0
+offset_bottom = 864.0
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, 100)
+script = ExtResource("13_74j0u")
+root = NodePath("..")
+
+[node name="viewport_container" type="SubViewportContainer" parent="main_ui" unique_id=1904636776]
+process_mode = 4
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 384.0
+offset_bottom = 216.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.8, 0.8)
+mouse_filter = 2
+
+[node name="viewport" type="SubViewport" parent="main_ui/viewport_container" unique_id=126984051]
+process_mode = 4
+handle_input_locally = false
+scaling_3d_scale = 0.75
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="left_bar" type="Node2D" parent="." unique_id=1431361154]
+process_mode = 4
+position = Vector2(0, 83)
+
+[node name="line_right" type="ColorRect" parent="left_bar" unique_id=1390004007]
+process_mode = 4
+offset_left = 190.0
+offset_top = -83.0
+offset_right = 192.0
+offset_bottom = 783.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="line_top" type="ColorRect" parent="left_bar" unique_id=2146305734]
+process_mode = 4
+offset_top = -2.0
+offset_right = 190.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="delete" type="Button" parent="left_bar" unique_id=1089166440]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+offset_left = 12.0
+offset_top = -71.0
+offset_right = 650.46155
+offset_bottom = 193.0
+scale = Vector2(0.26, 0.26)
+icon = ExtResource("12_78fwb")
+flat = true
+icon_alignment = 1
+script = ExtResource("6_78fwb")
+
+[node name="mask" type="Control" parent="left_bar" unique_id=1043264442]
+process_mode = 4
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 190.0
+offset_bottom = 781.0
+mouse_filter = 2
+
+[node name="scroller" type="Control" parent="left_bar/mask" unique_id=466756839]
+process_mode = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_wyx26")
+
+[node name="item" type="Button" parent="left_bar/mask/scroller" unique_id=308480742 node_paths=PackedStringArray("root", "scroller")]
+process_mode = 1
+visible = false
+clip_contents = true
+layout_mode = 0
+offset_right = 190.0
+offset_bottom = 107.0
+flat = true
+script = SubResource("GDScript_bn54a")
+root = NodePath("../../../..")
+scroller = NodePath("..")
+
+[node name="right_bar" type="Node2D" parent="." unique_id=896623120]
+process_mode = 4
+position = Vector2(1730, 139)
+
+[node name="line_left" type="ColorRect" parent="right_bar" unique_id=489386066]
+process_mode = 4
+offset_left = -2.0
+offset_top = -139.0
+offset_bottom = 727.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="line_top" type="ColorRect" parent="right_bar" unique_id=1638420610]
+process_mode = 4
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 190.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="drag" type="ColorRect" parent="right_bar" unique_id=859204511 node_paths=PackedStringArray("root", "drawer")]
+process_mode = 1
+z_index = 2
+material = SubResource("ShaderMaterial_k1sck")
+offset_left = 70.0
+offset_top = -259.0
+offset_right = 310.0
+offset_bottom = -19.0
+mouse_filter = 1
+color = Color(0.8, 0.8, 1, 1)
+script = SubResource("GDScript_wvhbo")
+root = NodePath("../..")
+drawer = NodePath("draw")
+metadata/_edit_use_anchors_ = true
+
+[node name="draw" type="Node2D" parent="right_bar/drag" unique_id=1918255618]
+process_mode = 4
+
+[node name="text" type="Label" parent="right_bar/drag" unique_id=93390100]
+process_mode = 4
+layout_mode = 0
+offset_left = 37.0
+offset_top = 140.0
+offset_right = 100.0
+offset_bottom = 186.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 45
+text = "???"
+horizontal_alignment = 2
+
+[node name="mask" type="Control" parent="right_bar" unique_id=823986706]
+process_mode = 4
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 190.0
+offset_bottom = 781.0
+mouse_filter = 2
+
+[node name="scroller" type="Control" parent="right_bar/mask" unique_id=1493876185]
+process_mode = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_wyx26")
+
+[node name="item" type="ColorRect" parent="right_bar/mask/scroller" unique_id=968355011 node_paths=PackedStringArray("root", "name_text", "index_text")]
+process_mode = 1
+visible = false
+clip_contents = true
+layout_mode = 0
+offset_right = 190.0
+offset_bottom = 107.0
+mouse_filter = 1
+color = Color(1, 1, 1, 0)
+script = SubResource("GDScript_6lm8n")
+root = NodePath("../../../..")
+name_text = NodePath("fit/fit_text/name")
+index_text = NodePath("fit/fit_text/index")
+
+[node name="fit" type="VBoxContainer" parent="right_bar/mask/scroller/item" unique_id=2116748728]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="fit_text" type="MarginContainer" parent="right_bar/mask/scroller/item/fit" unique_id=1885768642]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = -11
+
+[node name="name" type="LineEdit" parent="right_bar/mask/scroller/item/fit/fit_text" unique_id=2041284957]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 26
+theme_override_styles/focus = SubResource("StyleBoxEmpty_7msgv")
+placeholder_text = "New Line"
+max_length = 9
+context_menu_enabled = false
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+filter = "1234567890qwertyuiopasdfghjklzxcvbnm _+-?!()[]{}<>,./\\@#$%^&*~"
+
+[node name="index" type="Label" parent="right_bar/mask/scroller/item/fit/fit_text" unique_id=244348380]
+process_mode = 4
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 26
+text = "Index"
+horizontal_alignment = 2
+
+[node name="fit_buttons" type="HBoxContainer" parent="right_bar/mask/scroller/item/fit" unique_id=815825557]
+process_mode = 4
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="solo" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=359786045 node_paths=PackedStringArray("parent", "scroller")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 50
+text = "S"
+flat = true
+script = SubResource("GDScript_ifow5")
+parent = NodePath("../../..")
+scroller = NodePath("../../../..")
+
+[node name="events" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=646687123 node_paths=PackedStringArray("parent", "scroller")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 50
+text = "E"
+flat = true
+script = SubResource("GDScript_v24q3")
+parent = NodePath("../../..")
+scroller = NodePath("../../../..")
+
+[node name="notes" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=604298834 node_paths=PackedStringArray("parent", "scroller")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 50
+text = "N"
+flat = true
+script = SubResource("GDScript_abi3o")
+parent = NodePath("../../..")
+scroller = NodePath("../../../..")
+
+[node name="record" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=1386511493 node_paths=PackedStringArray("parent", "scroller")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("23_4jiep")
+theme_override_font_sizes/font_size = 50
+text = "R"
+flat = true
+script = SubResource("GDScript_ibjym")
+parent = NodePath("../../..")
+scroller = NodePath("../../../..")
+
+[node name="bottom_bar" type="Node2D" parent="." unique_id=1453651259]
+process_mode = 4
+
+[node name="progress" type="Node2D" parent="bottom_bar" unique_id=964644861]
+process_mode = 4
+position = Vector2(-1, 0)
+
+[node name="frame" type="NinePatchRect" parent="bottom_bar/progress" unique_id=235279634]
+process_mode = 4
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+texture_filter = 1
+offset_left = 196.0
+offset_top = 884.0
+offset_right = 1726.0
+offset_bottom = 896.0
+texture = ExtResource("3_q68jb")
+draw_center = false
+patch_margin_left = 4
+patch_margin_top = 2
+patch_margin_right = 4
+patch_margin_bottom = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="value" type="ColorRect" parent="bottom_bar/progress/frame" unique_id=693638368 node_paths=PackedStringArray("pointer")]
+process_mode = 1
+layout_mode = 0
+offset_left = 7.0
+offset_top = 3.0
+offset_right = 1523.0
+offset_bottom = 9.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+script = SubResource("GDScript_q68jb")
+pointer = NodePath("../../pointer")
+
+[node name="drag" type="Button" parent="bottom_bar/progress/frame" unique_id=222649708 node_paths=PackedStringArray("root", "value")]
+process_mode = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+script = SubResource("GDScript_xg7d5")
+root = NodePath("../../../..")
+value = NodePath("../value")
+
+[node name="pointer" type="Sprite2D" parent="bottom_bar/progress" unique_id=2077509053]
+process_mode = 4
+position = Vector2(207.00002, 893)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("3_ba0ut")
+
+[node name="line" type="ColorRect" parent="bottom_bar" unique_id=1852153747]
+process_mode = 4
+offset_top = 864.0
+offset_right = 1920.0
+offset_bottom = 866.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="mask" type="Control" parent="bottom_bar" unique_id=1174059626]
+process_mode = 4
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_left = 206.0
+offset_top = 983.0
+offset_right = 1730.0
+offset_bottom = 1068.0
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="scroller" type="Control" parent="bottom_bar/mask" unique_id=1906416451]
+process_mode = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_q68jb")
+
+[node name="play" type="Button" parent="bottom_bar/mask/scroller" unique_id=1326195023]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_right = 264.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("5_3vi5u")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="copy" type="Button" parent="bottom_bar/mask/scroller" unique_id=529268202]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 97.0
+offset_right = 361.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("7_74j0u")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="cut" type="Button" parent="bottom_bar/mask/scroller" unique_id=1442932590]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 193.99997
+offset_right = 458.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("8_sdh1e")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="paste" type="Button" parent="bottom_bar/mask/scroller" unique_id=1760621422]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 290.99997
+offset_right = 555.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("9_2w0at")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="fill" type="Button" parent="bottom_bar/mask/scroller" unique_id=794882269]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 388.0
+offset_right = 652.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("10_5tdu1")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="layer" type="Button" parent="bottom_bar/mask/scroller" unique_id=1767062450]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 485.0
+offset_right = 749.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("11_q8l03")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="undo" type="Button" parent="bottom_bar/mask/scroller" unique_id=1988850732]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 582.0
+offset_right = 846.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("13_aa8l6")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="redo" type="Button" parent="bottom_bar/mask/scroller" unique_id=591555306]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 679.0
+offset_right = 943.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("14_k1sck")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="page" type="Button" parent="bottom_bar/mask/scroller" unique_id=1894677257]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 776.0
+offset_right = 1040.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("15_wyx26")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="page_mode" type="Button" parent="bottom_bar/mask/scroller" unique_id=1533503028]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 873.0
+offset_right = 1137.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("16_4jiep")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="zoom_in" type="Button" parent="bottom_bar/mask/scroller" unique_id=96553816]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 970.0
+offset_right = 1234.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("17_fce0a")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="zoom_out" type="Button" parent="bottom_bar/mask/scroller" unique_id=866006186]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 0
+offset_left = 1067.0
+offset_right = 1331.0
+offset_bottom = 264.0
+scale = Vector2(0.32, 0.32)
+icon = ExtResource("18_m12ww")
+flat = true
+script = ExtResource("6_78fwb")
+
+[node name="new_chart" type="ColorRect" parent="." unique_id=33017368]
+process_mode = 1
+visible = false
+offset_left = 192.0
+offset_right = 1728.0
+offset_bottom = 1080.0
+color = Color(1, 1, 1, 0)
+script = SubResource("GDScript_nhltt")
+
+[node name="margin" type="MarginContainer" parent="new_chart" unique_id=876790728]
+process_mode = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 64
+
+[node name="container" type="VBoxContainer" parent="new_chart/margin" unique_id=1790868627]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 32
+
+[node name="tip" type="Label" parent="new_chart/margin/container" unique_id=1225140569]
+process_mode = 4
+layout_mode = 2
+
+[node name="title" type="LineEdit" parent="new_chart/margin/container" unique_id=963644618]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_fce0a")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m12ww")
+placeholder_text = "曲名"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+
+[node name="artist" type="LineEdit" parent="new_chart/margin/container" unique_id=582283445]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_fce0a")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m12ww")
+placeholder_text = "曲师"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+
+[node name="illust" type="LineEdit" parent="new_chart/margin/container" unique_id=1639203633]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_fce0a")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m12ww")
+placeholder_text = "画师"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+
+[node name="chart" type="LineEdit" parent="new_chart/margin/container" unique_id=382632807]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_fce0a")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m12ww")
+placeholder_text = "谱师"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+
+[node name="level" type="LineEdit" parent="new_chart/margin/container" unique_id=299899730]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_fce0a")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m12ww")
+placeholder_text = "难度"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+
+[node name="bpm" type="LineEdit" parent="new_chart/margin/container" unique_id=2126440704]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("23_fce0a")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m12ww")
+placeholder_text = "BPM"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+script = ExtResource("24_fce0a")
+
+[node name="container" type="HBoxContainer" parent="new_chart/margin/container" unique_id=775702390]
+process_mode = 4
+layout_mode = 2
+size_flags_horizontal = 4
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -80)
+offset_transform_scale = Vector2(0.6, 0.6)
+mouse_filter = 2
+theme_override_constants/separation = 128
+
+[node name="back" type="Button" parent="new_chart/margin/container/container" unique_id=88844006 node_paths=PackedStringArray("root")]
+process_mode = 1
+layout_mode = 2
+icon = ExtResource("26_bn54a")
+flat = true
+script = SubResource("GDScript_1abrv")
+root = NodePath("../../../../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="confirm" type="Button" parent="new_chart/margin/container/container" unique_id=145281296 node_paths=PackedStringArray("root")]
+process_mode = 1
+layout_mode = 2
+icon = ExtResource("25_7msgv")
+flat = true
+icon_alignment = 1
+script = SubResource("GDScript_7msgv")
+root = NodePath("../../../../..")

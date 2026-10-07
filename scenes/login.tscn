@@ -1,0 +1,238 @@
+[gd_scene format=3 uid="uid://byfgm4n5xfh6u"]
+
+[ext_resource type="Texture2D" uid="uid://clq67plffwvwn" path="res://textures/generic/confirm_noglowing.png" id="2_nlxjr"]
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="3_47vyr"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="4_ngwtj"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="5_8mo1x"]
+[ext_resource type="Texture2D" uid="uid://5537w83u48po" path="res://textures/login/plots.png" id="5_47vyr"]
+[ext_resource type="Texture2D" uid="uid://dhj3gnqn163yk" path="res://textures/login/frame.png" id="6_k3hkt"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="6_ngwtj"]
+[ext_resource type="Script" uid="uid://bgh0aooa60sj0" path="res://scripts/generic_input.gd" id="7_1u3ka"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="7_8mo1x"]
+[ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="7_oxet1"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="8_pbm2h"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4ay1x"]
+shader = ExtResource("3_47vyr")
+shader_parameter/mask_texture = ExtResource("4_ngwtj")
+shader_parameter/mask_color = Vector3(1, 1, 1)
+shader_parameter/mask_speed = Vector2(0, 4)
+shader_parameter/mask_zoom = 1.0
+shader_parameter/mask_strength = 0.02
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wyyig"]
+
+[sub_resource type="GDScript" id="GDScript_u4ful"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+@export var edit: LineEdit
+
+func connection_fail(code: String) -> void:
+	var dialog: Node = await SceneManager.insert(\"dialog\")
+	dialog.data = {
+		type = 1,
+		title = \"login.connection.fail\",
+		content = tr(\"login.connection.fail.disc\") + code,
+		options = [
+			{ enabled = true },
+			{ enabled = false },
+			{ enabled = true },
+		]
+	}
+
+func get_device_fingerprint() -> String:
+	var os_name: String = OS.get_name()
+	var cpu: String = OS.get_processor_name()
+	var model: String = OS.get_model_name()
+	var raw_string: String = \"SINGULARITY|%s|%s|%s|VERIFICATION\" % [os_name, cpu, model]
+	return raw_string.sha256_text()
+
+func _pressed() -> void:
+
+	get_viewport().gui_disable_input = true
+
+	if edit.text.length() < 4:
+		var dialog: Node = await SceneManager.insert(\"dialog\")
+		dialog.data = {
+			type = 1,
+			title = \"generic.warning\",
+			content = tr(\"login.too_short\"),
+			options = [
+				{ enabled = false },
+				{ enabled = true },
+				{ enabled = false },
+			]
+		}
+		return
+
+	var _text: String = \"SINGULARITY|%s|VERIFICATION\" % [edit.text]
+
+	var hmac: HMACContext = HMACContext.new()
+	hmac.start(HashingContext.HASH_SHA256, _text.to_utf8_buffer())
+	hmac.update(get_device_fingerprint().to_utf8_buffer())
+	var hex: String = hmac.finish().hex_encode()
+
+	var request: HTTPRequest = HTTPRequest.new()
+	add_child(request)
+	request.timeout = 5.0
+	request.request_completed.connect(func(_result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+		if code == 200:
+			var data: Array = Json.parse(body.get_string_from_utf8())
+			if hex in data:
+				DataManager.set_save(\"username\", edit.text)
+				DataManager.save_save()
+				await SceneManager.change_scene(\"main\")
+			else:
+				var dialog: Node = await SceneManager.insert(\"dialog\")
+				dialog.data = {
+					type = 1,
+					title = \"login.verify.fail\",
+					content = tr(\"login.verify.fail.disc\"),
+					options = [
+						{
+							enabled = true,
+							main = \"generic.copy\",
+							tip = \"generic.copy.tip\",
+							function = (func() -> void:
+								DisplayServer.clipboard_set(hex)
+								),
+						},
+						{ enabled = false },
+						{ enabled = true },
+					]
+				}
+		else:
+			connection_fail(str(code))
+	)
+	var error: Error = request.request(\"https://gitee.com/Starduster/singularity-verification/raw/master/verification.txt\")
+	if error != 0:
+		connection_fail(\"UNKNOWN\")
+"
+
+[node name="login" type="Node2D" unique_id=1364093741]
+process_mode = 4
+
+[node name="background" type="ColorRect" parent="." unique_id=160214876]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="contour" type="Sprite2D" parent="." unique_id=598341308]
+process_mode = 4
+material = SubResource("ShaderMaterial_4ay1x")
+position = Vector2(960, 630)
+rotation = -3.1415925
+scale = Vector2(0.6, 1)
+texture = ExtResource("5_8mo1x")
+
+[node name="frame" type="Sprite2D" parent="." unique_id=1352685607]
+process_mode = 4
+position = Vector2(962, 527)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("6_k3hkt")
+
+[node name="title" type="Node2D" parent="." unique_id=1628416975]
+process_mode = 4
+
+[node name="plots" type="Sprite2D" parent="title" unique_id=1190110674]
+process_mode = 4
+position = Vector2(766, 350)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("5_47vyr")
+
+[node name="header" type="Label" parent="title" unique_id=686054801]
+process_mode = 4
+offset_top = 307.0
+offset_right = 1920.0
+offset_bottom = 331.0
+theme_override_fonts/font = ExtResource("6_ngwtj")
+theme_override_font_sizes/font_size = 20
+text = "login.header"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="title" type="Label" parent="title" unique_id=1651249890]
+process_mode = 4
+offset_top = 338.0
+offset_right = 1920.0
+offset_bottom = 410.0
+theme_override_fonts/font = ExtResource("7_8mo1x")
+theme_override_font_sizes/font_size = 50
+text = "login.title"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="subtitle" type="Label" parent="title" unique_id=672118018]
+process_mode = 4
+offset_top = 408.0
+offset_right = 1920.0
+offset_bottom = 430.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("6_ngwtj")
+theme_override_font_sizes/font_size = 17
+text = "login.subtitle"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="edit" type="LineEdit" parent="." unique_id=883347036 node_paths=PackedStringArray("label")]
+process_mode = 1
+offset_left = 725.0
+offset_top = 484.0
+offset_right = 1197.0
+offset_bottom = 571.0
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("7_oxet1")
+theme_override_font_sizes/font_size = 37
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wyyig")
+placeholder_text = "login.hint"
+alignment = 1
+max_length = 16
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+drag_and_drop_selection_enabled = false
+flat = true
+caret_blink = true
+caret_blink_interval = 0.4
+caret_force_displayed = true
+script = ExtResource("7_1u3ka")
+label = NodePath("../length")
+filter = "1234567890qwertyuiopasdfghjklzxcvbnm _+-?!()[]{}<>,./\\@#$%^&*~"
+
+[node name="underline" type="ColorRect" parent="." unique_id=1375189289]
+process_mode = 4
+offset_left = 725.0
+offset_top = 570.0
+offset_right = 1197.0
+offset_bottom = 572.0
+mouse_filter = 2
+
+[node name="length" type="Label" parent="." unique_id=1683461782]
+process_mode = 4
+offset_top = 591.0
+offset_right = 1920.0
+offset_bottom = 614.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("8_pbm2h")
+theme_override_font_sizes/font_size = 22
+text = "(00/16)"
+horizontal_alignment = 1
+
+[node name="confirm" type="Button" parent="." unique_id=1028350869 node_paths=PackedStringArray("root", "edit")]
+process_mode = 1
+offset_left = 906.0
+offset_top = 703.0
+offset_right = 1103.8422
+offset_bottom = 787.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("2_nlxjr")
+flat = true
+script = SubResource("GDScript_u4ful")
+root = NodePath("..")
+edit = NodePath("../edit")

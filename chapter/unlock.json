@@ -1,0 +1,50 @@
+{
+	"preface.3_dance_with_silence.*":{
+		"accessibility":[
+			"save	preface.0_phenomenon.*	rank	>	0",
+			"display	unlock.play	Phenomenon (Singularity Edit)",
+			"save	preface.1_utopia.*	rank	>	0",
+			"display	unlock.play	Utopia",
+			"save	preface.2_pale_rose.*	rank	>	0",
+			"display	unlock.play	白玫瑰葬",
+		]
+	},
+	"preface.4_nocturnal.*":{
+		"accessibility":[
+			"save	preface.3_dance_with_silence.*	rank	>	0",
+			"display	unlock.play	Dance with Silence",
+		]
+	},
+	"preface.5_theyaremanycolors.*":{
+		"accessibility":[
+			"save	preface.4_nocturnal.*	rank	>	0",
+			"display	unlock.play	Nocturnal",
+		]
+	},
+	"preface.6_event_horizon.*":{
+		"accessibility":[
+			"save	preface.5_theyaremanycolors.*	rank	>	0",
+			"display	unlock.play	theyaremanycolors",
+			"override	title	???",
+			"override	artist	???",
+			"override	difficulty	?",
+			"override	hide_preview",
+			"override	hide_illust",
+		]
+	},
+	"preface.7_overclocked_reality.*":{
+		"visibility":[
+			"save	preface.6_event_horizon.*	rank	>	0",
+		],
+		"accessibility":[
+			"save	preface.6_event_horizon.*	rank	>=	5",
+			"display	unlock.reach_rank	事件视界	N",
+			"override	title	???",
+			"override	artist	???",
+			"override	difficulty	?",
+			"override	hide_preview",
+			"override	hide_illust",
+			"override	special	KNOWN	28478	42595",
+		]
+	}
+}

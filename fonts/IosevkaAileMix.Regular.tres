@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" format=3 uid="uid://d4a7tlu7n2j8n"]
+
+[ext_resource type="FontFile" uid="uid://bquna1cwkxokd" path="res://fonts/IosevkaAile_Regular.ttf" id="1_bea0n"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="2_40pyb"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_40pyb")])
+base_font = ExtResource("1_bea0n")
+spacing_bottom = -5

@@ -1,0 +1,408 @@
+[gd_scene format=3 uid="uid://dtwrfu3kky48p"]
+
+[ext_resource type="Texture2D" uid="uid://dm0ixq1kddt0q" path="res://textures/title/background.png" id="1_yql1r"]
+[ext_resource type="Texture2D" uid="uid://b8ltchh2xls7i" path="res://textures/title/deco_bottom_left.png" id="3_hiwto"]
+[ext_resource type="FontFile" uid="uid://bbb0pk7itj3m8" path="res://fonts/IosevkaAile_Heavy.ttf" id="4_w65of"]
+[ext_resource type="FontFile" uid="uid://d2b0klbatiddv" path="res://fonts/IosevkaAile_Light.ttf" id="5_ygloa"]
+[ext_resource type="Texture2D" uid="uid://cxqqpxo2gdbvt" path="res://textures/title/deco_top_left.png" id="6_6civk"]
+[ext_resource type="FontVariation" uid="uid://csn2hocevtbr7" path="res://fonts/Scandistro.Mix.Regular.tres" id="6_ah8jo"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="6_hiwto"]
+[ext_resource type="Texture2D" uid="uid://sehagrd7dlrc" path="res://textures/title/logo_frame.png" id="7_7af2g"]
+[ext_resource type="Texture2D" uid="uid://ccsuqp81kb2vg" path="res://textures/title/tap_to_start.png" id="7_ia1n6"]
+[ext_resource type="Texture2D" uid="uid://dd0d3na7t4wc8" path="res://textures/title/logo.png" id="10_w65of"]
+[ext_resource type="Texture2D" uid="uid://duvr1rwl8yv6m" path="res://textures/title/headphone.png" id="11_6civk"]
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="11_kcc3o"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="12_6rcc6"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="13_ah8jo"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="14_ah8jo"]
+[ext_resource type="Texture2D" uid="uid://oiuucq1cyl6y" path="res://textures/title/fmod.png" id="15_blk4q"]
+[ext_resource type="Texture2D" uid="uid://d2on01escug21" path="res://textures/title/warning.png" id="17_pmcd8"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="18_8magm"]
+[ext_resource type="Shader" uid="uid://dhajmjc8oxvpv" path="res://shaders/ui/glow.gdshader" id="18_blk4q"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="18_e75f2"]
+[ext_resource type="FontVariation" uid="uid://cyswer0i5ipj2" path="res://fonts/IosevkaAileMix.Light.tres" id="21_t8o15"]
+[ext_resource type="Texture2D" uid="uid://cjlipnvwwoij" path="res://textures/title/kitagon.png" id="22_wtvjo"]
+[ext_resource type="Texture2D" uid="uid://cwpra7q6df5ln" path="res://textures/title/studio.png" id="23_t8o15"]
+
+[sub_resource type="GDScript" id="GDScript_3vn0s"]
+script/source = "extends Node2D
+
+@onready var mask: ColorRect = $mask
+@onready var startup: Node2D = $startup
+@onready var warning: ColorRect = $startup/warning
+@onready var headphone: ColorRect = $startup/headphone
+
+func _ready() -> void:
+	get_viewport().gui_disable_input = true
+
+	var show_warning: bool = not DataManager.get_save(\"warning_shown\", false)
+
+	headphone.visible = not show_warning
+	warning.visible = show_warning
+
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.tween_property(startup, \"modulate:a\", 1.0, 1.75).from(0.0)
+	await tween.finished
+
+	headphone.visible = true
+
+	if show_warning:
+		tween = create_tween()
+		tween.set_ease(Tween.EASE_OUT)
+		tween.set_trans(Tween.TRANS_QUAD)
+		tween.tween_interval(1.0)
+		tween.tween_property(warning, \"modulate:a\", 0.0, 1.75).from(1.0)
+		await tween.finished
+		DataManager.set_save(\"warning_shown\", true)
+
+	SceneManager.start_bgm()
+
+	mask.modulate.a = 0.0
+	tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.tween_interval(1.0)
+	tween.tween_property(startup, \"modulate:a\", 0.0, 1.75).from(1.0)
+	tween.tween_interval(0.24)
+	await tween.finished
+
+	get_viewport().gui_disable_input = false
+"
+
+[sub_resource type="GDScript" id="GDScript_mhf34"]
+script/source = "extends Label
+
+func _ready() -> void:
+	text = ProjectSettings.get_setting(\"application/config/version\", \"unknown\")
+"
+
+[sub_resource type="GDScript" id="GDScript_ygloa"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.change_scene(\"login\" if DataManager.get_save(\"username\", \"\") == \"\" else \"main\")
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kcc3o"]
+shader = ExtResource("11_kcc3o")
+shader_parameter/mask_texture = ExtResource("12_6rcc6")
+shader_parameter/mask_color = Vector3(1, 1, 1)
+shader_parameter/mask_speed = Vector2(0, 4)
+shader_parameter/mask_zoom = 1.5
+shader_parameter/mask_strength = 0.04
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_opmo2"]
+shader = ExtResource("18_blk4q")
+shader_parameter/blur = 5.0
+shader_parameter/bright = 0.5
+
+[node name="title" type="Node2D" unique_id=509509766]
+process_mode = 1
+script = SubResource("GDScript_3vn0s")
+metadata/_edit_vertical_guides_ = [960.0, 25.0, 1895.0]
+metadata/_edit_horizontal_guides_ = [1062.0]
+
+[node name="background" type="Sprite2D" parent="." unique_id=1275826435]
+process_mode = 4
+position = Vector2(960.00006, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_yql1r")
+
+[node name="deco_top_left" type="Sprite2D" parent="." unique_id=1211953845]
+process_mode = 4
+position = Vector2(338, 57)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("6_6civk")
+
+[node name="logo" type="Node2D" parent="." unique_id=1484601582]
+process_mode = 4
+
+[node name="frame" type="Sprite2D" parent="logo" unique_id=893571203]
+process_mode = 4
+position = Vector2(960, 427)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("7_7af2g")
+
+[node name="logo" type="Sprite2D" parent="logo" unique_id=2073957564]
+process_mode = 4
+modulate = Color(1, 1, 1, 0.91764706)
+position = Vector2(960, 427)
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("10_w65of")
+
+[node name="tap_to_start" type="Node2D" parent="." unique_id=1497331323]
+process_mode = 4
+
+[node name="background" type="Sprite2D" parent="tap_to_start" unique_id=1117328037]
+process_mode = 4
+position = Vector2(960, 750)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("7_ia1n6")
+
+[node name="text" type="Label" parent="tap_to_start" unique_id=702887235]
+process_mode = 4
+offset_top = 731.0
+offset_right = 1920.0
+offset_bottom = 760.0
+theme_override_colors/font_color = Color(0.8089983, 0.8089983, 0.8089982, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("6_ah8jo")
+theme_override_font_sizes/font_size = 22
+text = "title.enter"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="deco_bottom_left" type="Sprite2D" parent="." unique_id=2003287531]
+process_mode = 4
+position = Vector2(77, 991)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("3_hiwto")
+
+[node name="version" type="Label" parent="." unique_id=66336816]
+process_mode = 1
+offset_left = 25.0
+offset_top = 1003.0
+offset_right = 1049.0
+offset_bottom = 1032.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.49803922)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 0
+theme_override_fonts/font = ExtResource("4_w65of")
+theme_override_font_sizes/font_size = 22
+text = "v 1.0"
+script = SubResource("GDScript_mhf34")
+
+[node name="studio" type="Label" parent="." unique_id=1632962456]
+process_mode = 4
+offset_left = 25.0
+offset_top = 1032.0
+offset_right = 1049.0
+offset_bottom = 1061.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.49803922)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 0
+theme_override_fonts/font = ExtResource("5_ygloa")
+theme_override_font_sizes/font_size = 22
+text = "Kitagon Game Studio"
+
+[node name="tip" type="Label" parent="." unique_id=1076174777]
+process_mode = 4
+offset_left = 871.0
+offset_top = 993.0
+offset_right = 1895.0
+offset_bottom = 1022.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.24705882)
+theme_override_fonts/font = ExtResource("6_hiwto")
+theme_override_font_sizes/font_size = 22
+text = "title.tip"
+horizontal_alignment = 2
+
+[node name="powered_by" type="Label" parent="." unique_id=642633883]
+process_mode = 4
+offset_left = 1604.0
+offset_top = 1027.0
+offset_right = 1768.0
+offset_bottom = 1063.0
+theme_override_fonts/font = ExtResource("14_ah8jo")
+theme_override_font_sizes/font_size = 35
+text = "Powered by"
+
+[node name="fmod" type="Sprite2D" parent="." unique_id=855127168]
+process_mode = 4
+position = Vector2(1840, 1044)
+scale = Vector2(0.15, 0.15)
+texture = ExtResource("15_blk4q")
+
+[node name="enter" type="Button" parent="." unique_id=552067918 node_paths=PackedStringArray("root", "follow_modulate")]
+process_mode = 1
+offset_right = 1920.0
+offset_bottom = 1080.0
+flat = true
+script = SubResource("GDScript_ygloa")
+root = NodePath("..")
+follow_modulate = [NodePath("../tap_to_start/background"), NodePath("../tap_to_start/text")]
+metadata/_edit_use_anchors_ = true
+
+[node name="mask" type="ColorRect" parent="." unique_id=1615415640]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="startup" type="Node2D" parent="." unique_id=755858143]
+process_mode = 4
+
+[node name="headphone" type="ColorRect" parent="startup" unique_id=1545265200]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="icon" type="Sprite2D" parent="startup/headphone" unique_id=207471553]
+process_mode = 4
+position = Vector2(960.00006, 470)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("11_6civk")
+
+[node name="title" type="Label" parent="startup/headphone" unique_id=850607753]
+process_mode = 4
+layout_mode = 1
+offset_top = 481.0
+offset_right = 1920.0
+offset_bottom = 553.0
+theme_override_fonts/font = ExtResource("18_e75f2")
+theme_override_font_sizes/font_size = 61
+text = "title.headphone.title"
+horizontal_alignment = 1
+
+[node name="subtitle" type="Label" parent="startup/headphone" unique_id=1312024472]
+process_mode = 4
+layout_mode = 1
+offset_top = 564.0
+offset_right = 1920.0
+offset_bottom = 586.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("6_hiwto")
+theme_override_font_sizes/font_size = 17
+text = "title.headphone.subtitle"
+horizontal_alignment = 1
+
+[node name="warning" type="ColorRect" parent="startup" unique_id=1088629438]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="icon" type="Sprite2D" parent="startup/warning" unique_id=1920542502]
+process_mode = 4
+position = Vector2(960, 220.00002)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("17_pmcd8")
+
+[node name="title" type="Label" parent="startup/warning" unique_id=1980075858]
+process_mode = 4
+layout_mode = 1
+offset_top = 235.0
+offset_right = 1920.0
+offset_bottom = 307.0
+theme_override_fonts/font = ExtResource("18_e75f2")
+theme_override_font_sizes/font_size = 61
+text = "title.epilepsy.title"
+horizontal_alignment = 1
+
+[node name="subtitle" type="Label" parent="startup/warning" unique_id=1414938288]
+process_mode = 4
+layout_mode = 1
+offset_left = 704.0
+offset_top = 317.0
+offset_right = 1216.0
+offset_bottom = 339.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("6_hiwto")
+theme_override_font_sizes/font_size = 17
+text = "title.epilepsy.subtitle"
+horizontal_alignment = 1
+
+[node name="fit" type="HBoxContainer" parent="startup/warning" unique_id=1944093806]
+process_mode = 4
+layout_mode = 0
+offset_top = 345.0
+offset_right = 1920.0
+offset_bottom = 385.0
+mouse_filter = 2
+
+[node name="readme" type="Label" parent="startup/warning/fit" unique_id=1922878772]
+process_mode = 4
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_fonts/font = ExtResource("18_8magm")
+theme_override_font_sizes/font_size = 21
+text = "title.epilepsy.readme"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="margin" type="MarginContainer" parent="startup/warning/fit/readme" unique_id=244593240]
+process_mode = 4
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = -20
+theme_override_constants/margin_top = -2
+theme_override_constants/margin_right = -20
+theme_override_constants/margin_bottom = -2
+
+[node name="display" type="ColorRect" parent="startup/warning/fit/readme/margin" unique_id=1262054468]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.95686275, 0.3019608, 0.3019608, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="content" type="Label" parent="startup/warning" unique_id=161787169]
+process_mode = 4
+layout_mode = 1
+offset_top = 378.0
+offset_right = 1920.0
+offset_bottom = 878.0
+theme_override_constants/line_spacing = -4
+theme_override_fonts/font = ExtResource("18_8magm")
+theme_override_font_sizes/font_size = 26
+text = "title.epilepsy.text"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="contour" type="Sprite2D" parent="startup" unique_id=628175458]
+process_mode = 4
+material = SubResource("ShaderMaterial_kcc3o")
+position = Vector2(960, 810)
+rotation = -3.1415925
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("13_ah8jo")
+
+[node name="presents" type="Label" parent="startup" unique_id=1847448141]
+process_mode = 4
+offset_top = 897.0
+offset_right = 1920.0
+offset_bottom = 919.0
+theme_override_fonts/font = ExtResource("21_t8o15")
+theme_override_font_sizes/font_size = 18
+text = "title.presents"
+horizontal_alignment = 1
+
+[node name="kitagon" type="Sprite2D" parent="startup" unique_id=1880956312]
+process_mode = 4
+position = Vector2(695, 977.00006)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("22_wtvjo")
+
+[node name="studio" type="Sprite2D" parent="startup" unique_id=1849255017]
+process_mode = 4
+position = Vector2(1207, 980)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("23_t8o15")
+
+[node name="glow" type="ColorRect" parent="startup" unique_id=1859496834]
+process_mode = 4
+material = SubResource("ShaderMaterial_opmo2")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2

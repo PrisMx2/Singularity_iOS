@@ -1,0 +1,456 @@
+[gd_scene format=3 uid="uid://b6amgbuf76bw0"]
+
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="1_mm4l3"]
+[ext_resource type="Shader" uid="uid://bycro7wi5j0tl" path="res://shaders/ui/stripes.gdshader" id="2_dekyc"]
+[ext_resource type="Shader" uid="uid://dwb0s3scd0o5c" path="res://shaders/ui/contour.gdshader" id="3_keeyk"]
+[ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="4_stlet"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="5_twdi4"]
+[ext_resource type="Texture2D" uid="uid://dlg1u3itm6mvj" path="res://textures/dialog/notice.png" id="6_qer7g"]
+[ext_resource type="Texture2D" uid="uid://cvnbdmgoosnrk" path="res://textures/dialog/warning.png" id="7_u3lds"]
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="8_4hlnr"]
+[ext_resource type="Shader" uid="uid://begvuegtc7xm7" path="res://shaders/ui/plots.gdshader" id="9_66rfs"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="10_hiwd4"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="11_784iw"]
+[ext_resource type="Script" uid="uid://dpx0v374tl21e" path="res://scripts/generic_text_anim.gd" id="12_ic00r"]
+[ext_resource type="FontFile" uid="uid://co0r7vithn0jj" path="res://fonts/IosevkaEtoile_Light.ttf" id="13_3ktkv"]
+[ext_resource type="Script" uid="uid://pdt47crmc5fq" path="res://scripts/generic_button.gd" id="14_ywym2"]
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Node2D
+
+const default_h: Array = [Color(0x99CCEFFF), Color(0x9E0037FF)]
+
+const deault_t: Array = [Color(0x99CCEFFF), Color(0x99CCEFFF), Color(0x9E0037FF)]
+const default_main: Array = [\"generic.confirm\", \"generic.confirm\", \"generic.cancel\"]
+const default_tip: Array = [\"generic.confirm.tip\", \"generic.confirm.tip\", \"generic.cancel.tip\"]
+
+@onready var title: Label = $title
+@onready var content: Label = $content
+@onready var header: ColorRect = $header
+@onready var icons: Array = [
+	$notice, $warning
+]
+
+@onready var controls: Array = [
+	$option_1,
+	$option_1/button,
+	$option_1/triangle,
+	$option_1/text_main,
+	$option_1/text_tip,
+
+	$option_2,
+	$option_2/button,
+	$option_2/triangle,
+	$option_2/text_main,
+	$option_2/text_tip,
+
+	$option_3,
+	$option_3/button,
+	$option_3/triangle,
+	$option_3/text_main,
+	$option_3/text_tip,
+]
+
+var data: Dictionary = {}
+
+func _tween_before() -> void:
+	modulate.a = 0.0
+
+	title.text = \"\"
+	for i in range(0, 3):
+		var c_index: int = i * 5
+		controls[c_index].visible = false
+		controls[c_index + 3].text = \"\"
+		controls[c_index + 4].text = \"\"
+
+	content.set_decrease_override()
+
+func _tween_enter() -> void:
+
+	var type: int = data.get(\"type\", 0)
+	header.self_modulate = default_h[type]
+	for icon in icons:
+		icon.visible = type == 0
+		type -= 1;
+	title.text = data.title
+
+	var options: Array = data.options
+	for i: int in range(0, 3):
+		var option: Dictionary = options[i]
+		if option.enabled:
+			var c_index: int = i * 5
+			controls[c_index].visible = true
+			controls[c_index + 1].connect_override(func():
+				if option.has(\"function\"):
+					option.function.call()
+				await SceneManager.leave(self)
+			)
+			controls[c_index + 2].self_modulate = option.triangle if option.has(\"triangle\") else deault_t[i]
+			controls[c_index + 3].text = option.main if option.has(\"main\") else default_main[i]
+			controls[c_index + 4].text = option.tip if option.has(\"tip\") else default_tip[i]
+
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_interval(0.1)
+	tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
+	await tween.finished
+
+	content.set_increase(data.content)
+
+func _tween_leave() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 0.0, 0.2).from(1.0)
+	tween.tween_interval(0.1)
+	await tween.finished
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d8l8o"]
+shader = ExtResource("1_mm4l3")
+shader_parameter/strength = 2.0
+
+[sub_resource type="GDScript" id="GDScript_jnpdl"]
+script/source = "extends Button
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		accept_event()
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4hy5e"]
+shader = ExtResource("2_dekyc")
+shader_parameter/speed = 0.015
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jrdhs"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xeyld"]
+shader = ExtResource("3_keeyk")
+shader_parameter/mask_texture = ExtResource("4_stlet")
+shader_parameter/mask_color = Vector3(0, 0, 0)
+shader_parameter/mask_speed = Vector2(-2, 0)
+shader_parameter/mask_zoom = 1.25
+shader_parameter/mask_strength = 0.02
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhbo"]
+shader = ExtResource("8_4hlnr")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(0, 0, 0, 1)
+shader_parameter/color_b = Vector4(0, 0, 0, 0)
+shader_parameter/angle = 90.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_abi3o"]
+shader = ExtResource("9_66rfs")
+shader_parameter/size = 0.015
+shader_parameter/plot_size = Vector2(5, 5)
+shader_parameter/rotation = 0.0
+shader_parameter/aa = 1.5
+
+[sub_resource type="PrismMesh" id="PrismMesh_wvhbo"]
+
+[node name="dialog" type="Node2D" unique_id=1949641929]
+process_mode = 1
+script = SubResource("GDScript_wvhbo")
+metadata/_edit_vertical_guides_ = [960.0, 1879.0]
+metadata/_edit_horizontal_guides_ = [540.0]
+
+[node name="buffer_copy" type="BackBufferCopy" parent="." unique_id=1986630069]
+process_mode = 4
+copy_mode = 2
+
+[node name="blur" type="ColorRect" parent="." unique_id=988070041]
+process_mode = 4
+material = SubResource("ShaderMaterial_d8l8o")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="stop_touch" type="Button" parent="." unique_id=1204637413]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_top = -4.0
+offset_right = 1920.0
+offset_bottom = 1076.0
+disabled = true
+flat = true
+script = SubResource("GDScript_jnpdl")
+metadata/_edit_use_anchors_ = true
+
+[node name="darkness" type="ColorRect" parent="." unique_id=878565606]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.050980393)
+
+[node name="stripe" type="ColorRect" parent="." unique_id=2101606501]
+process_mode = 4
+material = SubResource("ShaderMaterial_4hy5e")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="body" type="ColorRect" parent="." unique_id=2083792898]
+process_mode = 4
+clip_children = 2
+material = SubResource("ShaderMaterial_jrdhs")
+offset_left = -1.0
+offset_top = 384.0
+offset_right = 1921.0
+offset_bottom = 696.0
+mouse_filter = 2
+color = Color(0.78860664, 0.78860706, 0.7886067, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="contour" type="Sprite2D" parent="body" unique_id=738953916]
+process_mode = 4
+material = SubResource("ShaderMaterial_xeyld")
+position = Vector2(576, 156)
+rotation = 1.5707964
+scale = Vector2(0.1, 3)
+texture = ExtResource("5_twdi4")
+
+[node name="notice" type="Sprite2D" parent="." unique_id=786459528]
+process_mode = 4
+visible = false
+position = Vector2(60.000004, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("6_qer7g")
+
+[node name="warning" type="Sprite2D" parent="." unique_id=1565139769]
+process_mode = 4
+visible = false
+position = Vector2(66, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("7_u3lds")
+
+[node name="gradient" type="ColorRect" parent="." unique_id=1292576743]
+process_mode = 4
+material = SubResource("ShaderMaterial_wvhbo")
+offset_left = -18.0
+offset_top = 384.0
+offset_right = 66.0
+offset_bottom = 696.0
+mouse_filter = 2
+color = Color(0.8745098, 0.8745098, 0.8745098, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="header" type="ColorRect" parent="." unique_id=786719677]
+process_mode = 4
+offset_left = -5.0
+offset_top = 384.0
+offset_right = 29.0
+offset_bottom = 696.0
+mouse_filter = 2
+color = Color(0.6, 0.8, 0.9372549, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="plots" type="ColorRect" parent="." unique_id=1627054719]
+process_mode = 4
+material = SubResource("ShaderMaterial_abi3o")
+offset_left = 90.0
+offset_top = 487.0
+offset_right = 163.0
+offset_bottom = 560.0
+mouse_filter = 2
+color = Color(0.33809978, 0.33809966, 0.33809954, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="title" type="Label" parent="." unique_id=1137956722]
+process_mode = 1
+offset_left = 127.0
+offset_top = 514.0
+offset_right = 1151.0
+offset_bottom = 567.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("10_hiwd4")
+theme_override_font_sizes/font_size = 40
+text = "Example"
+
+[node name="content" type="Label" parent="." unique_id=1914880583]
+process_mode = 1
+custom_maximum_size = Vector2(1200, 312)
+offset_left = 360.0
+offset_top = 384.0
+offset_right = 1560.0
+offset_bottom = 696.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("11_784iw")
+theme_override_font_sizes/font_size = 24
+text = "Example"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+script = ExtResource("12_ic00r")
+
+[node name="option_1" type="Node2D" parent="." unique_id=1271763569]
+process_mode = 4
+position = Vector2(1812, 434)
+
+[node name="text_main" type="Label" parent="option_1" unique_id=143188591]
+process_mode = 1
+offset_left = -956.0
+offset_top = 8.0
+offset_right = 68.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.15686275)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("10_hiwd4")
+theme_override_font_sizes/font_size = 33
+text = "Example"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="text_tip" type="Label" parent="option_1" unique_id=1150942274]
+process_mode = 1
+offset_left = -956.0
+offset_top = 52.000008
+offset_right = 68.0
+offset_bottom = 72.00001
+theme_override_colors/font_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.15686275)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("13_3ktkv")
+theme_override_font_sizes/font_size = 15
+text = "Example"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="triangle" type="MeshInstance2D" parent="option_1" unique_id=617731828]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(104, 28.999989)
+rotation = 1.5707964
+scale = Vector2(32, 16)
+mesh = SubResource("PrismMesh_wvhbo")
+
+[node name="button" type="Button" parent="option_1" unique_id=2113863021 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_left = -88.0
+offset_top = -9.0
+offset_right = 112.0
+offset_bottom = 67.0
+flat = true
+script = ExtResource("14_ywym2")
+follow_modulate = [NodePath("../text_main"), NodePath("../text_tip"), NodePath("../triangle")]
+metadata/_edit_use_anchors_ = true
+
+[node name="option_2" type="Node2D" parent="." unique_id=1793897668]
+process_mode = 4
+position = Vector2(1812, 511)
+
+[node name="text_main" type="Label" parent="option_2" unique_id=621775514]
+process_mode = 1
+offset_left = -956.0
+offset_top = 7.9999924
+offset_right = 68.0
+offset_bottom = 44.999992
+theme_override_colors/font_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.15686275)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("10_hiwd4")
+theme_override_font_sizes/font_size = 33
+text = "Example"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="text_tip" type="Label" parent="option_2" unique_id=13709744]
+process_mode = 1
+offset_left = -956.0
+offset_top = 52.000008
+offset_right = 68.0
+offset_bottom = 72.00001
+theme_override_colors/font_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.15686275)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("13_3ktkv")
+theme_override_font_sizes/font_size = 15
+text = "Example"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="triangle" type="MeshInstance2D" parent="option_2" unique_id=928402703]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(104, 28.999989)
+rotation = 1.5707964
+scale = Vector2(32, 16)
+mesh = SubResource("PrismMesh_wvhbo")
+
+[node name="button" type="Button" parent="option_2" unique_id=1198684980 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_left = -88.0
+offset_top = -9.0
+offset_right = 112.0
+offset_bottom = 67.0
+flat = true
+script = ExtResource("14_ywym2")
+follow_modulate = [NodePath("../text_main"), NodePath("../text_tip"), NodePath("../triangle")]
+metadata/_edit_use_anchors_ = true
+
+[node name="option_3" type="Node2D" parent="." unique_id=1421391429]
+process_mode = 4
+position = Vector2(1812, 588)
+
+[node name="text_main" type="Label" parent="option_3" unique_id=30739597]
+process_mode = 1
+offset_left = -956.0
+offset_top = 7.9999847
+offset_right = 68.0
+offset_bottom = 44.999985
+theme_override_colors/font_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.15686275)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("10_hiwd4")
+theme_override_font_sizes/font_size = 33
+text = "Example"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="text_tip" type="Label" parent="option_3" unique_id=1367027465]
+process_mode = 1
+offset_left = -956.0
+offset_top = 52.000008
+offset_right = 68.0
+offset_bottom = 72.00001
+theme_override_colors/font_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.15686275)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("13_3ktkv")
+theme_override_font_sizes/font_size = 15
+text = "Example"
+horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="triangle" type="MeshInstance2D" parent="option_3" unique_id=138169514]
+process_mode = 4
+self_modulate = Color(0.61960787, 0, 0.21568628, 1)
+position = Vector2(104, 28.999989)
+rotation = 1.5707964
+scale = Vector2(32, 16)
+mesh = SubResource("PrismMesh_wvhbo")
+
+[node name="button" type="Button" parent="option_3" unique_id=148963995 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_left = -88.0
+offset_top = -9.0
+offset_right = 112.0
+offset_bottom = 67.0
+flat = true
+script = ExtResource("14_ywym2")
+follow_modulate = [NodePath("../text_main"), NodePath("../text_tip"), NodePath("../triangle")]
+metadata/_edit_use_anchors_ = true

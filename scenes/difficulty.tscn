@@ -1,0 +1,148 @@
+[gd_scene format=3 uid="uid://kfjuwnut88lx"]
+
+[ext_resource type="Texture2D" uid="uid://ctr2oteh2skrd" path="res://textures/diffs/diff_base.png" id="1_q5e74"]
+[ext_resource type="Texture2D" uid="uid://h4q3rk26kh24" path="res://textures/diffs/diff_shaded.png" id="2_cwrfu"]
+[ext_resource type="Shader" uid="uid://udf8pywr7nrn" path="res://shaders/ui/gradient.gdshader" id="3_cwrfu"]
+[ext_resource type="FontVariation" uid="uid://cr2eq0qqys1bc" path="res://fonts/IosevkaAileMix.Heavy.Italic.tres" id="3_oinrr"]
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="4_we5c5"]
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Control
+
+@onready var diff_name: Label = $base/name
+@onready var diff_value: Label = $base/value
+@onready var diff_plus: Label = $base/plus
+@onready var diff_tier: Label = $shaded/tier
+@onready var diff_shaded: Sprite2D = $shaded
+
+func set_difficulty(diff: Dictionary) -> void:
+	var display: Array = diff.display
+	diff_name.text = display[0]
+	if diff.has(\"override\"):
+		diff_value.override = diff.override
+		diff_plus.set_value(false)
+	else:
+		diff_value.override = \"\"
+		diff_value.set_value(diff.value)
+		diff_plus.set_value(diff.plus)
+	diff_tier.text = display[1]
+	diff_shaded.material.set_shader_parameter(\"color_a\", display[2])
+	diff_shaded.material.set_shader_parameter(\"color_b\", display[3])
+"
+
+[sub_resource type="GDScript" id="GDScript_hyg2l"]
+script/source = "extends \"res://scripts/generic_number_anim.gd\"
+
+var override: String = \"\"
+
+func _process(_delta: float) -> void:
+	if override.length() > 0:
+		text = override
+	else:
+		text = str(_calcuate_int())
+"
+
+[sub_resource type="GDScript" id="GDScript_g4s8q"]
+script/source = "extends Label
+
+var _tween: Tween = create_tween()
+
+func set_value(value: bool):
+	_tween.kill()
+	_tween = create_tween()
+	_tween.set_ease(Tween.EASE_OUT)
+	_tween.set_trans(Tween.TRANS_QUAD)
+	if value:
+		_tween.tween_property(self, \"rotation\", PI, 0.25)
+		_tween.parallel()
+		_tween.tween_property(self, \"self_modulate:a\", 1.0, 0.25)
+	else:
+		_tween.tween_property(self, \"rotation\", 0.0, 0.25)
+		_tween.parallel()
+		_tween.tween_property(self, \"self_modulate:a\", 0.0, 0.25)
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jida4"]
+shader = ExtResource("3_cwrfu")
+shader_parameter/begin = Vector2(0, 0)
+shader_parameter/end = Vector2(1, 1)
+shader_parameter/color_a = Vector4(1, 1, 1, 1)
+shader_parameter/color_b = Vector4(1, 1, 1, 1)
+shader_parameter/angle = 0.0
+
+[node name="difficulty" type="Control" unique_id=336640056]
+process_mode = 1
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = SubResource("GDScript_wvhbo")
+metadata/_edit_vertical_guides_ = [23.0, 22.0]
+metadata/_edit_horizontal_guides_ = [-4.0, -5.0]
+
+[node name="base" type="Sprite2D" parent="." unique_id=606529401]
+process_mode = 4
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_q5e74")
+
+[node name="name" type="Label" parent="base" unique_id=842424344]
+process_mode = 4
+offset_left = -174.0
+offset_top = -145.0
+offset_right = 106.0
+offset_bottom = -72.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_we5c5")
+theme_override_font_sizes/font_size = 72
+text = "HARD"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="value" type="Label" parent="base" unique_id=540427429]
+process_mode = 1
+offset_left = -388.0
+offset_top = -12.0
+offset_right = 124.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.8235294, 0.8235294, 0.8235294, 1)
+theme_override_fonts/font = ExtResource("4_we5c5")
+theme_override_font_sizes/font_size = 195
+text = "10"
+horizontal_alignment = 2
+script = SubResource("GDScript_hyg2l")
+length = 300.0
+easing = 8
+
+[node name="plus" type="Label" parent="base" unique_id=1571174234]
+process_mode = 1
+offset_left = 68.0
+offset_top = -69.0
+offset_right = 115.0
+offset_bottom = 32.0
+pivot_offset = Vector2(-1.5, 0.5)
+pivot_offset_ratio = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.8235294, 0.8235294, 0.8235294, 1)
+theme_override_fonts/font = ExtResource("4_we5c5")
+theme_override_font_sizes/font_size = 100
+text = "+"
+script = SubResource("GDScript_g4s8q")
+metadata/_edit_use_anchors_ = true
+
+[node name="shaded" type="Sprite2D" parent="." unique_id=1603155677]
+process_mode = 4
+clip_children = 2
+material = SubResource("ShaderMaterial_jida4")
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_cwrfu")
+
+[node name="tier" type="Label" parent="shaded" unique_id=1159814742]
+process_mode = 4
+offset_left = 183.33325
+offset_top = -136.66699
+offset_right = 467.33325
+offset_bottom = -48.666992
+rotation = 1.5707964
+theme_override_colors/font_color = Color(0, 0, 0, 0.44313726)
+theme_override_fonts/font = ExtResource("3_oinrr")
+theme_override_font_sizes/font_size = 70
+text = "TIER #1"
+metadata/_edit_use_anchors_ = true

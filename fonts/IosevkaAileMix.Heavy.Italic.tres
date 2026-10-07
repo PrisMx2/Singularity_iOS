@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" format=3 uid="uid://cr2eq0qqys1bc"]
+
+[ext_resource type="FontFile" uid="uid://bbb0pk7itj3m8" path="res://fonts/IosevkaAile_Heavy.ttf" id="1_wtt12"]
+
+[resource]
+base_font = ExtResource("1_wtt12")
+variation_transform = Transform2D(1, 0.25, 0, 1, 0, 0)
+spacing_bottom = -5

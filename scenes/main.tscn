@@ -1,0 +1,274 @@
+[gd_scene format=3 uid="uid://b4d6gflweapch"]
+
+[ext_resource type="Texture2D" uid="uid://bvwjjmh4fnwko" path="res://textures/main/background.png" id="2_jkv2x"]
+[ext_resource type="Texture2D" uid="uid://igs2gxmm0rfl" path="res://textures/char/shio.png" id="3_jbj1t"]
+[ext_resource type="PackedScene" uid="uid://6mndwqflxei" path="res://scenes/user_profile.tscn" id="4_jbj1t"]
+[ext_resource type="Texture2D" uid="uid://ddw8va4lloik1" path="res://textures/main/dialog.png" id="8_yc10j"]
+[ext_resource type="Script" uid="uid://dpx0v374tl21e" path="res://scripts/generic_text_anim.gd" id="9_muem4"]
+[ext_resource type="Texture2D" uid="uid://clvjposqy7c8" path="res://textures/icon/story.png" id="10_0ld40"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="10_dp3eg"]
+[ext_resource type="Texture2D" uid="uid://dj1s8yjs4i0gc" path="res://textures/main/settings.png" id="11_y6deb"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="12_0ld40"]
+[ext_resource type="Texture2D" uid="uid://fnh76n5nffk4" path="res://textures/main/notification.png" id="12_og1vs"]
+[ext_resource type="Texture2D" uid="uid://qqdogcxjfr6e" path="res://textures/icon/explore.png" id="13_0ld40"]
+[ext_resource type="Texture2D" uid="uid://cjdwdjn8tj74h" path="res://textures/main/change.png" id="13_2wyq8"]
+[ext_resource type="PackedScene" uid="uid://dtfh41ch5xo6j" path="res://scenes/button_b_large.tscn" id="16_jbj1t"]
+[ext_resource type="PackedScene" uid="uid://drhnclqqe5c75" path="res://scenes/button_b_small.tscn" id="17_dp3eg"]
+[ext_resource type="PackedScene" uid="uid://dbyp1kw5ludnx" path="res://scenes/button_a.tscn" id="17_muem4"]
+[ext_resource type="Texture2D" uid="uid://dd0d3na7t4wc8" path="res://textures/title/logo.png" id="19_0ld40"]
+[ext_resource type="FontFile" uid="uid://ksqfgmqc3t87" path="res://fonts/SarasaFixedSC_Light.ttf" id="20_gqmmt"]
+
+[sub_resource type="GDScript" id="GDScript_muem4"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var dialog: Label
+
+func _pressed() -> void:
+	dialog.set_decrease_override()
+	dialog.set_increase(str(randi()).repeat(2))
+"
+
+[sub_resource type="GDScript" id="GDScript_2o4a8"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_0ld40"]
+script/source = "extends Control
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Control
+
+func _pressed() -> void:
+	await SceneManager.change_scene(\"chapter_selection\")
+"
+
+[sub_resource type="GDScript" id="GDScript_jrdhs"]
+script/source = "extends Control
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_j3o1g"]
+script/source = "extends Control
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	var node: Node = await SceneManager.change_scene(\"settings\")
+	node.last_scene = \"main\"
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_ibjym"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	SceneManager.unknown_function()
+"
+
+[sub_resource type="GDScript" id="GDScript_igqou"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	var node: Node = await SceneManager.insert(\"chapter_confirm\")
+	node.last_scene = \"main\"
+	node.chapter = \"editor\"
+	node.load_chapter()
+
+func _process(_delta: float) -> void:
+	self_modulate.h = wrapf(self_modulate.h + _delta, 0.0, 1.0)
+"
+
+[node name="main" type="Node2D" unique_id=1603388367]
+process_mode = 4
+metadata/_edit_horizontal_guides_ = [974.0, 101.0, 163.0, 178.0]
+metadata/_edit_vertical_guides_ = [414.0]
+
+[node name="background" type="Sprite2D" parent="." unique_id=1299273396]
+process_mode = 4
+position = Vector2(961, 540)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_jkv2x")
+
+[node name="character" type="Button" parent="." unique_id=1848175025 node_paths=PackedStringArray("dialog")]
+process_mode = 1
+offset_left = -405.0
+offset_top = -1336.0
+offset_right = 1443.0
+offset_bottom = 1894.0
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(924, 2416)
+icon = ExtResource("3_jbj1t")
+flat = true
+script = SubResource("GDScript_muem4")
+dialog = NodePath("../dialog/dialog_text")
+pixel_button = true
+metadata/_edit_use_anchors_ = true
+
+[node name="user_profile" parent="." unique_id=557689118 instance=ExtResource("4_jbj1t")]
+position = Vector2(1387, 53)
+
+[node name="dialog" type="Node2D" parent="." unique_id=1205190813]
+process_mode = 4
+
+[node name="dialog" type="Button" parent="dialog" unique_id=893261615 node_paths=PackedStringArray("follow_modulate")]
+process_mode = 1
+offset_left = 671.0
+offset_top = 468.0
+offset_right = 1929.0
+offset_bottom = 1181.0
+scale = Vector2(0.45, 0.45)
+icon = ExtResource("8_yc10j")
+flat = true
+script = SubResource("GDScript_2o4a8")
+follow_modulate = [NodePath("../char_name"), NodePath("../char_name_sub"), NodePath("../dialog_text")]
+metadata/_edit_use_anchors_ = true
+
+[node name="char_name" type="Label" parent="dialog" unique_id=779265387]
+process_mode = 4
+offset_left = 705.0
+offset_top = 474.0
+offset_right = 798.0
+offset_bottom = 499.0
+theme_override_colors/font_color = Color(0.6, 0.8, 0.9372549, 1)
+theme_override_fonts/font = ExtResource("10_dp3eg")
+theme_override_font_sizes/font_size = 19
+text = "char.shio"
+horizontal_alignment = 1
+clip_text = true
+metadata/follow_button = true
+
+[node name="char_name_sub" type="Label" parent="dialog" unique_id=725757861]
+process_mode = 4
+offset_left = 791.0
+offset_top = 521.0
+offset_right = 1303.0
+offset_bottom = 538.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.5176471)
+theme_override_fonts/font = ExtResource("20_gqmmt")
+theme_override_font_sizes/font_size = 13
+text = "char.shio.sub"
+metadata/_edit_use_anchors_ = true
+
+[node name="dialog_text" type="Label" parent="dialog" unique_id=1100655481]
+process_mode = 1
+custom_maximum_size = Vector2(455, 200)
+offset_left = 714.0
+offset_top = 552.0
+offset_right = 1169.0
+offset_bottom = 752.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("12_0ld40")
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 1
+script = ExtResource("9_muem4")
+metadata/_edit_use_anchors_ = true
+
+[node name="story" parent="." unique_id=369277249 instance=ExtResource("17_dp3eg")]
+self_modulate = Color(0.8, 0.8, 1, 1)
+offset_left = 1347.0001
+offset_top = 502.0
+offset_right = 1347.0001
+offset_bottom = 502.0
+scale = Vector2(0.915, 0.915)
+mouse_filter = 0
+script = SubResource("GDScript_0ld40")
+metadata/text = "main.story.text"
+metadata/subtext = "main.story.subtext"
+metadata/icon = ExtResource("10_0ld40")
+
+[node name="explore" parent="." unique_id=1706733175 instance=ExtResource("16_jbj1t")]
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+offset_left = 1292.9999
+offset_top = 749.99994
+offset_right = 1292.9999
+offset_bottom = 749.99994
+scale = Vector2(0.908, 0.908)
+mouse_filter = 0
+script = SubResource("GDScript_wvhbo")
+metadata/text = "main.explore.text"
+metadata/subtext = "main.explore.subtext"
+metadata/icon = ExtResource("13_0ld40")
+
+[node name="shop" parent="." unique_id=241703751 instance=ExtResource("17_muem4")]
+offset_left = 741.0
+offset_top = 882.0
+offset_right = 741.0
+offset_bottom = 882.0
+script = SubResource("GDScript_jrdhs")
+metadata/text = "main.shop"
+
+[node name="files" parent="." unique_id=1758646092 instance=ExtResource("17_muem4")]
+offset_left = 999.0
+offset_top = 882.0
+offset_right = 999.0
+offset_bottom = 882.0
+script = SubResource("GDScript_j3o1g")
+metadata/text = "main.files"
+
+[node name="settings" type="Button" parent="." unique_id=2003631860]
+process_mode = 1
+offset_left = 72.0
+offset_top = 70.0
+offset_right = 209.0
+offset_bottom = 207.0
+scale = Vector2(0.5, 0.5)
+icon = ExtResource("11_y6deb")
+flat = true
+script = SubResource("GDScript_ifow5")
+metadata/_edit_use_anchors_ = true
+
+[node name="notification" type="Button" parent="." unique_id=453255906]
+process_mode = 1
+offset_left = 168.0
+offset_top = 70.0
+offset_right = 305.0
+offset_bottom = 207.0
+scale = Vector2(0.5, 0.5)
+icon = ExtResource("12_og1vs")
+flat = true
+script = SubResource("GDScript_abi3o")
+metadata/_edit_use_anchors_ = true
+
+[node name="change_character" type="Button" parent="." unique_id=271108679]
+process_mode = 1
+offset_left = 93.0
+offset_top = 915.0
+offset_right = 229.0
+offset_bottom = 1050.0
+scale = Vector2(0.5, 0.5)
+icon = ExtResource("13_2wyq8")
+flat = true
+script = SubResource("GDScript_ibjym")
+metadata/_edit_use_anchors_ = true
+
+[node name="editor" type="Button" parent="." unique_id=1006568276]
+process_mode = 1
+self_modulate = Color(0.8, 0.8, 1, 1)
+offset_left = 1426.0001
+offset_top = 401.00003
+offset_right = 5108.0
+offset_bottom = 905.0
+scale = Vector2(0.1, 0.1)
+icon = ExtResource("19_0ld40")
+flat = true
+script = SubResource("GDScript_igqou")

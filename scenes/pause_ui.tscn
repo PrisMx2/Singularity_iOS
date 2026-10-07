@@ -1,0 +1,226 @@
+[gd_scene format=3 uid="uid://merb1g26awoc"]
+
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="1_0rou8"]
+[ext_resource type="Shader" uid="uid://bycro7wi5j0tl" path="res://shaders/ui/stripes.gdshader" id="1_ynu8c"]
+[ext_resource type="Texture2D" uid="uid://dyay5jkghghd1" path="res://textures/pause_ui/panel.png" id="3_ynu8c"]
+[ext_resource type="Texture2D" uid="uid://bm57qqgup6xp0" path="res://textures/pause_ui/title.png" id="4_0rou8"]
+[ext_resource type="Texture2D" uid="uid://3tt36ltltrm3" path="res://textures/pause_ui/quit.png" id="5_7u2tl"]
+[ext_resource type="Texture2D" uid="uid://d1rtgli5fb8ub" path="res://textures/pause_ui/resume.png" id="6_tql76"]
+[ext_resource type="Texture2D" uid="uid://bsd4agk3f8co2" path="res://textures/pause_ui/restart.png" id="7_reg7a"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="8_d2bnl"]
+
+[sub_resource type="GDScript" id="GDScript_qlg0r"]
+script/source = "extends Node2D
+
+@onready var quit: Button = $quit/quit
+@onready var resume: Button = $resume/resume
+@onready var restart: Button = $restart/restart
+
+var player: Node3D
+var player_ui: Node2D
+
+func _tween_before() -> void:
+	modulate.a = 0.0
+
+func _tween_enter() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_interval(0.1)
+	tween.tween_property(self, \"modulate:a\", 1.0, 0.25).from(0.0)
+	await tween.finished
+
+func _tween_leave() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 0.0, 0.25).from(1.0)
+	tween.tween_interval(0.1)
+	await tween.finished
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ynu8c"]
+shader = ExtResource("1_0rou8")
+shader_parameter/strength = 2.0
+
+[sub_resource type="GDScript" id="GDScript_mm4l3"]
+script/source = "extends Button
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		accept_event()
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7u2tl"]
+shader = ExtResource("1_ynu8c")
+shader_parameter/speed = 0.015
+
+[sub_resource type="GDScript" id="GDScript_0rou8"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.leave(root)
+	root.player_ui.pause()
+	root.player.exit()
+"
+
+[sub_resource type="GDScript" id="GDScript_ynu8c"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.leave(root)
+	if root.player_ui.resume():
+		root.player.resume()
+"
+
+[sub_resource type="GDScript" id="GDScript_tuyoq"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.change_scene_and_leave(\"player\",root)
+	root.player_ui.pause()
+	root.player.restart()
+"
+
+[node name="pause_ui" type="Node2D" unique_id=1949641929]
+process_mode = 1
+script = SubResource("GDScript_qlg0r")
+
+[node name="buffer_copy" type="BackBufferCopy" parent="." unique_id=419602747]
+process_mode = 4
+copy_mode = 2
+
+[node name="blur" type="ColorRect" parent="." unique_id=1809575045]
+process_mode = 4
+material = SubResource("ShaderMaterial_ynu8c")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="stop_touch" type="Button" parent="." unique_id=1765077131]
+process_mode = 1
+self_modulate = Color(1, 1, 1, 0)
+offset_right = 1920.0
+offset_bottom = 1080.0
+disabled = true
+flat = true
+script = SubResource("GDScript_mm4l3")
+metadata/_edit_use_anchors_ = true
+
+[node name="darkness" type="ColorRect" parent="." unique_id=2094021225]
+process_mode = 4
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.050980393)
+
+[node name="stripe" type="ColorRect" parent="." unique_id=879711247]
+process_mode = 4
+material = SubResource("ShaderMaterial_7u2tl")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="panel" type="Sprite2D" parent="." unique_id=1799973507]
+process_mode = 4
+position = Vector2(960, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("3_ynu8c")
+
+[node name="title" type="Sprite2D" parent="." unique_id=1948935403]
+process_mode = 4
+position = Vector2(960.00006, 428)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_0rou8")
+
+[node name="quit" type="Node2D" parent="." unique_id=1425239060]
+process_mode = 4
+
+[node name="quit" type="Button" parent="quit" unique_id=709534635 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 578.0
+offset_top = 502.0
+offset_right = 747.0
+offset_bottom = 688.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("5_7u2tl")
+flat = true
+script = SubResource("GDScript_0rou8")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="quit" unique_id=1571506248]
+process_mode = 4
+offset_left = 390.0
+offset_top = 621.0
+offset_right = 902.0
+offset_bottom = 659.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.78431374)
+theme_override_fonts/font = ExtResource("8_d2bnl")
+theme_override_font_sizes/font_size = 30
+text = "player.quit"
+horizontal_alignment = 1
+
+[node name="resume" type="Node2D" parent="." unique_id=2108390802]
+process_mode = 4
+
+[node name="resume" type="Button" parent="resume" unique_id=1240814255 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 904.0
+offset_top = 491.0
+offset_right = 1128.0
+offset_bottom = 695.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("6_tql76")
+flat = true
+script = SubResource("GDScript_ynu8c")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="resume" unique_id=1289848209]
+process_mode = 4
+offset_left = 715.0
+offset_top = 621.0
+offset_right = 1227.0
+offset_bottom = 659.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.78431374)
+theme_override_fonts/font = ExtResource("8_d2bnl")
+theme_override_font_sizes/font_size = 30
+text = "player.resume"
+horizontal_alignment = 1
+
+[node name="restart" type="Node2D" parent="." unique_id=1345667462]
+process_mode = 4
+
+[node name="restart" type="Button" parent="restart" unique_id=177557933 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 1221.0
+offset_top = 495.00003
+offset_right = 1421.0
+offset_bottom = 681.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("7_reg7a")
+flat = true
+script = SubResource("GDScript_tuyoq")
+root = NodePath("../..")
+metadata/_edit_use_anchors_ = true
+
+[node name="text" type="Label" parent="restart" unique_id=687710065]
+process_mode = 4
+offset_left = 1020.0
+offset_top = 621.0
+offset_right = 1532.0
+offset_bottom = 659.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.78431374)
+theme_override_fonts/font = ExtResource("8_d2bnl")
+theme_override_font_sizes/font_size = 30
+text = "player.restart"
+horizontal_alignment = 1

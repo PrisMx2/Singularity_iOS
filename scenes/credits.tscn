@@ -1,0 +1,385 @@
+[gd_scene format=3 uid="uid://3wli7dnxtd6a"]
+
+[ext_resource type="Texture2D" uid="uid://bmvb7myd3a5lo" path="res://textures/about_us_licence/background.png" id="1_kyhnv"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="2_ih6pn"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="2_ooihk"]
+[ext_resource type="FontFile" uid="uid://co0r7vithn0jj" path="res://fonts/IosevkaEtoile_Light.ttf" id="3_ih6pn"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="4_7lgdl"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="5_c6kru"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="6_qbfqv"]
+[ext_resource type="Texture2D" uid="uid://bmpuvdt1t2rt3" path="res://textures/about_us_licence/playing.png" id="7_x5q3x"]
+
+[sub_resource type="GDScript" id="GDScript_45va6"]
+script/source = "extends Node2D
+
+@onready var scroller: PanelContainer = $scroller
+@onready var groups: HBoxContainer = $scroller/groups
+@onready var placeholder: Control = $scroller/groups/placeholder
+
+var credits: Array = [
+	[
+		\"credits.planning\",
+		[
+			\"龙傲\",
+			\"喵立方\",
+		]
+	],
+	[
+		\"credits.co_planning\",
+		[
+			\"FRidQ\",
+			\"Starduster.\",
+		]
+	],
+	[
+		\"credits.programming\",
+		[
+			\"clehj\",
+			\"打酱油的\",
+			\"喵立方\",
+			\"カボンイコ\",
+		]
+	],
+	[
+		\"credits.chart_design\",
+		[
+			\"∅\",
+			\"Clarity.\",
+			\"EaSta7z\",
+			\"FRidQ\",
+			\"huashm\",
+			\"LaKind\",
+			\"Luffy丶\",
+			\"Maltosaki\",
+			\"N/A\",
+			\"Saturaid_2\",
+			\"Surfuric Acid\",
+			\"VOLT\",
+			\"yosan\",
+			\"ZIXZ-126\",
+			\"车失\",
+			\"海特格林\",
+			\"澜枫awa\",
+			\"南瓜\",
+			\"鳝丝好吃\",
+			\"天崽awa\",
+			\"无铭\",
+			\"夜翼\",
+			\"宇.\",
+			\"新\",
+			\"只玩2厨\",
+		]
+	],
+	[
+		\"credits.ui\",
+		[
+			\"Calics\",
+		]
+	],
+	[
+		\"credits.ux\",
+		[
+			\"ANDiPERiS\",
+			\"Calics\",
+			\"nickeliFE\",
+			\"灯\",
+			\"喵立方\",
+		]
+	],
+	[
+		\"credits.composer\",
+		[
+			\"Calics\",
+			\"FRidQ\",
+			\"Starduster.\",
+			\"海特格林\",
+		]
+	],
+	[
+		\"credits.music_provide\",
+		[
+			\"A Himitsu\",
+			\"ak+q\",
+			\"Calics\",
+			\"Cvyleop\",
+			\"FRidQ\",
+			\"Frums\",
+			\"Hinkik\",
+			\"Kakun\",
+			\"MelodicStar_幕落星辰\",
+			\"Puru\",
+			\"Starduster.\",
+			\"tRee\",
+			\"かめりあ\",
+		]
+	],
+	[
+		\"credits.pv\",
+		[
+			\"GodStar\",
+			\"X-chalk\",
+			\"碳酸氢钠\",
+		]
+	],
+	[
+		\"credits.art\",
+		[
+			\"333xd\",
+			\"Calics\",
+			\"Danlion\",
+			\"LOAO\",
+			\"MILLENnium\",
+			\"momosaka\",
+			\"nickeliFE\",
+			\"PenetraP\",
+			\"SAI_036\",
+			\"SolsXXXE_Tecreym\",
+			\"TATOKI\",
+			\"yosan\",
+			\"玻璃碎。\",
+			\"车失\",
+			\"饭团tury\",
+			\"孤星LoneStar\",
+			\"碳酸氢钠\",
+			\"音Directly\",
+			\"浊流\",
+		]
+	],
+	[
+		\"credits.external_liaison\",
+		[
+			\"FRidQ\",
+		]
+	],
+	[
+		\"credits.art_director\",
+		[
+			\"TATOKI\",
+		]
+	],
+	[
+		\"credits.music_director\",
+		[
+			\"Calics\",
+		]
+	],
+	[
+		\"credits.sfx\",
+		[
+			\"Calics\",
+			\"海特格林\",
+			\"喵立方\",
+		]
+	],
+	[
+		\"credits.operations\",
+		[
+			\"FRidQ\",
+			\"XoPhantasmoX\",
+		]
+	],
+	[
+		\"credits.kitagon\",
+		[
+			\"ANDiPERiS\",
+			\"Calics\",
+			\"CaRpp_CR\",
+			\"Cluvent.\",
+			\"-Nesri-\",
+			\"nickliFE\",
+			\"车失\",
+			\"喵立方\",
+			\"龙傲\",
+			\"南瓜\",
+			\"宇.\",
+			\"浊流\",
+		]
+	],
+	[
+		\"credits.special_thanks\",
+		[
+			\"XoPhantasmoX\",
+			\"V. Sarela\",
+		]
+	],
+	[
+		\"credits.technology\",
+		[
+			\"Godot Engine 4.7.2\",
+			\"Audio Engine: FMOD Studio by Firelight Technologies Pty Ltd.\"
+		]
+	],
+	[
+		\"And You\",
+		[
+			\"Thank you for playing!\"
+		]
+	]
+]
+
+func _ready() -> void:
+	for group: Array in credits:
+		var item: VBoxContainer = preload(\"res://scenes/credits_item.tscn\").instantiate()
+		groups.add_child(item)
+		item.set_data(group)
+	groups.add_child(placeholder.duplicate())
+	await get_tree().process_frame
+	scroller.scroll_max = groups.size.x - 1325.0
+
+func _tween_before() -> void:
+	modulate.a = 0.0
+
+func _tween_enter() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
+	await tween.finished
+
+func _tween_leave() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 0.0, 0.2).from(1.0)
+	await tween.finished
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uwxm4"]
+
+[sub_resource type="GDScript" id="GDScript_2x42b"]
+script/source = "extends \"res://scripts/generic_hscroll.gd\"
+
+var _scroll_auto: float = 0.0
+
+func _tween_enter() -> void:
+	_scroll_auto = 0.0
+	reset()
+
+func _process(delta: float) -> void:
+	var delta_time: float = _get_time() - _scroll_time
+
+	if _touch_index == -1:
+		_scroll_auto += delta * 75.0
+		_scroll_speed *= ( 1.0 - minf(absf(_scroll_speed) * delta_time * resistance / 50.0, 0.1) )
+		if absf(_scroll_speed) < 0.5:
+			_scroll_speed = 0.0
+	else:
+		_scroll_auto = 0.0
+		_scroll_speed = _scroll_target - _scroll_pixel
+
+	stable = _scroll_speed == 0.0
+	_scroll_pixel += _scroll_speed * minf(delta_time / resistance / 20.0, 1.0)
+	var x: float = clampf((_scroll_record + _scroll_pixel - _scroll_base), -scroll_max, -scroll_min)
+	position.x = clampf(x - _scroll_auto, -scroll_max, -scroll_min)
+	_scroll_time = _get_time()
+"
+
+[sub_resource type="GDScript" id="GDScript_mq1hs"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.leave(root)
+"
+
+[node name="credits" type="Node2D" unique_id=1002557486]
+process_mode = 1
+script = SubResource("GDScript_45va6")
+metadata/_edit_horizontal_guides_ = [1074.0]
+
+[node name="background" type="Sprite2D" parent="." unique_id=723969337]
+process_mode = 4
+position = Vector2(960, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_kyhnv")
+
+[node name="scroller" type="PanelContainer" parent="." unique_id=1540870314]
+offset_left = 1950.0
+offset_right = 1990.0
+offset_bottom = 1080.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_uwxm4")
+script = SubResource("GDScript_2x42b")
+
+[node name="groups" type="HBoxContainer" parent="scroller" unique_id=1502927409]
+process_mode = 4
+custom_minimum_size = Vector2(0, 1080)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 180
+
+[node name="placeholder" type="Control" parent="scroller/groups" unique_id=1774151217]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+
+[node name="darkness" type="Sprite2D" parent="." unique_id=856177116]
+process_mode = 4
+position = Vector2(960.00006, 269)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("2_ih6pn")
+
+[node name="credits_zh" type="Label" parent="." unique_id=1795169858]
+process_mode = 4
+offset_left = 58.0
+offset_top = 50.0
+offset_right = 186.0
+offset_bottom = 97.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("2_ooihk")
+theme_override_font_sizes/font_size = 41
+text = "关于"
+horizontal_alignment = 1
+
+[node name="credits_en" type="Label" parent="." unique_id=1619116514]
+process_mode = 4
+offset_left = 58.0
+offset_top = 102.0
+offset_right = 186.0
+offset_bottom = 126.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("3_ih6pn")
+theme_override_font_sizes/font_size = 18
+text = "C r e d i t s"
+horizontal_alignment = 1
+
+[node name="bgm_info" type="Node2D" parent="." unique_id=1222295258]
+process_mode = 4
+
+[node name="text" type="Label" parent="bgm_info" unique_id=1436286966]
+process_mode = 4
+offset_left = 1351.0
+offset_top = 64.0
+offset_right = 1863.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.6484881, 0.6484881, 0.6484881, 1)
+theme_override_fonts/font = ExtResource("6_qbfqv")
+theme_override_font_sizes/font_size = 22
+text = "明途の旅路 - Calics feat. 夢ノ結唱 AVER"
+metadata/_edit_use_anchors_ = true
+
+[node name="playing" type="Sprite2D" parent="bgm_info" unique_id=1590589625]
+process_mode = 4
+position = Vector2(1822.0001, 78)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("7_x5q3x")
+
+[node name="edge_light" type="Sprite2D" parent="." unique_id=183958422]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, 1334)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_7lgdl")
+
+[node name="back" type="Button" parent="." unique_id=1691829862 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 11.0
+offset_top = 907.0
+offset_right = 415.0
+offset_bottom = 1196.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("5_c6kru")
+flat = true
+script = SubResource("GDScript_mq1hs")
+root = NodePath("..")

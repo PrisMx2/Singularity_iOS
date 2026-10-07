@@ -1,0 +1,11 @@
+[gd_resource type="FontVariation" format=3 uid="uid://csn2hocevtbr7"]
+
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="1_ctknv"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="2_3o6l8"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_3o6l8")])
+base_font = ExtResource("1_ctknv")
+variation_transform = Transform2D(1.3, 0, 0, 1.3, 0, 0)
+spacing_glyph = 5
+baseline_offset = 0.02

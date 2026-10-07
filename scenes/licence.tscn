@@ -1,0 +1,214 @@
+[gd_scene format=3 uid="uid://b3udurc41i0p0"]
+
+[ext_resource type="Texture2D" uid="uid://bmvb7myd3a5lo" path="res://textures/about_us_licence/background.png" id="1_07lru"]
+[ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="2_nvah1"]
+[ext_resource type="Texture2D" uid="uid://4ooeg04is35j" path="res://textures/generic/gradient_mask.png" id="2_x3hi5"]
+[ext_resource type="FontFile" uid="uid://co0r7vithn0jj" path="res://fonts/IosevkaEtoile_Light.ttf" id="3_gvj08"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="4_gvj08"]
+[ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="4_x3hi5"]
+[ext_resource type="Texture2D" uid="uid://bmpuvdt1t2rt3" path="res://textures/about_us_licence/playing.png" id="5_x3hi5"]
+[ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="5_x65wx"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="7_nvah1"]
+
+[sub_resource type="GDScript" id="GDScript_nvah1"]
+script/source = "extends Node2D
+
+func _tween_before() -> void:
+	modulate.a = 0.0
+
+func _tween_enter() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
+	await tween.finished
+
+func _tween_leave() -> void:
+	var tween: Tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(self, \"modulate:a\", 0.0, 0.2).from(1.0)
+	await tween.finished
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nvah1"]
+
+[sub_resource type="GDScript" id="GDScript_gvj08"]
+script/source = "extends \"res://scripts/generic_vscroll.gd\"
+
+var _scroll_auto: float = 0.0
+
+func _tween_enter() -> void:
+	_scroll_auto = 0.0
+	reset()
+
+func _process(delta: float) -> void:
+	var delta_time: float = _get_time() - _scroll_time
+
+	if _touch_index == -1:
+		_scroll_auto += delta * 240.0
+		_scroll_speed *= ( 1.0 - minf(absf(_scroll_speed) * delta_time * resistance / 50.0, 0.1) )
+		if abs(_scroll_speed) < 0.2:
+			_scroll_speed = 0.0
+	else:
+		_scroll_auto = 0.0
+		_scroll_speed = _scroll_target - _scroll_pixel
+
+	stable = _scroll_speed == 0.0
+	_scroll_pixel += _scroll_speed * minf(delta_time / resistance / 20.0, 1.0)
+	var y: float = clampf((_scroll_record + _scroll_pixel - _scroll_base), -scroll_max, scroll_min)
+	position.y = clampf(y - _scroll_auto, -scroll_max, -scroll_min)
+	_scroll_time = _get_time()
+"
+
+[sub_resource type="GDScript" id="GDScript_wvhbo"]
+script/source = "extends Label
+
+@export var scroller: Control
+
+func _ready() -> void:
+	text = \"=\".repeat(71) + \"\\n\"
+	text += Engine.get_license_text()
+	var licence_info: Dictionary = Engine.get_license_info()
+	for item: String in licence_info:
+		text += \"=\".repeat(71) + \"\\n\"
+		text += item + \"\\n\\n\"
+		text += licence_info[item]
+	var copyright_info: Array = Engine.get_copyright_info()
+	for item: Dictionary in copyright_info:
+		text += \"=\".repeat(71) + \"\\n\"
+		text += item.name + \"\\n\"
+		var partss: Array = item.parts
+		for parts: Dictionary in partss:
+			for part: String in parts:
+				var _part: Variant = parts[part]
+				var part_text: String = _part if _part is String else \"\\n    \".join(_part)
+				text += part.capitalize() + \": \" + part_text + \"\\n\"
+	await get_tree().process_frame
+	scroller.scroll_max = size.y - 700.0
+"
+
+[sub_resource type="GDScript" id="GDScript_jq8l6"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	await SceneManager.leave(root)
+"
+
+[node name="licence" type="Node2D" unique_id=1507060073]
+process_mode = 1
+script = SubResource("GDScript_nvah1")
+metadata/_edit_vertical_guides_ = [123.0]
+
+[node name="background" type="Sprite2D" parent="." unique_id=1459563101]
+process_mode = 4
+position = Vector2(960, 540)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_07lru")
+
+[node name="transform" type="Control" parent="." unique_id=760033425]
+process_mode = 4
+layout_mode = 3
+anchors_preset = 0
+offset_left = 350.0
+offset_right = 350.0
+mouse_filter = 2
+
+[node name="scroller" type="PanelContainer" parent="transform" unique_id=569425987]
+process_mode = 1
+layout_mode = 0
+offset_right = 1220.0
+offset_bottom = 241.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_nvah1")
+script = SubResource("GDScript_gvj08")
+
+[node name="fit" type="MarginContainer" parent="transform/scroller" unique_id=636961504]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 200
+
+[node name="licence" type="Label" parent="transform/scroller/fit" unique_id=999864092 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 0.87058824)
+theme_override_constants/line_spacing = 0
+theme_override_fonts/font = ExtResource("7_nvah1")
+theme_override_font_sizes/font_size = 32
+text = "Example"
+script = SubResource("GDScript_wvhbo")
+scroller = NodePath("../..")
+
+[node name="darkness" type="Sprite2D" parent="." unique_id=1114668231]
+process_mode = 4
+position = Vector2(960.00006, 269)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("2_x3hi5")
+
+[node name="licence_zh" type="Label" parent="." unique_id=799051143]
+process_mode = 4
+offset_left = 58.0
+offset_top = 50.0
+offset_right = 186.0
+offset_bottom = 97.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("2_nvah1")
+theme_override_font_sizes/font_size = 41
+text = "许可证"
+horizontal_alignment = 1
+
+[node name="licence_en" type="Label" parent="." unique_id=575241724]
+process_mode = 4
+offset_left = 58.0
+offset_top = 102.0
+offset_right = 186.0
+offset_bottom = 126.0
+theme_override_colors/font_color = Color(0.827451, 0.827451, 0.827451, 1)
+theme_override_fonts/font = ExtResource("3_gvj08")
+theme_override_font_sizes/font_size = 18
+text = "L i c e n c e"
+horizontal_alignment = 1
+
+[node name="bgm_info" type="Node2D" parent="." unique_id=228463810]
+process_mode = 4
+
+[node name="text" type="Label" parent="bgm_info" unique_id=1346161108]
+process_mode = 4
+offset_left = 1351.0
+offset_top = 64.0
+offset_right = 1863.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.6484881, 0.6484881, 0.6484881, 1)
+theme_override_fonts/font = ExtResource("4_gvj08")
+theme_override_font_sizes/font_size = 22
+text = "明途の旅路 - Calics feat. 夢ノ結唱 AVER"
+metadata/_edit_use_anchors_ = true
+
+[node name="playing" type="Sprite2D" parent="bgm_info" unique_id=374350422]
+process_mode = 4
+position = Vector2(1822.0001, 78)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("5_x3hi5")
+
+[node name="edge_light" type="Sprite2D" parent="." unique_id=1675438254]
+process_mode = 4
+self_modulate = Color(0.6, 0.8, 0.9372549, 1)
+position = Vector2(-260, 1334)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_x3hi5")
+
+[node name="back" type="Button" parent="." unique_id=1975870919 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_left = 11.0
+offset_top = 907.0
+offset_right = 415.0
+offset_bottom = 1196.0
+scale = Vector2(0.6, 0.6)
+icon = ExtResource("5_x65wx")
+flat = true
+script = SubResource("GDScript_jq8l6")
+root = NodePath("..")

@@ -1,0 +1,192 @@
+name: Build unsigned iOS IPA
+
+# ---------------------------------------------------------------------------
+# Produces an UNSIGNED .ipa for Singularity on a GitHub-hosted macOS runner,
+# so no Mac and no Apple Developer certificate are needed locally.
+#
+# WHY UNSIGNED
+#   Godot's own iOS exporter can build the .ipa for you, but only on macOS and
+#   only by shelling out to `xcodebuild archive` + `xcodebuild -exportArchive`
+#   with -allowProvisioningUpdates, which requires a real signing identity.
+#   With no certificate that step fails, so we deliberately stop Godot right
+#   after it generates the Xcode project (`application/export_project_only`)
+#   and drive xcodebuild ourselves with signing fully disabled.
+#
+# WHY NOT THE FMOD iOS AAR TRICK (as on Android)
+#   iOS never dlopen()s the audio backend: FMOD ships as a *static* library that
+#   Xcode links straight into the executable, so there is no JVM/Activity
+#   hand-off to arrange. The .a files are pulled in through the addon's
+#   .gdextension [libraries]/[dependencies] sections instead.
+#
+# ---------------------------------------------------------------------------
+# WHAT THE CONSUMING FRIEND DOES WITH THE RESULT
+#   The .ipa has no _CodeSignature and no embedded.mobileprovision, so any
+#   sideloading tool (Sideloadly / AltStore / iLoader) can re-sign it with their
+#   own free Apple ID. Nothing here is tied to a specific certificate.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "project.godot"
+      - "export_presets.cfg"
+      - "default_bus_layout.tres"
+      - "scripts/**"
+      - "scenes/**"
+      - "shaders/**"
+      - "chapter/**"
+      - "sounds/**"
+      - "fonts/**"
+      - "textures/**"
+      - "lang/**"
+      - "addons/**"
+      - ".github/workflows/build-ios.yml"
+
+permissions:
+  contents: write # required to publish the .ipa as a Release asset
+
+env:
+  # Release tag used for the download URLs (note the dash: 4.7.2-stable).
+  GODOT_TAG: "4.7.2-stable"
+  # Directory name Godot looks templates up under (note the dot: 4.7.2.stable).
+  GODOT_TEMPLATE_DIR: "4.7.2.stable"
+  APP_NAME: "Singularity"
+  # Xcode scheme == the basename passed to --export-* (Godot renames the
+  # template's scheme/xcodeproj to match it).
+  SCHEME: "Singularity"
+
+jobs:
+  build-ipa:
+    name: iOS unsigned IPA
+    # macos-latest ships Xcode; godot-cpp / Godot's iOS export path needs it.
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # The 82 MB .ogv and the ~44 MB godot-cpp archives make a plain
+          # checkout slow; a shallow one is enough, we never need history.
+          fetch-depth: 1
+
+      - name: Install Godot editor + iOS export templates
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+
+          curl -sSL -o godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_TAG}/Godot_v${GODOT_TAG}_macos.universal.zip"
+          curl -sSL -o templates.tpz \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_TAG}/Godot_v${GODOT_TAG}_export_templates.tpz"
+
+          unzip -q godot.zip
+          chmod +x "Godot.app/Contents/MacOS/Godot"
+
+          # Drop any quarantine bit just in case the runner added one.
+          xattr -dr com.apple.quarantine "Godot.app" || true
+
+          TPL_DIR="$HOME/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_DIR}"
+          mkdir -p "$TPL_DIR"
+          unzip -q templates.tpz -d tpl
+          cp -R tpl/templates/. "$TPL_DIR/"
+
+          echo "--- installed templates ---"
+          ls -la "$TPL_DIR"
+          echo "--- version.txt content ---"
+          cat "$TPL_DIR/version.txt"
+
+          "$RUNNER_TEMP/Godot.app/Contents/MacOS/Godot" --version
+
+      - name: Force export_project_only (runner-local edit, not committed)
+        run: |
+          set -euo pipefail
+          # Godot would otherwise try to sign+archive the .ipa itself and fail
+          # for lack of a certificate. We only want the generated Xcode project.
+          grep -q '^application/export_project_only=false$' export_presets.cfg
+          perl -pi -e 's/^application\/export_project_only=false$/application\/export_project_only=true/' export_presets.cfg
+          grep -n 'export_project_only' export_presets.cfg
+
+      - name: Import project resources
+        run: |
+          set -euo pipefail
+          # First import materialises .godot/ (fonts alone are ~155 MB), so this
+          # is the slow step. --headless keeps it off the display server.
+          "$RUNNER_TEMP/Godot.app/Contents/MacOS/Godot" \
+            --headless --path "$GITHUB_WORKSPACE" --import
+
+      - name: Export Xcode project
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          "$RUNNER_TEMP/Godot.app/Contents/MacOS/Godot" \
+            --headless --path "$GITHUB_WORKSPACE" \
+            --export-release "iOS" "$GITHUB_WORKSPACE/build/${APP_NAME}.ipa"
+
+          echo "--- build/ tree ---"
+          ls -la build/ || true
+
+          echo "--- does the generated project reference the FMOD/GDExtension libs? ---"
+          grep -nE 'libfmod|fmod_ogg|libgodot-cpp' "build/${APP_NAME}.xcodeproj/project.pbxproj" | head -30 || true
+
+      - name: Build app with code signing disabled
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project "build/${APP_NAME}.xcodeproj" \
+            -scheme "${SCHEME}" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "build/${APP_NAME}.xcarchive" \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            CODE_SIGN_ENTITLEMENTS= \
+            DEVELOPMENT_TEAM=
+
+      - name: Package into an unsigned .ipa
+        run: |
+          set -euo pipefail
+          APP="build/${APP_NAME}.xcarchive/Products/Applications/${APP_NAME}.app"
+          test -d "$APP" || { echo "::error::app bundle not found at $APP"; exit 1; }
+
+          echo "--- app bundle ---"
+          du -sh "$APP"
+          ls -la "$APP"
+
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "$APP" "Payload/${APP_NAME}.app"
+          zip -qry "${APP_NAME}-unsigned.ipa" Payload
+
+          echo "--- ipa ---"
+          ls -la "${APP_NAME}-unsigned.ipa"
+          unzip -l "${APP_NAME}-unsigned.ipa" | head -20
+          echo "--- must be empty: any leftover signature ---"
+          unzip -l "${APP_NAME}-unsigned.ipa" | grep -E '_CodeSignature|embedded.mobileprovision' || echo "no signature present (correct)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-unsigned-ipa
+          path: ${{ env.APP_NAME }}-unsigned.ipa
+          if-no-files-found: error
+          # Artifacts count against the account's Actions storage quota; the
+          # Release asset below is the long-lived copy.
+          retention-days: 7
+
+      - name: Publish as a Release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="ios-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" "${APP_NAME}-unsigned.ipa" \
+            --title "Singularity iOS (unsigned) #${GITHUB_RUN_NUMBER}" \
+            --notes "Unsigned .ipa built from ${GITHUB_SHA}.
+
+          Re-sign it with Sideloadly / AltStore using your own Apple ID before installing.
+          No signature and no provisioning profile are embedded." \
+          || gh release upload "$TAG" "${APP_NAME}-unsigned.ipa" --clobber

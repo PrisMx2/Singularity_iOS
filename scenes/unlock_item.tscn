@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://cx7crsca0w1ra"]
+
+[ext_resource type="Texture2D" uid="uid://dcn1gms56coya" path="res://textures/generic/ring.png" id="1_d2rkf"]
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="2_hb6ml"]
+[ext_resource type="Texture2D" uid="uid://cqtcy8ri61d7d" path="res://textures/unlock/finished.png" id="3_d2rkf"]
+
+[sub_resource type="GDScript" id="GDScript_crkbu"]
+script/source = "extends Control
+
+@onready var text: Label = $text
+@onready var finished: Sprite2D = $finished
+@onready var tree: ColorRect = $tree
+@onready var connected: ColorRect = $connect
+
+func load_data(data: Array) -> void:
+	var _finished: bool = data[0]
+	var x: float = data[2] * 77.0
+	offset_transform_position.x = x
+	finished.position.x = 750.0 - x
+	finished.visible = _finished
+	modulate = Color(0xCCCCFFFF) if _finished else Color(0xFFFFFFFF)
+	var texts: Array = data[1]
+	text.text = tr(texts[0]).format(texts.slice(1))
+	tree.visible = data[4]
+	connected.size.y = data[5]
+"
+
+[node name="unlock_item" type="Control" unique_id=2102274853]
+process_mode = 4
+custom_maximum_size = Vector2(1, 1)
+layout_mode = 3
+anchors_preset = 0
+offset_transform_enabled = true
+script = SubResource("GDScript_crkbu")
+metadata/_edit_horizontal_guides_ = [108.0, 125.0]
+
+[node name="ring" type="Sprite2D" parent="." unique_id=1662190138]
+process_mode = 4
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("1_d2rkf")
+
+[node name="text" type="Label" parent="." unique_id=1988494400]
+process_mode = 4
+custom_maximum_size = Vector2(545, -1)
+layout_mode = 1
+offset_left = 74.0
+offset_top = -60.0
+offset_right = 619.0
+offset_bottom = 60.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("2_hb6ml")
+theme_override_font_sizes/font_size = 25
+text = "Gunmu
+棍母"
+vertical_alignment = 1
+autowrap_mode = 1
+
+[node name="finished" type="Sprite2D" parent="." unique_id=667226309]
+process_mode = 4
+position = Vector2(865, 0)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_d2rkf")
+
+[node name="tree" type="ColorRect" parent="." unique_id=764770273]
+process_mode = 4
+visible = false
+layout_mode = 0
+offset_left = -80.0
+offset_top = -3.0
+offset_right = -7.0
+offset_bottom = 3.0
+mouse_filter = 2
+
+[node name="connect" type="ColorRect" parent="." unique_id=255483904]
+process_mode = 4
+layout_mode = 0
+offset_left = -3.0
+offset_top = 8.0
+offset_right = 3.0
+offset_bottom = 8.0
+mouse_filter = 2
