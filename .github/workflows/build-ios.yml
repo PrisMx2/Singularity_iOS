@@ -167,7 +167,36 @@ jobs:
           echo "--- must be empty: any leftover signature ---"
           unzip -l "${APP_NAME}-unsigned.ipa" | grep -E '_CodeSignature|embedded.mobileprovision' || echo "no signature present (correct)"
 
-      - name: Upload artifact
+      # The .xcarchive xcodebuild just produced is what Xcode's Organizer or a
+      # re-signing tool actually wants, and it is the only place the dSYMs live
+      # (packaging the .ipa throws them away). Ship it next to the .ipa.
+      - name: Package the .xcarchive
+        run: |
+          set -euo pipefail
+          ARCHIVE="build/${APP_NAME}.xcarchive"
+          test -d "$ARCHIVE" || { echo "::error::no archive at $ARCHIVE"; exit 1; }
+
+          echo "--- archive contents (2 levels) ---"
+          find "$ARCHIVE" -mindepth 1 -maxdepth 2 | sort | head -30
+
+          echo "--- dSYMs ---"
+          ls -la "$ARCHIVE/dSYMs" || echo "WARNING: archive has no dSYMs directory"
+
+          echo "--- archive Info.plist ---"
+          for key in Name SchemeName ApplicationProperties:ApplicationPath; do
+            printf '%s = ' "$key"
+            /usr/libexec/PlistBuddy -c "Print :${key}" "$ARCHIVE/Info.plist" || echo "(missing)"
+          done
+
+          # -y keeps symlinks as symlinks. upload-artifact would dereference
+          # them, and a symlink flattened into a regular file breaks the bundle
+          # for whoever unpacks the zip. Zipping from inside build/ also keeps
+          # the entry paths rooted at "Singularity.xcarchive/".
+          ( cd build && zip -qry "../${APP_NAME}.xcarchive.zip" "${APP_NAME}.xcarchive" )
+          ls -la "${APP_NAME}.xcarchive.zip"
+          unzip -l "${APP_NAME}.xcarchive.zip" | head -15
+
+      - name: Upload .ipa artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.APP_NAME }}-unsigned-ipa
@@ -177,16 +206,26 @@ jobs:
           # Release asset below is the long-lived copy.
           retention-days: 7
 
-      - name: Publish as a Release asset
+      - name: Upload .xcarchive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-xcarchive
+          path: ${{ env.APP_NAME }}.xcarchive.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish as Release assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           TAG="ios-${GITHUB_RUN_NUMBER}"
-          gh release create "$TAG" "${APP_NAME}-unsigned.ipa" \
+          gh release create "$TAG" "${APP_NAME}-unsigned.ipa" "${APP_NAME}.xcarchive.zip" \
             --title "Singularity iOS (unsigned) #${GITHUB_RUN_NUMBER}" \
-            --notes "Unsigned .ipa built from ${GITHUB_SHA}.
+            --notes "Unsigned iOS build from ${GITHUB_SHA}.
 
-          Re-sign it with Sideloadly / AltStore using your own Apple ID before installing.
-          No signature and no provisioning profile are embedded." \
-          || gh release upload "$TAG" "${APP_NAME}-unsigned.ipa" --clobber
+          ${APP_NAME}-unsigned.ipa -- re-sign it with Sideloadly / AltStore using your own Apple ID, then install.
+          ${APP_NAME}.xcarchive.zip -- the raw Xcode archive; unzip it to get ${APP_NAME}.xcarchive. Unsigned too, and it carries the dSYMs. Open it in Xcode's Organizer or feed it to a re-signing tool.
+
+          Neither file embeds a signature or a provisioning profile." \
+          || gh release upload "$TAG" "${APP_NAME}-unsigned.ipa" "${APP_NAME}.xcarchive.zip" --clobber
