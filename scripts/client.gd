@@ -6,10 +6,7 @@ var _data: Array = []
 func _ready() -> void:
 	_client = StreamPeerTCP.new()
 	var error: Error = _client.connect_to_host("127.0.0.1", 9178)
-	if error == 0:
-		DataManager.append_log("Client: Started successfully")
-	else:
-		DataManager.append_log("Client: Failed to start:", error)
+	if error != 0:
 		process_mode = Node.PROCESS_MODE_DISABLED
 
 func append_data(data: PackedByteArray) -> void:
@@ -22,7 +19,5 @@ func _physics_process(_delta: float) -> void:
 		data = ("<size=" + str(data.size()) + ">").to_utf8_buffer() + data
 		var size: int = data.size()
 		var error: Error = _client.put_data(data)
-		if error == 0:
-			DataManager.append_log("Client: Sent", size, "bytes")
-		else:
-			DataManager.append_log("Client: Failed to send", size, "bytes")
+		if error != 0:
+			pass

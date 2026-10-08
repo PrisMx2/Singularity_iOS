@@ -8,10 +8,7 @@ var _regex_int: RegEx
 func _ready():
 	_server = TCPServer.new()
 	var error: Error = _server.listen(9178)
-	if error == 0:
-		DataManager.append_log("Server: Started successfully")
-	else:
-		DataManager.append_log("Server: Failed to start:", error)
+	if error != 0:
 		process_mode = Node.PROCESS_MODE_DISABLED
 
 	_regex_header = RegEx.create_from_string(r"<size=\d+>")
@@ -21,7 +18,6 @@ func _physics_process(_delta: float) -> void:
 	while _server and _server.is_connection_available():
 		var peer: Variant = _server.take_connection()
 		if peer:
-			DataManager.append_log("Server: New connection:", peer.get_connected_host())
 			_peers[peer] = {
 				buffer = PackedByteArray(),
 				length = 0
@@ -31,7 +27,6 @@ func _physics_process(_delta: float) -> void:
 		peer.poll()
 
 		if peer.get_status() != StreamPeerTCP.STATUS_CONNECTED:
-			DataManager.append_log("Server: Connection closed:", peer.get_connected_host())
 			_peers.erase(peer)
 			continue
 
@@ -51,19 +46,16 @@ func _physics_process(_delta: float) -> void:
 					var header_string: String = header.get_string()
 					var length: int = _regex_int.search(header_string).get_string().to_int()
 					state.length = length
-					DataManager.append_log("Server: Receiving", length, "bytes")
 					var header_length: int = header_string.to_utf8_buffer().size()
 					state.buffer = state.buffer.slice(header_length, state.buffer.size())
 				else:
 					break
 
 			if state.length > 0:
-				DataManager.append_log("Server: Received", state.buffer.size(), "/", state.length, "bytes")
 				if state.buffer.size() >= state.length:
 					var body_bytes: PackedByteArray = state.buffer.slice(0, state.length)
 					state.buffer = state.buffer.slice(state.length, state.buffer.size())
 
-					DataManager.append_log("Server: Received", body_bytes.size(), "bytes")
 					var complete_string: String = body_bytes.get_string_from_utf8()
 					_handle_received_data(complete_string)
 
@@ -72,5 +64,5 @@ func _physics_process(_delta: float) -> void:
 					break
 
 func _handle_received_data(data: String):
-	DataManager.append_log("Server: Received successfully")
-	DataManager.append_log("Server: Preview:", data.substr(0, 200))
+	print("Server: Received successfully")
+	print("Server: Preview:", data.substr(0, 200))

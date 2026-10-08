@@ -436,18 +436,6 @@ var settings_data: Array = [
 				),
 			connected = false,
 		},
-		{
-			type = 0,
-			title = "Log (Debug)",
-			text = "Copy",
-			display = (func(data: Dictionary, value: Variant) -> void:
-				pass
-				),
-			apply = (func(value: Variant) -> void:
-				DisplayServer.clipboard_set(DataManager.get_log())
-				),
-			connected = false,
-		},
 	],
 ]
 
