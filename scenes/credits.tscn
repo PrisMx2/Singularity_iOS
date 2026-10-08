@@ -196,6 +196,12 @@ var credits: Array = [
 		]
 	],
 	[
+		\"credits.testing\",
+		[
+			\"Zotrod\",
+		]
+	],
+	[
 		\"credits.special_thanks\",
 		[
 			\"XoPhantasmoX\",

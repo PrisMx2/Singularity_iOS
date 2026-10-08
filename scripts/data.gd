@@ -17,6 +17,7 @@ const rank_color: Array = [
 
 var _chapter_data: Dictionary = {}
 var _save_data: Dictionary = {}
+var _log_data: Array = []
 var _dirty: bool = false
 
 func beat_to_ms(chart: Array, beat: float) -> float:
@@ -482,6 +483,17 @@ func set_save(id: String, data: Variant) -> Variant:
 
 func save_save() -> void:
 	Json.write_file_crypt("user://save", _save_data)
+
+func append_log(...list: Array) -> void:
+	var string_list: Array = []
+	for item: Variant in list:
+		string_list.append(str(item))
+	var text: String = Time.get_time_string_from_system() + ": " + " ".join(string_list)
+	print(text)
+	_log_data.append(text)
+
+func get_log() -> String:
+	return "\n".join(_log_data)
 
 func _ready() -> void:
 	if OS.has_feature("editor"):

@@ -11,6 +11,18 @@ var settings_dategory: Array = [ "GAMEPLAY", "AUDIO", "DISPLAY", "MISC" ]
 var settings_data: Array = [
 	[
 		{
+			type = -1,
+			title = "Test version of Singularity",
+			text = "",
+			display = (func(data: Dictionary, value: Variant) -> void:
+				pass
+				),
+			apply = (func(value: Variant) -> void:
+				pass
+				),
+			connected = false,
+		},
+		{
 			type = 1, key = "settings.autoplay", default = false,
 			title = "settings.autoplay",
 			questioning = (func() -> void:
@@ -58,18 +70,6 @@ var settings_data: Array = [
 			apply = (func(value: int) -> int:
 				value = wrapi(value, 0, 3)
 				return value
-				),
-			connected = false,
-		},
-		{
-			type = -1,
-			title = "settings.offset_test.disc",
-			text = "",
-			display = (func(data: Dictionary, value: Variant) -> void:
-				pass
-				),
-			apply = (func(value: Variant) -> void:
-				pass
 				),
 			connected = false,
 		},
@@ -180,6 +180,47 @@ var settings_data: Array = [
 		},
 	],
 	[
+		{
+			type = 2, key = "settings.dsp_buffer", default = 9,
+			title = "settings.dsp_buffer",
+			questioning = (func() -> void:
+				var dialog: Node = await SceneManager.insert("dialog")
+				dialog.data = {
+					type = 0,
+					title = "settings.dsp_buffer",
+					content = "settings.dsp_buffer.disc",
+					options = [
+						{ enabled = false },
+						{ enabled = true },
+						{ enabled = false },
+					]
+				}
+				),
+			display = (func(data: Dictionary, value: int) -> void:
+				data.text = str(2 ** value)
+				data.index = value
+				),
+			apply = (func(value: int) -> int:
+				value = clampi(value, 5, 11)
+				return value
+				),
+			connected = false,
+		},
+		{
+			type = 0,
+			title = "settings.dsp_buffer.apply",
+			text = "settings.dsp_buffer.reload",
+			display = (func(data: Dictionary, value: Variant) -> void:
+				pass
+				),
+			apply = (func(value: Variant) -> void:
+				SoundManager.reboot()
+				var player: FmodOggPlayer = FmodServer.create_player_by_ogg("res://sounds/offset_test.ogg")
+				player.play()
+				await player.finished
+				),
+			connected = true,
+		},
 		{
 			type = 3, key = "settings.music_volume", default = 0.8,
 			title = "settings.music_volume",
@@ -392,6 +433,18 @@ var settings_data: Array = [
 						{ enabled = true },
 					]
 				}
+				),
+			connected = false,
+		},
+		{
+			type = 0,
+			title = "Log (Debug)",
+			text = "Copy",
+			display = (func(data: Dictionary, value: Variant) -> void:
+				pass
+				),
+			apply = (func(value: Variant) -> void:
+				DisplayServer.clipboard_set(DataManager.get_log())
 				),
 			connected = false,
 		},
