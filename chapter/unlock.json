@@ -34,7 +34,6 @@
 	},
 	"preface.7_overclocked_reality.*":{
 		"visibility":[
-			"save	preface.6_event_horizon.*	rank	>	0",
 		],
 		"accessibility":[
 			"save	preface.6_event_horizon.*	rank	>=	5",

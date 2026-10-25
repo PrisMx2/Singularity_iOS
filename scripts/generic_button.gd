@@ -54,10 +54,10 @@ func _input(event: InputEvent) -> void:
 			if event.pressed and not event.canceled:
 				if _touch_index == -1:
 					var local_event: InputEvent = make_input_local(event)
-					if not get_global_rect().has_point(event.position)\
-					or pixel_button and image.get_pixelv(local_event.position).a8 < 25:
+					if ( not get_global_rect().has_point(event.position)
+					or pixel_button and image.get_pixelv(local_event.position).a8 < 25 ):
 						return
-					_touch_position = event.position
+					_touch_position = local_event.position
 					_touch_index = event.index
 					button_down.emit()
 					accept_event()
@@ -70,7 +70,7 @@ func _input(event: InputEvent) -> void:
 			if event.index == _touch_index:
 				var local_event: InputEvent = make_input_local(event)
 				if ( not get_global_rect().has_point(event.position)
-				or (event.position - _touch_position).length() > 25.0
+				or ( local_event.position - _touch_position ).length() > 50.0
 				or pixel_button and image.get_pixelv(local_event.position).a8 < 25 ):
 					_touch_index = -1
 					button_up.emit()

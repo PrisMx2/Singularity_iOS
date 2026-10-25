@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dvb364gelnaas"
-path="res://.godot/imported/missing_illust.jpg-1d8ad93519a8c1c84240770fad2a7007.ctex"
+uid="uid://dn6dlhvn0yv7j"
+path="res://.godot/imported/missing_illust.png-fe95ec4b48e7efb1e9a80471951c3a90.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textures/generic/missing_illust.jpg"
-dest_files=["res://.godot/imported/missing_illust.jpg-1d8ad93519a8c1c84240770fad2a7007.ctex"]
+source_file="res://textures/generic/missing_illust.png"
+dest_files=["res://.godot/imported/missing_illust.png-fe95ec4b48e7efb1e9a80471951c3a90.ctex"]
 
 [params]
 

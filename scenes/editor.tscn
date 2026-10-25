@@ -14,7 +14,6 @@
 [ext_resource type="Texture2D" uid="uid://dc4hwdu1drnva" path="res://textures/editor/layer.png" id="11_q8l03"]
 [ext_resource type="Shader" uid="uid://0koppdb0n8j8" path="res://shaders/ui/circle.gdshader" id="12_74j0u"]
 [ext_resource type="Texture2D" uid="uid://b4uxp3vwroefj" path="res://textures/editor/delete.png" id="12_78fwb"]
-[ext_resource type="Script" uid="uid://c8kjkc8kjurek" path="res://scripts/editor_ui.gd" id="13_74j0u"]
 [ext_resource type="Texture2D" uid="uid://jw2wee67knw4" path="res://textures/editor/undo.png" id="13_aa8l6"]
 [ext_resource type="Texture2D" uid="uid://bwtkuefd8wjk0" path="res://textures/editor/redo.png" id="14_k1sck"]
 [ext_resource type="Texture2D" uid="uid://djm65saxigupn" path="res://textures/editor/page.png" id="15_wyx26"]
@@ -27,17 +26,134 @@
 [ext_resource type="Texture2D" uid="uid://b8wakx5wmtlso" path="res://textures/generic/confirm.png" id="25_7msgv"]
 [ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="26_bn54a"]
 
-[sub_resource type="GDScript" id="GDScript_bn54a"]
-script/source = "extends \"res://scripts/generic_button.gd\"
+[sub_resource type="GDScript" id="GDScript_j3pel"]
+script/source = "extends Control
+
+const font: FontVariation = preload(\"res://fonts/IosevkaAileMix.Regular.tres\")
+
+const width: float = 1536.0
+const height: float = 864.0
+const grids: int = 20
+const grid_height: float = height / grids
+const base_ratio: float = 0.2
+const inv_base_ratio: float = 1.0 - base_ratio
+const base_height: float = height * inv_base_ratio
 
 @export var root: Node2D
-var index: int = -1
+@export var progress_drag: Button
+
+var beat_zoom: float = 4.0
+
+func beat_to_height(beat: float) -> float:
+	return base_height - ( beat - root.beat ) * beat_zoom * grid_height
+
+func height_to_beat_absolute(_height: float) -> float:
+	var inv_zoom: float = 1.0 / beat_zoom
+	return _height / grid_height * inv_zoom
+
+func height_to_beat_round(_height: float) -> float:
+	var inv_zoom: float = 1.0 / beat_zoom
+	return snappedf( root.beat - ( _height - base_height ) / grid_height * inv_zoom, inv_zoom )
+
+func height_to_beat_floor(_height: float) -> float:
+	var inv_zoom: float = 1.0 / beat_zoom
+	return snappedf( root.beat - ( ( _height - base_height ) / grid_height + 0.5 ) * inv_zoom, inv_zoom )
 
 func _draw() -> void:
 	if root.valid():
-		var line: Array = root.chart_data[1][index]
-		var status: Array = line[7]
-		draw_rect(Rect2(0.0, 105.0, 190.0, 2.0), Color(0x99CCEFFF), true, -1.0, true)
+		var step: float = 1.0 / beat_zoom
+		var beat: float = root.beat
+		var aligned: float = snappedf(beat, step)
+		for i: int in range(-1 - base_ratio * grids, 2 + inv_base_ratio * grids):
+			var line_beat: float = aligned + i * step
+			var y: float = beat_to_height(line_beat)
+			if fmod(line_beat, 1.0) == 0:
+				draw_line(Vector2(0.0, y), Vector2(width, y), Color(0xFFFFFFFF), 3.2, true)
+			else:
+				draw_line(Vector2(0.0, y), Vector2(width, y), Color(0xD3D3D3FF), 1.0, true)
+			draw_string(font, Vector2(-5.0, y - 10.0), str(line_beat), HORIZONTAL_ALIGNMENT_RIGHT, width, 20, Color(0xFFFFFFFF))
+	draw_line(Vector2(0.0, base_height), Vector2(width, base_height), Color(0x99CCEFFF), 4.5, true)
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wvhbo"]
+
+[sub_resource type="GDScript" id="GDScript_bn54a"]
+script/source = "extends \"res://scripts/generic_hscroll.gd\"
+
+@export var root: Node2D
+@export var main_ui: ColorRect
+
+var _touch_position: Vector2 = Vector2(0.0, 0.0)
+var _dragging: int = -1
+var _dragging_beat: float = 0.0
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed and not event.canceled:
+			if _touch_index == -1:
+				var rect: Rect2 = get_global_rect()
+				rect.position -= position
+				if not rect.has_point(event.position):
+					return
+				var local_event: InputEvent = make_input_local(event)
+				_touch_index = event.index
+				_touch_position = local_event.position
+				_dragging = -1
+				var x: float = event.position.x * 2.0 - position.x
+				_scroll_time = _get_time()
+				_scroll_record = position.x
+				_scroll_base = x
+				_scroll_pixel = x
+				_scroll_target = x
+				_scroll_speed = 0.0
+				accept_event()
+		else:
+			if _touch_index == event.index:
+				_touch_index = -1
+				if _dragging == 1:
+					root.seek_end()
+				accept_event()
+	elif event is InputEventScreenDrag:
+		if _touch_index == event.index:
+			var local_event: InputEvent = make_input_local(event)
+			var delta_vec: Vector2 = local_event.position - _touch_position
+			if _dragging == 1:
+				var scrolled: float = _dragging_beat + main_ui.height_to_beat_absolute(delta_vec.y)
+				root.seek_beat(scrolled)
+			elif _dragging == 2:
+				_scroll_target = event.position.x * 2.0 - position.x
+			else:
+				var distance: float = delta_vec.length()
+				if distance > 25.0:
+					_touch_position = local_event.position
+					if absf(delta_vec.y) > absf(delta_vec.x):
+						_dragging = 1
+						_dragging_beat = root.beat
+						root.seek_begin()
+					else:
+						_dragging = 2
+						var x: float = event.position.x * 2.0 - position.x
+						_scroll_time = _get_time()
+						_scroll_record = position.x
+						_scroll_base = x
+						_scroll_pixel = x
+						_scroll_target = x
+						_scroll_speed = 0.0
+			accept_event()
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	var pages: Array = root.edit_pages
+	pages.clear()
+	root._load_pages()
 "
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_k1sck"]
@@ -47,6 +163,8 @@ shader = ExtResource("12_74j0u")
 script/source = "extends ColorRect
 
 const font: FontVariation = preload(\"res://fonts/IosevkaAileMix.Regular.tres\")
+
+const corner: Vector2 = Vector2(1920.0, 0.0)
 
 @export var root: Node2D
 @export var drawer: Node2D
@@ -76,7 +194,7 @@ func __draw() -> void:
 			radius = center.x + arc_radius * ( i + 0.5 )
 			drawer.draw_set_transform(center, angle + PI)
 			var _color: Color = Color(0xCCCCFFBB) if j == _select_chain[i] else Color(0xCCCCFFFF)
-			drawer.draw_arc(Vector2(0.0, 0.0), radius, 0.0, arc, 128, _color, arc_radius, true)
+			drawer.draw_arc(Vector2(0.0, 0.0), radius, 0.0, arc, 128, _color, arc_radius, false)
 			angle += arc / 2.0
 			var text_position: Vector2 = center - Vector2(radius + arc_radius / 2.0, 0.0).rotated(angle)
 			drawer.draw_set_transform(text_position, angle)
@@ -131,11 +249,11 @@ func _calc(_position: Vector2) -> void:
 	_select_chain = chain
 	drawer.queue_redraw()
 
-func _gui_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed == true:
 			if _touch_index == -1:
-				var _position: Vector2 = center - event.position
+				var _position: Vector2 = corner - event.position
 				if _position.length() > center.x:
 					return
 				_touch_index = event.index
@@ -151,118 +269,9 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 	elif event is InputEventScreenDrag:
 		if event.index == _touch_index:
-			var _position: Vector2 = center - event.position
+			var _position: Vector2 = corner - event.position
 			_calc(_position)
 			accept_event()
-"
-
-[sub_resource type="GDScript" id="GDScript_6lm8n"]
-script/source = "extends ColorRect
-
-const basic_width: float = 19.2
-const basic_height: float = 10.8
-const basic_center: Vector3 = Vector3(basic_width / 2.0, basic_height / 2.0, 0.0)
-
-@export var root: Node2D
-@export var name_text: LineEdit
-@export var index_text: Label
-
-var _half_size: Vector2 = Vector2(190.0, 107.0) / 2.0
-
-var index: int = -1
-
-func _draw() -> void:
-	if root.valid() and index > -1:
-		var line: Array = root.chart_data[1][index]
-		var status: Array = line[7]
-		var style: int = status[1]
-		if style == 0 or style == 2:
-			var base_xyz: Vector3 = status[11] / basic_center
-			var base: Vector2 = Vector2(base_xyz.x, base_xyz.y) + _half_size
-			var half: Vector2 = Vector2(status[13] / basic_width * _half_size.x, 0.0).rotated(status[12].z)
-			if style == 0:
-				var multiplier: float = status[14]
-				var begin: Vector2 = base - half * multiplier
-				var end: Vector2 = base + half * multiplier
-				draw_line(begin, end, Color(0x99CCEFC4), 5.0, true)
-			elif style == 2:
-				var begin: Vector2 = base - half
-				var end: Vector2 = base + half
-				var bezier: Vector2 = status[16] / basic_center
-				var points: Array = []
-				for i: int in 128:
-					var progress: float = float(i) / 127.0
-					var point: Vector2 = begin.lerp(bezier, progress).lerp(bezier.lerp(end, progress), progress)
-					points.append(point)
-				draw_polyline(points, Color(0x99CCEFC4), 5.0, true)
-		elif style == 1:
-			pass
-		draw_rect(Rect2(0.0, 105.0, 190.0, 2.0), Color(0xCCCCFFFF), true, -1.0, true)
-
-func func_solo() -> void:
-	pass
-
-func func_events() -> void:
-	var pages: Array = root.edit_pages
-	var page_index: int = index * 2
-	pages.erase(page_index)
-	pages.insert(0, page_index)
-
-func func_notes() -> void:
-	var pages: Array = root.edit_pages
-	var page_index: int = index * 2 + 1
-	pages.erase(page_index)
-	pages.insert(0, page_index)
-
-func func_record() -> void:
-	pass
-
-func _ready() -> void:
-	if root.valid() and index > -1:
-		var line: Array = root.chart_data[1][index]
-		name_text.text = line[8]
-		index_text.text = str(index)
-
-func _process(_delta: float) -> void:
-	queue_redraw()
-"
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7msgv"]
-
-[sub_resource type="GDScript" id="GDScript_ifow5"]
-script/source = "extends \"res://scripts/generic_button.gd\"
-
-@export var parent: ColorRect
-
-func _pressed() -> void:
-	parent.func_solo()
-"
-
-[sub_resource type="GDScript" id="GDScript_v24q3"]
-script/source = "extends \"res://scripts/generic_button.gd\"
-
-@export var parent: ColorRect
-
-func _pressed() -> void:
-	parent.func_events()
-"
-
-[sub_resource type="GDScript" id="GDScript_abi3o"]
-script/source = "extends \"res://scripts/generic_button.gd\"
-
-@export var parent: ColorRect
-
-func _pressed() -> void:
-	parent.func_notes()
-"
-
-[sub_resource type="GDScript" id="GDScript_ibjym"]
-script/source = "extends \"res://scripts/generic_button.gd\"
-
-@export var parent: ColorRect
-
-func _pressed() -> void:
-	parent.func_record()
 "
 
 [sub_resource type="GDScript" id="GDScript_q68jb"]
@@ -290,7 +299,11 @@ func _calcuate(event: InputEvent) -> void:
 	event = make_input_local(event)
 	var progress: float = clampf( ( event.position.x - 15.0 ) / value.size.x, 0.0, 1.0 )
 	value.set_value_break(progress)
-	root.drag_time(progress)
+	root.seek_progress(progress)
+
+func set_value(progress: float) -> void:
+	progress = clampf(progress, 0.0, 1.0)
+	value.set_value_break(progress)
 
 func _input(event: InputEvent) -> void:
 	if can_process():
@@ -299,12 +312,51 @@ func _input(event: InputEvent) -> void:
 				var rect: Rect2 = get_global_rect()
 				if rect.has_point(event.position):
 					_touch_index = event.index
+					root.seek_begin()
 					_calcuate(event)
 			elif event.index == _touch_index:
 				_touch_index = -1
+				root.seek_end()
 		elif event is InputEventScreenDrag:
 			if _touch_index == event.index:
 				_calcuate(event)
+"
+
+[sub_resource type="GDScript" id="GDScript_o07iq"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+const play_icon: CompressedTexture2D = preload(\"res://textures/editor/play.png\")
+const pause_icon: CompressedTexture2D = preload(\"res://textures/editor/pause.png\")
+
+@export var root: Node2D
+
+func _pressed() -> void:
+	if root.playing():
+		root.pause()
+		icon = play_icon
+	else:
+		root.play()
+		icon = pause_icon
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ifow5"]
+
+[sub_resource type="GDScript" id="GDScript_m12ww"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var main_ui: ColorRect
+
+func _pressed() -> void:
+	main_ui.beat_zoom = minf(main_ui.beat_zoom * 2.0, 512.0)
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var main_ui: ColorRect
+
+func _pressed() -> void:
+	main_ui.beat_zoom = maxf(main_ui.beat_zoom / 2.0, 0.03125)
 "
 
 [sub_resource type="GDScript" id="GDScript_nhltt"]
@@ -340,8 +392,8 @@ func _pressed() -> void:
 [node name="editor" type="Node2D" unique_id=1901070755]
 process_mode = 1
 script = ExtResource("1_pxqd5")
-metadata/_edit_vertical_guides_ = [12.0, 97.0, 109.0, 194.0, 206.0, 291.0, 303.0, 388.0, 400.0, 485.0, 497.0, 582.0, 594.0, 679.0, 691.0, 776.0, 788.0, 873.0, 885.0, 970.0, 982.0, 1067.0, 1079.0, 1164.0, 1176.0, 178.0, 1730.0, 1261.0, 1273.0, 1358.0, 1370.0, 1900.0, 960.0]
-metadata/_edit_horizontal_guides_ = [1068.0, 983.0, 971.0, 12.0, 81.0, 886.0, 874.0, 864.0, 137.0, 20.0, 139.0, 83.0]
+metadata/_edit_vertical_guides_ = [192.0, 1728.0, 1792.0, 1856.0]
+metadata/_edit_horizontal_guides_ = [915.0, 1016.0, 904.0, 997.0]
 
 [node name="background" type="ColorRect" parent="." unique_id=1970906857]
 process_mode = 4
@@ -350,39 +402,53 @@ offset_bottom = 1080.0
 mouse_filter = 2
 color = Color(0.17254902, 0.17254902, 0.17254902, 1)
 
-[node name="main_ui" type="Control" parent="." unique_id=140787449 node_paths=PackedStringArray("root")]
+[node name="viewport_container" type="SubViewportContainer" parent="." unique_id=1904636776]
+process_mode = 4
+offset_left = 192.0
+offset_right = 2112.0
+offset_bottom = 1080.0
+scale = Vector2(0.8, 0.8)
+mouse_filter = 2
+
+[node name="viewport" type="SubViewport" parent="viewport_container" unique_id=126984051]
+process_mode = 4
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="main_ui" type="ColorRect" parent="." unique_id=1856261336 node_paths=PackedStringArray("root", "progress_drag")]
 process_mode = 1
 clip_contents = true
-layout_mode = 3
-anchors_preset = 0
 offset_left = 192.0
 offset_right = 1728.0
 offset_bottom = 864.0
-offset_transform_enabled = true
-offset_transform_position = Vector2(0, 100)
-script = ExtResource("13_74j0u")
+mouse_filter = 2
+color = Color(0, 0, 0, 0.5019608)
+script = SubResource("GDScript_j3pel")
 root = NodePath("..")
+progress_drag = NodePath("../bottom_bar/progress/frame/drag")
 
-[node name="viewport_container" type="SubViewportContainer" parent="main_ui" unique_id=1904636776]
-process_mode = 4
-show_behind_parent = true
+[node name="scroller" type="PanelContainer" parent="main_ui" unique_id=2119048895 node_paths=PackedStringArray("root", "main_ui")]
+process_mode = 1
+custom_maximum_size = Vector2(1536, -1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 384.0
-offset_bottom = 216.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.8, 0.8)
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_wvhbo")
+script = SubResource("GDScript_bn54a")
+root = NodePath("../..")
+main_ui = NodePath("..")
 
-[node name="viewport" type="SubViewport" parent="main_ui/viewport_container" unique_id=126984051]
+[node name="page" type="HBoxContainer" parent="main_ui/scroller" unique_id=1493182692]
 process_mode = 4
-handle_input_locally = false
-scaling_3d_scale = 0.75
-size = Vector2i(1920, 1080)
-render_target_update_mode = 4
+propagate_maximum_size = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
 
 [node name="left_bar" type="Node2D" parent="." unique_id=1431361154]
 process_mode = 4
@@ -437,18 +503,6 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("5_wyx26")
 
-[node name="item" type="Button" parent="left_bar/mask/scroller" unique_id=308480742 node_paths=PackedStringArray("root", "scroller")]
-process_mode = 1
-visible = false
-clip_contents = true
-layout_mode = 0
-offset_right = 190.0
-offset_bottom = 107.0
-flat = true
-script = SubResource("GDScript_bn54a")
-root = NodePath("../../../..")
-scroller = NodePath("..")
-
 [node name="right_bar" type="Node2D" parent="." unique_id=896623120]
 process_mode = 4
 position = Vector2(1730, 139)
@@ -470,6 +524,15 @@ offset_right = 190.0
 mouse_filter = 2
 color = Color(0.68235296, 0.68235296, 0.83137256, 1)
 
+[node name="clear" type="Button" parent="right_bar" unique_id=980494174 node_paths=PackedStringArray("root")]
+process_mode = 1
+offset_top = -139.0
+offset_right = 190.0
+offset_bottom = -2.0
+flat = true
+script = SubResource("GDScript_ifow5")
+root = NodePath("../..")
+
 [node name="drag" type="ColorRect" parent="right_bar" unique_id=859204511 node_paths=PackedStringArray("root", "drawer")]
 process_mode = 1
 z_index = 2
@@ -478,7 +541,7 @@ offset_left = 70.0
 offset_top = -259.0
 offset_right = 310.0
 offset_bottom = -19.0
-mouse_filter = 1
+mouse_filter = 2
 color = Color(0.8, 0.8, 1, 1)
 script = SubResource("GDScript_wvhbo")
 root = NodePath("../..")
@@ -501,7 +564,7 @@ theme_override_font_sizes/font_size = 45
 text = "???"
 horizontal_alignment = 2
 
-[node name="mask" type="Control" parent="right_bar" unique_id=823986706]
+[node name="lines" type="Control" parent="right_bar" unique_id=823986706]
 process_mode = 4
 clip_contents = true
 layout_mode = 3
@@ -510,7 +573,7 @@ offset_right = 190.0
 offset_bottom = 781.0
 mouse_filter = 2
 
-[node name="scroller" type="Control" parent="right_bar/mask" unique_id=1493876185]
+[node name="scroller" type="Control" parent="right_bar/lines" unique_id=1493876185]
 process_mode = 1
 layout_mode = 1
 anchors_preset = 15
@@ -520,128 +583,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("5_wyx26")
-
-[node name="item" type="ColorRect" parent="right_bar/mask/scroller" unique_id=968355011 node_paths=PackedStringArray("root", "name_text", "index_text")]
-process_mode = 1
-visible = false
-clip_contents = true
-layout_mode = 0
-offset_right = 190.0
-offset_bottom = 107.0
-mouse_filter = 1
-color = Color(1, 1, 1, 0)
-script = SubResource("GDScript_6lm8n")
-root = NodePath("../../../..")
-name_text = NodePath("fit/fit_text/name")
-index_text = NodePath("fit/fit_text/index")
-
-[node name="fit" type="VBoxContainer" parent="right_bar/mask/scroller/item" unique_id=2116748728]
-process_mode = 4
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 0
-
-[node name="fit_text" type="MarginContainer" parent="right_bar/mask/scroller/item/fit" unique_id=1885768642]
-process_mode = 4
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = -11
-
-[node name="name" type="LineEdit" parent="right_bar/mask/scroller/item/fit/fit_text" unique_id=2041284957]
-process_mode = 1
-layout_mode = 2
-theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
-theme_override_constants/caret_width = 5
-theme_override_fonts/font = ExtResource("23_4jiep")
-theme_override_font_sizes/font_size = 26
-theme_override_styles/focus = SubResource("StyleBoxEmpty_7msgv")
-placeholder_text = "New Line"
-max_length = 9
-context_menu_enabled = false
-emoji_menu_enabled = false
-middle_mouse_paste_enabled = false
-selecting_enabled = false
-drag_and_drop_selection_enabled = false
-flat = true
-caret_blink = true
-caret_blink_interval = 0.4
-script = ExtResource("24_fce0a")
-filter = "1234567890qwertyuiopasdfghjklzxcvbnm _+-?!()[]{}<>,./\\@#$%^&*~"
-
-[node name="index" type="Label" parent="right_bar/mask/scroller/item/fit/fit_text" unique_id=244348380]
-process_mode = 4
-layout_mode = 2
-theme_override_fonts/font = ExtResource("23_4jiep")
-theme_override_font_sizes/font_size = 26
-text = "Index"
-horizontal_alignment = 2
-
-[node name="fit_buttons" type="HBoxContainer" parent="right_bar/mask/scroller/item/fit" unique_id=815825557]
-process_mode = 4
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-theme_override_constants/separation = 0
-
-[node name="solo" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=359786045 node_paths=PackedStringArray("parent", "scroller")]
-process_mode = 1
-z_index = 1
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("23_4jiep")
-theme_override_font_sizes/font_size = 50
-text = "S"
-flat = true
-script = SubResource("GDScript_ifow5")
-parent = NodePath("../../..")
-scroller = NodePath("../../../..")
-
-[node name="events" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=646687123 node_paths=PackedStringArray("parent", "scroller")]
-process_mode = 1
-z_index = 1
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("23_4jiep")
-theme_override_font_sizes/font_size = 50
-text = "E"
-flat = true
-script = SubResource("GDScript_v24q3")
-parent = NodePath("../../..")
-scroller = NodePath("../../../..")
-
-[node name="notes" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=604298834 node_paths=PackedStringArray("parent", "scroller")]
-process_mode = 1
-z_index = 1
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("23_4jiep")
-theme_override_font_sizes/font_size = 50
-text = "N"
-flat = true
-script = SubResource("GDScript_abi3o")
-parent = NodePath("../../..")
-scroller = NodePath("../../../..")
-
-[node name="record" type="Button" parent="right_bar/mask/scroller/item/fit/fit_buttons" unique_id=1386511493 node_paths=PackedStringArray("parent", "scroller")]
-process_mode = 1
-z_index = 1
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("23_4jiep")
-theme_override_font_sizes/font_size = 50
-text = "R"
-flat = true
-script = SubResource("GDScript_ibjym")
-parent = NodePath("../../..")
-scroller = NodePath("../../../..")
 
 [node name="bottom_bar" type="Node2D" parent="." unique_id=1453651259]
 process_mode = 4
@@ -707,171 +648,280 @@ offset_bottom = 866.0
 mouse_filter = 2
 color = Color(0.68235296, 0.68235296, 0.83137256, 1)
 
-[node name="mask" type="Control" parent="bottom_bar" unique_id=1174059626]
-process_mode = 4
-clip_contents = true
-layout_mode = 3
-anchors_preset = 0
-offset_left = 206.0
-offset_top = 983.0
-offset_right = 1730.0
-offset_bottom = 1068.0
-mouse_filter = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="scroller" type="Control" parent="bottom_bar/mask" unique_id=1906416451]
-process_mode = 1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("4_q68jb")
-
-[node name="play" type="Button" parent="bottom_bar/mask/scroller" unique_id=1326195023]
+[node name="play_pause" type="Button" parent="bottom_bar" unique_id=1326195023 node_paths=PackedStringArray("root")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_right = 264.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+offset_left = 1728.0
+offset_top = 1016.0
+offset_right = 1792.0
+offset_bottom = 1080.0
+theme_override_constants/icon_max_width = 56
 icon = ExtResource("5_3vi5u")
 flat = true
-script = ExtResource("6_78fwb")
+script = SubResource("GDScript_o07iq")
+root = NodePath("../..")
 
-[node name="copy" type="Button" parent="bottom_bar/mask/scroller" unique_id=529268202]
+[node name="mask" type="VBoxContainer" parent="bottom_bar" unique_id=1688628544]
+process_mode = 4
+offset_left = 192.0
+offset_top = 915.00006
+offset_right = 1728.0
+offset_bottom = 1080.0
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="scroller" type="PanelContainer" parent="bottom_bar/mask" unique_id=685678694]
+process_mode = 1
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ifow5")
+script = ExtResource("4_q68jb")
+
+[node name="buttons" type="HBoxContainer" parent="bottom_bar/mask/scroller" unique_id=800342322]
+process_mode = 4
+layout_mode = 2
+size_flags_horizontal = 4
+offset_transform_enabled = true
+mouse_filter = 2
+
+[node name="copy" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=529268202 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 97.0
-offset_right = 361.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("7_74j0u")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="cut" type="Button" parent="bottom_bar/mask/scroller" unique_id=1442932590]
+[node name="cut" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=1442932590 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 193.99997
-offset_right = 458.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("8_sdh1e")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="paste" type="Button" parent="bottom_bar/mask/scroller" unique_id=1760621422]
+[node name="paste" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=1760621422 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 290.99997
-offset_right = 555.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("9_2w0at")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="fill" type="Button" parent="bottom_bar/mask/scroller" unique_id=794882269]
+[node name="fill" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=794882269 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 388.0
-offset_right = 652.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("10_5tdu1")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="layer" type="Button" parent="bottom_bar/mask/scroller" unique_id=1767062450]
+[node name="layer" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=1767062450 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 485.0
-offset_right = 749.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("11_q8l03")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="undo" type="Button" parent="bottom_bar/mask/scroller" unique_id=1988850732]
+[node name="undo" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=1988850732 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 582.0
-offset_right = 846.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("13_aa8l6")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="redo" type="Button" parent="bottom_bar/mask/scroller" unique_id=591555306]
+[node name="redo" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=591555306 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 679.0
-offset_right = 943.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("14_k1sck")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="page" type="Button" parent="bottom_bar/mask/scroller" unique_id=1894677257]
+[node name="page" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=1894677257 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 776.0
-offset_right = 1040.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("15_wyx26")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="page_mode" type="Button" parent="bottom_bar/mask/scroller" unique_id=1533503028]
+[node name="page_mode" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=1533503028 node_paths=PackedStringArray("scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 873.0
-offset_right = 1137.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("16_4jiep")
 flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
 
-[node name="zoom_in" type="Button" parent="bottom_bar/mask/scroller" unique_id=96553816]
+[node name="zoom_in" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=96553816 node_paths=PackedStringArray("main_ui", "scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 970.0
-offset_right = 1234.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("17_fce0a")
 flat = true
-script = ExtResource("6_78fwb")
+script = SubResource("GDScript_m12ww")
+main_ui = NodePath("../../../../../main_ui")
+scroller = NodePath("../..")
 
-[node name="zoom_out" type="Button" parent="bottom_bar/mask/scroller" unique_id=866006186]
+[node name="zoom_out" type="Button" parent="bottom_bar/mask/scroller/buttons" unique_id=866006186 node_paths=PackedStringArray("main_ui", "scroller")]
 process_mode = 1
 self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
-layout_mode = 0
-offset_left = 1067.0
-offset_right = 1331.0
-offset_bottom = 264.0
-scale = Vector2(0.32, 0.32)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
 icon = ExtResource("18_m12ww")
 flat = true
+script = SubResource("GDScript_abi3o")
+main_ui = NodePath("../../../../../main_ui")
+scroller = NodePath("../..")
+
+[node name="scroller2" type="PanelContainer" parent="bottom_bar/mask" unique_id=227372525]
+process_mode = 1
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ifow5")
+script = ExtResource("4_q68jb")
+
+[node name="buttons" type="HBoxContainer" parent="bottom_bar/mask/scroller2" unique_id=158390963]
+process_mode = 4
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="copy" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=2079921890 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("7_74j0u")
+flat = true
 script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="cut" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=503201126 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("8_sdh1e")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="paste" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=1729929527 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("9_2w0at")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="fill" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=1664045451 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("10_5tdu1")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="layer" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=869138743 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("11_q8l03")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="undo" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=1162461513 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("13_aa8l6")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="redo" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=2062276894 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("14_k1sck")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="page" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=746027619 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("15_wyx26")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="page_mode" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=618425291 node_paths=PackedStringArray("scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("16_4jiep")
+flat = true
+script = ExtResource("6_78fwb")
+scroller = NodePath("../..")
+
+[node name="zoom_in" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=1499996759 node_paths=PackedStringArray("main_ui", "scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("17_fce0a")
+flat = true
+script = SubResource("GDScript_m12ww")
+main_ui = NodePath("../../../../../main_ui")
+scroller = NodePath("../..")
+
+[node name="zoom_out" type="Button" parent="bottom_bar/mask/scroller2/buttons" unique_id=642582870 node_paths=PackedStringArray("main_ui", "scroller")]
+process_mode = 1
+self_modulate = Color(0.827451, 0.827451, 0.827451, 1)
+layout_mode = 2
+theme_override_constants/icon_max_width = 64
+icon = ExtResource("18_m12ww")
+flat = true
+script = SubResource("GDScript_abi3o")
+main_ui = NodePath("../../../../../main_ui")
+scroller = NodePath("../..")
 
 [node name="new_chart" type="ColorRect" parent="." unique_id=33017368]
 process_mode = 1

@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://bu8d80s6kcf21"]
+
+[ext_resource type="FontVariation" uid="uid://d4a7tlu7n2j8n" path="res://fonts/IosevkaAileMix.Regular.tres" id="1_jv6cy"]
+
+[node name="item" type="Label" unique_id=181127008]
+process_mode = 4
+offset_left = 545.0
+offset_top = -32.0
+offset_right = 920.0
+offset_bottom = 3.0
+pivot_offset = Vector2(-545, 32)
+theme_override_colors/font_color = Color(1, 1, 1, 0.7137255)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("1_jv6cy")
+theme_override_font_sizes/font_size = 27
+text = "Example"
+text_overrun_behavior = 5

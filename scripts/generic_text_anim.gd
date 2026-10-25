@@ -1,5 +1,7 @@
 extends Label
 
+const filter: String = r"1234567890qwertyuiopasdfghjklzxcvbnm _+-?!()[]{}<>,./\@#$%^&*~"
+
 @export var length_decrease: float = 420.0
 @export var length_increase: float = 550.0
 @export var easing: int = 5
@@ -16,7 +18,7 @@ func _get_time() -> float:
 	return Time.get_ticks_usec() / 1000.0
 
 func _random_char(_char: String) -> String:
-	if _char.to_lower() in "1234567890qwertyuiopasdfghjklzxcvbnm":
+	if _char.to_lower() in filter:
 		return "#%&+=?!"[randi_range(0, 6)]
 	else:
 		return _char

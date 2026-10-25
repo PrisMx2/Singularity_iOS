@@ -12,5 +12,12 @@ extends Node
 # Until that call succeeds, update() below is a harmless no-op and the Player
 # factory methods return null.
 
+# Hello, this is PrisMx2.
+# I used AI to read documents and draft part of the framework.
+# But I've already checked the code thoroughly.
+# If you encounter a bug, please report it to the account that provided the plugin.
+
+# Using FMOD 2.03.14, Core API Only
+
 func _process(_delta: float) -> void:
   FmodServer.update()

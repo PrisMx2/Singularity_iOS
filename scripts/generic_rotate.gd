@@ -1,4 +1,4 @@
-extends Node2D
+extends Control
 
 @export var rotate_offset: Vector2 = Vector2(0.0, 0.0)
 @export var rotate_limit: Vector2 = Vector2(0.0, 5.0)
@@ -50,7 +50,7 @@ func _compare_angle(a: float, b: float) -> float:
 func _fix_angle(a: float) -> float:
 	return wrapf(a + PI, 0.0, TAU) - PI
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed:
 			if _touch_index == -1:
@@ -69,6 +69,7 @@ func _unhandled_input(event: InputEvent) -> void:
 						_align_tween.kill()
 						started.emit()
 						dirty = true
+						accept_event()
 		else:
 			if _touch_index == event.index:
 				_touch_index = -1
@@ -89,9 +90,11 @@ func _unhandled_input(event: InputEvent) -> void:
 						_align_tween.set_trans(Tween.TRANS_CUBIC)
 						_align_tween.tween_property(self, "rotation", angle, align_duration / 2.0).from(rotation)
 						dirty = true
+				accept_event()
 	elif event is InputEventScreenDrag:
 		if _touch_index == event.index:
 			_rotate_target = _calcuate_angle(event)
+			accept_event()
 
 func stop() -> void:
 	_rotate_speed = 0.0

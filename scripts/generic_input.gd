@@ -2,7 +2,7 @@ extends LineEdit
 
 @export var label: Label
 
-@export var filter: String = ""
+@export var filter: String = r"1234567890qwertyuiopasdfghjklzxcvbnm _+-?!()[]{}<>,./\@#$%^&*~"
 
 func _tween_before() -> void:
 	text = ""

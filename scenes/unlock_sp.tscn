@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c4af41wt37y60" path="res://textures/main_chapters/grid.png" id="2_11gc3"]
 [ext_resource type="Texture2D" uid="uid://bo3rpn1l631w8" path="res://textures/generic/edge_light.png" id="3_2mscq"]
 [ext_resource type="Texture2D" uid="uid://k0bmfjxst1h" path="res://textures/generic/back.png" id="4_2fuym"]
+[ext_resource type="Texture2D" uid="uid://c38wu3jbua3gb" path="res://icon.png" id="5_lx5k1"]
 [ext_resource type="FontFile" uid="uid://8vwpcyvu7uqi" path="res://fonts/SarasaFixedSC_SemiBold.ttf" id="6_bpv8i"]
 [ext_resource type="Script" uid="uid://bgh0aooa60sj0" path="res://scripts/generic_input.gd" id="7_r2ku4"]
 [ext_resource type="Texture2D" uid="uid://clq67plffwvwn" path="res://textures/generic/confirm_noglowing.png" id="8_4guy6"]
@@ -36,19 +37,27 @@ var _callback: Callable
 var current_chart: Dictionary = {}
 var special: Array = []
 
+var will_play: bool = false
+
 func _tween_before() -> void:
-	modulate.a = 0.0
-	input.visible = true
-	pv.modulate.a = 0.0
-	info.visible = false
+	if will_play:
+		modulate.a = 1.0
+		input.visible = false
+		pv.visible = true
+		info.visible = false
+	else:
+		modulate.a = 0.0
+		input.visible = true
+		pv.visible = false
 
 func _tween_enter() -> void:
-	var tween: Tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT)
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.tween_interval(0.1)
-	tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
-	await tween.finished
+	if not will_play:
+		var tween: Tween = create_tween()
+		tween.set_ease(Tween.EASE_OUT)
+		tween.set_trans(Tween.TRANS_QUAD)
+		tween.tween_interval(0.1)
+		tween.tween_property(self, \"modulate:a\", 1.0, 0.2).from(0.0)
+		await tween.finished
 
 func _tween_leave() -> void:
 	var tween: Tween = create_tween()
@@ -89,16 +98,10 @@ func load_data(chart: Dictionary, callback: Callable) -> void:
 	difficulty.text = display[0] + \" Lv.\" + str(int(diff.value)) + ( \"+\" if diff.plus else \"\" )
 
 func unlock() -> void:
-	get_viewport().gui_disable_input = true
-	var tween: Tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT)
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.tween_interval(0.1)
-	tween.tween_property(pv, \"modulate:a\", 1.0, 0.2).from(0.0)
-	tween.tween_interval(0.5)
-	await tween.finished
-	input.visible = false
-	get_viewport().gui_disable_input = false
+	will_play = true
+	await SceneManager.leave(self)
+	await SceneManager.change_scene(\"unlock_sp\")
+	will_play = false
 	var song_path: String = current_chart.path
 	var texture_path: String = song_path.path_join(\"unlock.ogv\")
 	player.stream = ResourceLoader.load(texture_path)
@@ -130,6 +133,17 @@ script/source = "extends \"res://scripts/generic_button.gd\"
 func _pressed() -> void:
 	await SceneManager.leave(root)
 "
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_igqou"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ngwtj"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x8nha"]
 
@@ -230,34 +244,37 @@ root = NodePath("../..")
 [node name="center" type="CenterContainer" parent="input" unique_id=1759059749]
 process_mode = 4
 offset_right = 1920.0
-offset_bottom = 825.0
+offset_bottom = 860.0
 mouse_filter = 2
 
 [node name="fit" type="VBoxContainer" parent="input/center" unique_id=563807884]
 process_mode = 4
+custom_minimum_size = Vector2(1920, 0)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 54
 
 [node name="texture" type="TextureRect" parent="input/center/fit" unique_id=702906954]
 process_mode = 4
+custom_maximum_size = Vector2(-1, 280)
 layout_mode = 2
 offset_transform_enabled = true
-offset_transform_position = Vector2(0, 75)
-offset_transform_scale = Vector2(0.6, 0.6)
-offset_transform_visual_only = false
 mouse_filter = 2
-stretch_mode = 2
+texture = ExtResource("5_lx5k1")
+expand_mode = 4
+stretch_mode = 5
 
 [node name="edit" type="LineEdit" parent="input/center/fit" unique_id=1796487103]
 process_mode = 1
-custom_minimum_size = Vector2(444, 0)
+custom_minimum_size = Vector2(472, 87)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
 theme_override_constants/caret_width = 5
 theme_override_fonts/font = ExtResource("6_bpv8i")
 theme_override_font_sizes/font_size = 37
+theme_override_styles/normal = SubResource("StyleBoxFlat_igqou")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_ngwtj")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_x8nha")
 placeholder_text = "???"
 alignment = 1
@@ -268,19 +285,11 @@ clear_button_enabled = true
 middle_mouse_paste_enabled = false
 selecting_enabled = false
 drag_and_drop_selection_enabled = false
-flat = true
 caret_blink = true
 caret_blink_interval = 0.4
 caret_force_displayed = true
 script = ExtResource("7_r2ku4")
 filter = "1234567890qwertyuiopasdfghjklzxcvbnm "
-
-[node name="underline" type="ColorRect" parent="input/center/fit" unique_id=1692126939]
-process_mode = 4
-custom_minimum_size = Vector2(444, 2)
-layout_mode = 2
-size_flags_horizontal = 4
-mouse_filter = 2
 
 [node name="confirm" type="Button" parent="input" unique_id=526094061 node_paths=PackedStringArray("root", "edit")]
 process_mode = 1
@@ -309,7 +318,7 @@ color = Color(1, 1, 1, 0.87058824)
 
 [node name="pv" type="Node2D" parent="." unique_id=410137973]
 process_mode = 4
-modulate = Color(1, 1, 1, 0)
+visible = false
 metadata/_edit_vertical_guides_ = [242.0]
 metadata/_edit_horizontal_guides_ = [540.0]
 

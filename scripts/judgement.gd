@@ -62,14 +62,14 @@ func load_chart() -> void:
 
 func _judge(line: Array, note: Array, time: float) -> bool:
 	var status: Array = line[7]
-	for level: int in 3 if note[4] == null else 2:
+	for level: int in 3 if note[5] == null else 2:
 		if time < status[level + 3]:
-			if note[4] != null:
-				note[15] = level + 1
+			if note[5] != null:
+				note[16] = level + 1
 			else:
 				_mark_index(line[6], note[0])
 				note[0] = -1
-				if not note[13]:
+				if not note[14]:
 					playing_stat[level] += 1
 					if level == 2:
 						playing_stat[4].append(playing_stat[5])
@@ -77,7 +77,7 @@ func _judge(line: Array, note: Array, time: float) -> bool:
 					else:
 						playing_stat[5] += 1
 			var type: int = note[1]
-			if not note[13] and type != 5:
+			if not note[14] and type != 5:
 				_generate_effect(status, note, level)
 				if type == 0 or type == 1:
 					SoundManager.play("tap")
@@ -120,10 +120,10 @@ func _generate_effect(status: Array, note: Array, level: int) -> void:
 	var pos: Vector3
 	if status[1] == 1:
 		var _transform: Transform3D = status[19]
-		_transform = _transform.rotated(Vector3.BACK, ( note[16] + 1.0 ) * status[15] / 2.0)
+		_transform = _transform.rotated(Vector3.BACK, ( note[17] + 1.0 ) * status[15] / 2.0)
 		pos = _transform * Vector3(0.0, status[13] / 2.0, 0.0)
 	else:
-		pos = status[19] * Vector3(note[16] * status[13] / 2.0, 0.0, 0.0)
+		pos = status[19] * Vector3(note[17] * status[13] / 2.0, 0.0, 0.0)
 	var cam: Vector3 = status[17]
 	var proj: Vector2 = status[18]
 	chart_data[4].append({
@@ -229,18 +229,18 @@ func _unhandled_input(event: InputEvent) -> void:
 						var line_note: Array = line[5]
 						for _index: int in range(_search_index(line[6], 0), line_note.size()):
 							var note: Array = line_note[_index]
-							if note[0] < 0 or note[13] or note[14] or note[15]:
+							if note[0] < 0 or note[14] or note[15] or note[16]:
 								continue
 							var delta_time: float = note[3] - time - judgement_offset
 							if delta_time > j_bad:
 								break
 							var type: int = note[1]
 							if type == 0 or type == 1:
-								var pos: float = note[7]
+								var pos: float = note[8]
 								if style == 1:
 									for i: int in 3:
 										var dpos: float = absf(pos - touch[i + 2])
-										if dpos < note[8] * j_width / 10.0:
+										if dpos < note[9] * j_width / 10.0:
 											note_list.append({
 												delta_time = delta_time,
 												dpos = dpos,
@@ -250,7 +250,7 @@ func _unhandled_input(event: InputEvent) -> void:
 											break
 								else:
 									var dpos: float = absf(pos - touch[2])
-									if dpos < note[8] * j_width / 10.0:
+									if dpos < note[9] * j_width / 10.0:
 										note_list.append({
 											delta_time = delta_time,
 											dpos = dpos,
@@ -293,19 +293,19 @@ func _physics_process(_delta: float) -> void:
 				var delta_time: float = note[3] - time
 				if delta_time > 0.0:
 					break
-				if note[15]:
-					if delta_time < -note[4]:
+				if note[16]:
+					if delta_time < -note[5]:
 						_mark_index(line_note_cull, note[0])
 						note[0] = -1
-						if not note[13]:
-							playing_stat[note[15] - 1] += 1
+						if not note[14]:
+							playing_stat[note[16] - 1] += 1
 							playing_stat[5] += 1
 							if note[1] != 5:
-								_generate_effect(status, note, note[15] - 1)
+								_generate_effect(status, note, note[16] - 1)
 						continue
-					if not note[13]:
+					if not note[14]:
 						if tick and note[1] != 5:
-							_generate_effect(status, note, note[15] - 1)
+							_generate_effect(status, note, note[16] - 1)
 				else:
 					_judge(line, note, 0.0)
 					continue
@@ -336,34 +336,34 @@ func _physics_process(_delta: float) -> void:
 					break
 				var type: int = note[1]
 				if delta_time < 0.0:
-					if note[15]:
-						if delta_time < -note[4]:
+					if note[16]:
+						if delta_time < -note[5]:
 							miss.erase(_index)
 							_mark_index(line_note_cull, note[0])
 							note[0] = -1
-							if not note[13]:
-								playing_stat[note[15] - 1] += 1
+							if not note[14]:
+								playing_stat[note[16] - 1] += 1
 								playing_stat[5] += 1
-								_generate_effect(status, note, note[15] - 1)
+								_generate_effect(status, note, note[16] - 1)
 							continue
 					elif delta_time_offseted < -j_miss:
-						if not note[13]:
+						if not note[14]:
 							playing_stat[3] += 1
 							playing_stat[4].append(playing_stat[5])
 							playing_stat[5] = 0
-						if note[4] == null:
+						if note[5] == null:
 							_mark_index(line_note_cull, note[0])
 							note[0] = -1
 						else:
-							note[13] = true
-							note[15] = true
+							note[14] = true
+							note[16] = true
 						continue
-					elif type == 5 or note[14]:
+					elif type == 5 or note[15]:
 						_judge(line, note, 0.0)
 						continue
-				if note[13] or note[14]:
+				if note[14] or note[15]:
 					continue
-				var cpos: float = note[16]
+				var cpos: float = note[17]
 				if type == 4:
 					var keep: bool = false
 					for _key: int in touch:
@@ -372,16 +372,16 @@ func _physics_process(_delta: float) -> void:
 							if style == 1:
 								for i: int in 3:
 									var dpos: float = abs(cpos - data[i + 2])
-									if dpos < note[8] * j_width / 10.0:
+									if dpos < note[9] * j_width / 10.0:
 										keep = true
 										break
 							else:
 								var dpos: float = abs(cpos - data[2])
-								if dpos < note[8] * j_width / 10.0:
+								if dpos < note[9] * j_width / 10.0:
 									keep = true
 									break
 					if keep:
-						note[14] = true
+						note[15] = true
 				else:
 					var keep: bool = false
 					for _key: int in touch:
@@ -390,23 +390,23 @@ func _physics_process(_delta: float) -> void:
 							if style == 1:
 								for i: int in 3:
 									var dpos: float = abs(cpos - data[i + 2])
-									if dpos < note[8] * j_width / 10.0:
+									if dpos < note[9] * j_width / 10.0:
 										keep = true
 										break
 							else:
 								var dpos: float = abs(cpos - data[2])
-								if dpos < note[8] * j_width / 10.0:
+								if dpos < note[9] * j_width / 10.0:
 									keep = true
 									break
-					if note[15] and type != 5:
+					if note[16] and type != 5:
 						if keep:
 							miss.erase(_index)
 							if tick:
-								_generate_effect(status, note, note[15] - 1)
-						elif delta_time + note[4] > j_perfect:
+								_generate_effect(status, note, note[16] - 1)
+						elif delta_time + note[5] > j_perfect:
 							if miss.has(_index):
 								if time - miss[_index] > j_perfect:
-									note[13] = true
+									note[14] = true
 									playing_stat[3] += 1
 									playing_stat[4].append(playing_stat[5])
 									playing_stat[5] = 0
@@ -414,7 +414,7 @@ func _physics_process(_delta: float) -> void:
 								miss[_index] = time
 					elif keep:
 						if type == 2:
-							note[14] = true
+							note[15] = true
 						elif delta_time < 0.0:
 							if type == 3:
 								_judge(line, note, 0.0)
@@ -423,8 +423,8 @@ func _physics_process(_delta: float) -> void:
 								playing_stat[4].append(playing_stat[5])
 								playing_stat[5] = 0
 								_generate_effect(status, note, 2)
-								note[13] = true
-								note[15] = 1
+								note[14] = true
+								note[16] = 1
 
 			for _key: int in touch:
 				touch[_key][0] = false

@@ -98,7 +98,7 @@ settings.judgement_offset,"Touch offset","判定延迟","タップタイミン�
 settings.judgement_offset.disc,"Adds an extra offset to the judgment window for Tap/Hold.\ntypically used to compensate for touch latency.","进行Tap/Hold的判定时，额外加在判定区间上，一般用于抵消触摸延迟。","Tap/Holdの判定時に、判定区間に追加でオフセットを加えます。\n通常はタッチ遅延を相殺するために使用します。"
 settings.display_el,"Display Early/Late","显示Early/Late","アーリー/レイト表示"
 settings.effect_size,"Hit Effect Size","打击特效大小","ヒットエフェクトサイズ"
-settings.judgement_rate,"Judgement Rate","判定回报率","判定フィードバックレート",
+settings.judgement_rate,"Judgement Rate","判定回报率","判定フィードバックレート"
 settings.judgement_rate.disc,"Frequency of Drag/Flick/Auto/Miss judgments.\nNot recommended to change unless on entry-level processors.","进行Drag/Flick/Auto/Miss判定的频率。\n除非是入门处理器，否则不建议更改。","Drag/Flick/Auto/Missの判定頻度。\nエントリー向けプロセッサでない限り、変更は推奨しません。"
 settings.dsp_buffer,"DSP Buffer","DSP Buffer","DSPバッファ"
 settings.dsp_buffer.disc,"A smaller buffer lowers latency, but increases the chance of audio tearing.\nA larger buffer increases latency, but provides more stable playback.","缓冲区越小，延迟越低，但更有可能发生音频撕裂。\n反之，延迟更大，但播放更稳定。","バッファが小さいほどレイテンシーは低くなりますが、音声の途切れ（オーディオテアリング）が発生しやすくなります。\n逆に、バッファが大きいほどレイテンシーは高くなりますが、再生はより安定します。"

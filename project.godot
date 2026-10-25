@@ -43,6 +43,10 @@ ChartServer="*uid://nov5e6ta15f"
 ChartClient="*uid://bxr1r5nndgvdt"
 Unlock="*uid://dghi86im2s4mr"
 
+[debug]
+
+settings/stdout/print_fps=true
+
 [display]
 
 window/size/viewport_width=1920

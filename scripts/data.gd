@@ -1,4 +1,5 @@
 extends Node
+class_name _DataManager
 
 const rank: Array = ["0", "D", "C", "B", "A", "N", "Z", "X", "F", "R"]
 const rank_score: Array = [0, 0, 750, 825, 900, 925, 950, 975, 990, 1000]
@@ -13,6 +14,17 @@ const rank_color: Array = [
 	[Color(0x99CCEFFF),Color(0x99CCEFFF)],
 	[Color(0xCCCCFFFF),Color(0xCCCCFFFF)],
 	[Color(0xFF2666FF),Color(0x00FFE6FF)],
+]
+
+const line_color: Color = Color(0xFFFFFFFF)
+
+const note_color: Array = [
+	Color(0x6488E5FF),	# Tap
+	Color(0x6488E5FF),	# Hold
+	Color(0x009834FF),	# Drag
+	Color(0x009834FF),	# Drag-Hold
+	Color(0xD3863AFF),	# Flick
+	Color(0xAE4242FF),	# Error
 ]
 
 var _chapter_data: Dictionary = {}
@@ -68,10 +80,7 @@ func _ms_to_distance(events: Array, time: float) -> float:
 	_distance += cut_time * _speed
 	return _distance
 
-func _snappedpf(x: Variant) -> Variant:
-	return null if x == null else snappedf(x, 0.0001)
-
-func _sort(event_a: Dictionary, event_b: Dictionary):
+func _sort_from_slc(event_a: Dictionary, event_b: Dictionary):
 	return abs(event_a.type) < abs(event_b.type) if event_a.time == event_b.time else event_a.time < event_b.time
 
 func new_status(index: int) -> Array:
@@ -108,7 +117,7 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 		effect, bpm_events
 	]
 
-	global_event.sort_custom(_sort)
+	global_event.sort_custom(_sort_from_slc)
 	for event: Dictionary in global_event:
 		if event.type == -1:
 			var _beat: float = event.time
@@ -118,24 +127,27 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 	for event: Dictionary in global_event:
 
 		var time_raw: float = event.time
-		var event_time: float = _snappedpf(beat_to_ms(converted_chart, time_raw))
+		var event_time: float = beat_to_ms(converted_chart, time_raw)
 
+		var length_raw: Variant = null
 		var event_length: Variant = null
 		if event.has("length"):
-			var time_finish: float = time_raw + event.length
-			event_length = _snappedpf(beat_to_ms(converted_chart, time_finish) - event_time)
+			length_raw = event.length
+			var time_finish: float = time_raw + length_raw
+			event_length = beat_to_ms(converted_chart, time_finish) - event_time
 
 		var event_type: int = - int(event.type)
 		var event_easing: int = int(event.easing) - 1 if event.has("easing") else 0
 		var value: Dictionary = event.value
 		if value.has("v1") and value.has("v2"):
-			value.delta = _snappedpf(value.v2 - value.v1)
+			value.delta = value.v2 - value.v1
 		var array: Array = global_event_final[event_type]
 		var new_event: Array = [
 			array.size(),
 			event_type,
 			time_raw,
 			event_time,
+			length_raw,
 			event_length,
 			event_easing,
 			value.get("v1"),
@@ -179,40 +191,31 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 		]
 		line.append(new_line)
 
-		line_event.sort_custom(_sort)
+		line_event.sort_custom(_sort_from_slc)
 		for event: Dictionary in line_event:
 
 			var time_raw: float = event.time
-			var event_time: float = _snappedpf(beat_to_ms(converted_chart, time_raw))
+			var event_time: float = beat_to_ms(converted_chart, time_raw)
 
+			var length_raw: Variant = null
 			var event_length: Variant = null
 			if event.has("length"):
-				var time_finish: float = time_raw + event.length
-				event_length = _snappedpf(beat_to_ms(converted_chart, time_finish) - event_time)
+				length_raw = event.length
+				var time_finish: float = time_raw + length_raw
+				event_length = beat_to_ms(converted_chart, time_finish) - event_time
 
 			var event_type: int = int(event.type)
-			event_length = _snappedpf(event_length)
 			var event_easing: int = int(event.easing) - 1 if event.has("easing") else 0
 			var value: Dictionary = event.value
-			if event_type >= 19 and event_type <= 24:
-				for key: String in ["v3", "v4"]:
-					var color: int = value[key]
-					if color == 0x2FA7DA:
-						value[key] = 0x6488E5
-					elif color == 0xDAC400:
-						value[key] = 0x009834
-					elif color == 0xDA79A5:
-						value[key] = 0xD3863A
-					elif color == 0xBB0000:
-						value[key] = 0xAE4242
 			if value.has("v1") and value.has("v2"):
-				value.delta = _snappedpf(value.v2 - value.v1)
+				value.delta = value.v2 - value.v1
 			var array: Array = line_event_final[event_type]
 			var new_event: Array = [
 				array.size(),
 				event_type,
 				time_raw,
 				event_time,
+				length_raw,
 				event_length,
 				event_easing,
 				value.get("v1"),
@@ -225,29 +228,30 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 			if event_type == 5:
 				var _time: float = event_time
 				var _length: float = event_length
-				var _speed: float = new_event[6]
-				var _acceleration: float = ( new_event[7] - _speed ) / _length
+				var _speed: float = new_event[7]
+				var _acceleration: float = new_event[11] / _length
 				var _distance: float = _ms_to_distance(speed_events, _time)
 				speed_events.append([
 					_time, _length, _speed, _acceleration, _distance
 				])
 
-		line_event_layer.sort_custom(_sort)
+		line_event_layer.sort_custom(_sort_from_slc)
 		for event: Dictionary in line_event_layer:
 			var time_raw: float = event.time
-			var event_time: float = _snappedpf(beat_to_ms(converted_chart, time_raw))
+			var event_time: float = beat_to_ms(converted_chart, time_raw)
 
+			var length_raw: Variant = null
 			var event_length: Variant = null
 			if event.has("length"):
-				var time_finish: float = time_raw + event.length
-				event_length = _snappedpf(beat_to_ms(converted_chart, time_finish) - event_time)
+				length_raw = event.length
+				var time_finish: float = time_raw + length_raw
+				event_length = beat_to_ms(converted_chart, time_finish) - event_time
 
 			var event_type: int = int(event.type)
-			event_length = _snappedpf(event_length)
 			var event_easing: int = int(event.easing) - 1 if event.has("easing") else 0
 			var value: Dictionary = event.value
 			if value.has("v1") and value.has("v2"):
-				value.delta = _snappedpf(value.v2 - value.v1)
+				value.delta = value.v2 - value.v1
 			var array: Array = line_event_layer_final
 			var index: int = array.size()
 			var new_event: Array = [
@@ -255,6 +259,7 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 				event_type,
 				time_raw,
 				event_time,
+				length_raw,
 				event_length,
 				event_easing,
 				value.get("v1"),
@@ -267,27 +272,25 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 			line_event_layer_cull.append(index)
 		line_event_layer_cull.append(line_event_layer_final.size())
 
-		line_note.sort_custom(_sort)
+		line_note.sort_custom(_sort_from_slc)
 		for note: Dictionary in line_note:
 
 			var time_raw: float = note.time
-			var note_time: float = _snappedpf(beat_to_ms(converted_chart, time_raw))
-			var note_distance: float = _snappedpf(_ms_to_distance(speed_events, note_time) / 1000.0)
+			var note_time: float = beat_to_ms(converted_chart, time_raw)
+			var note_distance: float = _ms_to_distance(speed_events, note_time) / 1000.0
 
+			var length_raw: Variant = null
 			var note_length: Variant = null
 			var note_distance_length: Variant = null
 			if note.has("length"):
-				var time_finish: float = time_raw + note.length
-				note_length = _snappedpf(beat_to_ms(converted_chart, time_finish) - note_time)
+				length_raw = note.length
+				var time_finish: float = time_raw + length_raw
+				note_length = beat_to_ms(converted_chart, time_finish) - note_time
 				time_finish = note_time + note_length
-				note_distance_length = _snappedpf(_ms_to_distance(speed_events, time_finish) / 1000.0 - note_distance)
+				note_distance_length = _ms_to_distance(speed_events, time_finish) / 1000.0 - note_distance
 
 			var note_type: int = int(note.type) - 1
-			var note_pos: float = _snappedpf(note.pos)
-			var note_width: float = _snappedpf(note.width)
-			var note_endpos: Variant = _snappedpf(note.get("endpos"))
-			var note_speed: float = _snappedpf(note.speed) if note.has("speed") else 1.0
-			var note_texture_vec: float = _snappedpf(randf_range(0.0, TAU))
+			var note_pos: float = note.pos
 			var array: Array = line_note_final
 			var index: int = array.size()
 			var new_note: Array = [
@@ -295,14 +298,15 @@ func convert_chart(chart_info: Dictionary, chart_data: Dictionary) -> Array:
 				note_type,
 				time_raw,
 				note_time,
+				length_raw,
 				note_length,
 				note_distance,
 				note_distance_length,
 				note_pos,
-				note_width,
-				note_endpos,
-				note_speed,
-				note_texture_vec,
+				note.width,
+				note.get("endpos"),
+				note.speed if note.has("speed") else 1.0,
+				randf_range(0.0, TAU),
 				note.gold,
 				note.fake,
 				note.auto,
@@ -401,6 +405,10 @@ func get_chapter(id: String) -> Array:
 					level = "Unknown",
 					chart = "Unknown",
 					difficulty = { index = 6, value = -1, plus = false },
+					preview = {
+						begin = 0,
+						end = 114514,
+					},
 					save = false,
 					path = false,
 				}]
@@ -417,7 +425,7 @@ func get_chapter(id: String) -> Array:
 			if songs.current_is_dir():
 				var chart_list: Array = []
 				var song_dir: String = chapter_dir.path_join(song)
-				var song_info: Dictionary = Json.load_file_crypt(song_dir.path_join("info.json"))
+				var song_info: Dictionary = Json.load_file(song_dir.path_join("info.json"))
 				song_list.append({
 					song = song,
 					chart = chart_list
@@ -428,7 +436,7 @@ func get_chapter(id: String) -> Array:
 				while chart:
 					if charts.current_is_dir():
 						var chart_path: String = song_dir.path_join(chart)
-						var chart_info: Dictionary = Json.load_file_crypt(chart_path.path_join("info.json"))
+						var chart_info: Dictionary = Json.load_file(chart_path.path_join("info.json"))
 						chart_info.merge({
 							id = chart,
 							save = false,

@@ -1,0 +1,252 @@
+[gd_scene format=3 uid="uid://b7kbt0f8ejp12"]
+
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="1_a5tb4"]
+
+[sub_resource type="GDScript" id="GDScript_6lm8n"]
+script/source = "extends Control
+
+const basic_width: float = 19.2
+const basic_height: float = 10.8
+const basic_center: Vector3 = Vector3(basic_width / 2.0, basic_height / 2.0, 0.0)
+
+const width: float = 190.0
+const height: float = 107.0
+
+@onready var index_text: Label = $margin/fit/stack/index
+@onready var name_text: LineEdit = $margin/fit/stack/name
+
+var root: Node2D
+
+var index: int = -1
+
+func switch_page(page: int) -> void:
+	var pages: Array = root.edit_pages
+	var found: int = pages.find(page)
+	if found > -1:
+		pages.remove_at(found)
+	else:
+		pages.append(page)
+	root._load_pages()
+
+func func_solo() -> void:
+	var pages: Array = root.edit_pages
+	pages.clear()
+	pages.append(index * 2)
+	pages.append(index * 2 + 1)
+	root._load_pages()
+
+func func_events() -> void:
+	switch_page(index * 2)
+
+func func_notes() -> void:
+	switch_page(index * 2 + 1)
+
+func func_record() -> void:
+	pass
+
+func func_set_name(text: String) -> void:
+	if root.valid() and index > -1:
+		var line: Array = root.chart_data[1][index]
+		line[8] = text
+
+func _ready() -> void:
+	if root.valid() and index > -1:
+		var line: Array = root.chart_data[1][index]
+		name_text.text = line[8]
+		index_text.text = str(index)
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wvhbo"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_abi3o"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ifow5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7msgv"]
+
+[sub_resource type="GDScript" id="GDScript_mhf34"]
+script/source = "extends \"res://scripts/generic_input.gd\"
+
+@export var root: Control
+
+func _ready() -> void:
+	super._ready()
+	text_changed.connect(func(_text: String):
+		root.func_set_name(_text)
+	)
+"
+
+[sub_resource type="GDScript" id="GDScript_ifow5"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: Control
+
+func _pressed() -> void:
+	parent.func_solo()
+"
+
+[sub_resource type="GDScript" id="GDScript_v24q3"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: Control
+
+func _pressed() -> void:
+	parent.func_events()
+"
+
+[sub_resource type="GDScript" id="GDScript_abi3o"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: Control
+
+func _pressed() -> void:
+	parent.func_notes()
+"
+
+[sub_resource type="GDScript" id="GDScript_ibjym"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+@export var parent: Control
+
+func _pressed() -> void:
+	parent.func_record()
+"
+
+[node name="editor_line_item" type="Control" unique_id=406530011]
+process_mode = 1
+custom_minimum_size = Vector2(190, 107)
+custom_maximum_size = Vector2(190, 107)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 190.0
+offset_bottom = 107.0
+mouse_filter = 1
+script = SubResource("GDScript_6lm8n")
+
+[node name="margin" type="MarginContainer" parent="." unique_id=606167736]
+process_mode = 4
+layout_mode = 0
+offset_right = 190.0
+offset_bottom = 107.0
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 6
+
+[node name="fit" type="VBoxContainer" parent="margin" unique_id=1160044997]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="stack" type="PanelContainer" parent="margin/fit" unique_id=1721236249]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_wvhbo")
+
+[node name="index" type="Label" parent="margin/fit/stack" unique_id=1529444871]
+process_mode = 4
+custom_maximum_size = Vector2(174, -1)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_a5tb4")
+theme_override_font_sizes/font_size = 26
+text = "Index"
+horizontal_alignment = 2
+
+[node name="name" type="LineEdit" parent="margin/fit/stack" unique_id=1912330211 node_paths=PackedStringArray("root")]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("1_a5tb4")
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("StyleBoxFlat_abi3o")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_ifow5")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_7msgv")
+text = "New Line"
+placeholder_text = "New Line"
+max_length = 9
+context_menu_enabled = false
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+drag_and_drop_selection_enabled = false
+caret_blink = true
+caret_blink_interval = 0.4
+script = SubResource("GDScript_mhf34")
+root = NodePath("../../../..")
+
+[node name="fit_buttons" type="HBoxContainer" parent="margin/fit" unique_id=407061395]
+process_mode = 4
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="solo" type="Button" parent="margin/fit/fit_buttons" unique_id=1879663 node_paths=PackedStringArray("parent")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_a5tb4")
+theme_override_font_sizes/font_size = 50
+text = "S"
+flat = true
+script = SubResource("GDScript_ifow5")
+parent = NodePath("../../../..")
+
+[node name="events" type="Button" parent="margin/fit/fit_buttons" unique_id=2103022418 node_paths=PackedStringArray("parent")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_a5tb4")
+theme_override_font_sizes/font_size = 50
+text = "E"
+flat = true
+script = SubResource("GDScript_v24q3")
+parent = NodePath("../../../..")
+
+[node name="notes" type="Button" parent="margin/fit/fit_buttons" unique_id=1222215954 node_paths=PackedStringArray("parent")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_a5tb4")
+theme_override_font_sizes/font_size = 50
+text = "N"
+flat = true
+script = SubResource("GDScript_abi3o")
+parent = NodePath("../../../..")
+
+[node name="record" type="Button" parent="margin/fit/fit_buttons" unique_id=555655660 node_paths=PackedStringArray("parent")]
+process_mode = 1
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_a5tb4")
+theme_override_font_sizes/font_size = 50
+text = "R"
+flat = true
+script = SubResource("GDScript_ibjym")
+parent = NodePath("../../../..")
+
+[node name="line" type="ColorRect" parent="." unique_id=2040576895]
+process_mode = 4
+layout_mode = 1
+offset_top = 105.0
+offset_right = 190.0
+offset_bottom = 107.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)

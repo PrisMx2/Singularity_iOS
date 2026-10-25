@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://b5m2bos27gum6"]
+
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="1_7x3wy"]
+[ext_resource type="Script" uid="uid://bbcleecvi77hc" path="res://scripts/generic_vscroll.gd" id="1_sq1yc"]
+[ext_resource type="PackedScene" uid="uid://couq282h1ud8g" path="res://scenes/editor_value_item.tscn" id="3_gmh4o"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ibjym"]
+
+[node name="editoe_value_window" type="Window" unique_id=675179335]
+oversampling_override = 1.0
+title = "Title"
+position = Vector2i(0, 36)
+size = Vector2i(190, 864)
+wrap_controls = true
+unresizable = true
+theme_override_colors/title_color = Color(0.8, 0.8, 1, 1)
+theme_override_constants/title_height = 32
+theme_override_fonts/title_font = ExtResource("1_7x3wy")
+
+[node name="editor_value_popup" type="PanelContainer" parent="." unique_id=1247861037]
+process_mode = 1
+custom_maximum_size = Vector2(190, 864)
+clip_contents = true
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ibjym")
+script = ExtResource("1_sq1yc")
+
+[node name="background" type="ColorRect" parent="editor_value_popup" unique_id=1153512150]
+process_mode = 4
+visible = false
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.29803923, 0.29803923, 0.29803923, 1)
+
+[node name="fit" type="VBoxContainer" parent="editor_value_popup" unique_id=1501451075]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = -2
+
+[node name="editor_value_item" parent="editor_value_popup/fit" unique_id=1335073154 instance=ExtResource("3_gmh4o")]
+layout_mode = 2
+
+[node name="editor_value_item2" parent="editor_value_popup/fit" unique_id=1227514138 instance=ExtResource("3_gmh4o")]
+layout_mode = 2
+
+[node name="editor_value_item3" parent="editor_value_popup/fit" unique_id=507562495 instance=ExtResource("3_gmh4o")]
+layout_mode = 2
+
+[node name="editor_value_item4" parent="editor_value_popup/fit" unique_id=2038533272 instance=ExtResource("3_gmh4o")]
+layout_mode = 2

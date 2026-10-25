@@ -195,16 +195,27 @@ func set_data(data: Dictionary) -> void:
 	label.text = data.text
 "
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qgche"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_47vyr"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_riygu"]
 
 [sub_resource type="GDScript" id="GDScript_wyyig"]
-script/source = "extends LineEdit
+script/source = "extends \"res://scripts/generic_input.gd\"
 
 var _callback: Callable
 
 func _ready() -> void:
+	super._ready()
 	text_changed.connect(func(_text: String):
-		SoundManager.play(\"input\")
 		_callback.call(_text)
 	)
 
@@ -480,30 +491,24 @@ texture = ExtResource("13_6ciew")
 visible = false
 
 [node name="edit" type="LineEdit" parent="input" unique_id=666962975]
-offset_left = 1111.0
+offset_left = 1110.0
 offset_top = 51.0
-offset_right = 1458.2184
+offset_right = 1460.0
 offset_bottom = 115.0
 theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
 theme_override_constants/caret_width = 5
 theme_override_fonts/font = ExtResource("14_6jxyv")
 theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("StyleBoxFlat_qgche")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_47vyr")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_riygu")
+text = "Content"
 placeholder_text = "Example"
 alignment = 1
 context_menu_enabled = false
 emoji_menu_enabled = false
 clear_button_enabled = true
 middle_mouse_paste_enabled = false
-flat = true
 caret_blink = true
 caret_blink_interval = 0.4
 script = SubResource("GDScript_wyyig")
-
-[node name="underline" type="ColorRect" parent="input" unique_id=204076598]
-process_mode = 4
-offset_left = 1111.0
-offset_top = 114.0
-offset_right = 1459.0
-offset_bottom = 116.0
-mouse_filter = 2

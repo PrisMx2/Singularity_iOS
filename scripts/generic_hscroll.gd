@@ -27,19 +27,21 @@ func _input(event: InputEvent) -> void:
 			if _touch_index == -1:
 				var rect: Rect2 = get_global_rect()
 				rect.position -= position
-				if rect.has_point(event.position):
-					var x: float = event.position.x * 2.0 - position.x
-					_touch_index = event.index
-					_scroll_time = _get_time()
-					_scroll_record = position.x
-					_scroll_base = x
-					_scroll_pixel = x
-					_scroll_target = x
-					_scroll_speed = 0.0
-					accept_event()
+				if not rect.has_point(event.position):
+					return
+				var x: float = event.position.x * 2.0 - position.x
+				_touch_index = event.index
+				_scroll_time = _get_time()
+				_scroll_record = position.x
+				_scroll_base = x
+				_scroll_pixel = x
+				_scroll_target = x
+				_scroll_speed = 0.0
+				accept_event()
 		else:
 			if _touch_index == event.index:
 				_touch_index = -1
+				accept_event()
 	elif event is InputEventScreenDrag:
 		if _touch_index == event.index:
 			_scroll_target = event.position.x * 2.0 - position.x
@@ -66,5 +68,7 @@ func _process(_delta: float) -> void:
 
 	stable = _scroll_speed == 0.0
 	_scroll_pixel += _scroll_speed * minf(delta_time / resistance / 20.0, 1.0)
-	position.x = clampf((_scroll_record + _scroll_pixel - _scroll_base), -scroll_max, -scroll_min)
+	var x: float = clampf((_scroll_record + _scroll_pixel - _scroll_base), -scroll_max, -scroll_min)
+	_scroll_pixel = x - _scroll_record + _scroll_base
+	position.x = x
 	_scroll_time = _get_time()

@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://bax0xvoifvjuq"]
+
+[ext_resource type="Texture2D" uid="uid://dcn1gms56coya" path="res://textures/generic/ring.png" id="1_21ax3"]
+
+[sub_resource type="GDScript" id="GDScript_jida4"]
+script/source = "extends Control
+
+func _ready() -> void:
+	var ring: Sprite2D = get_child(0)
+	var new_material: ShaderMaterial = ShaderMaterial.new()
+	new_material.shader = preload(\"res://shaders/ui/gradient.gdshader\")
+	ring.material = new_material
+
+func set_difficulty(diff: Dictionary) -> void:
+	var ring: Sprite2D = get_child(0)
+	var display: Array = diff.display
+	ring.material.set_shader_parameter(\"color_a\", display[2])
+	ring.material.set_shader_parameter(\"color_b\", display[3])
+"
+
+[node name="item" type="Control" unique_id=1344630884]
+process_mode = 1
+layout_mode = 3
+anchors_preset = 0
+offset_left = 427.00012
+offset_top = -6.103516e-05
+offset_right = 427.00012
+offset_bottom = -6.103516e-05
+rotation = 3.1415927
+offset_transform_enabled = true
+offset_transform_pivot = Vector2(427, 0)
+script = SubResource("GDScript_jida4")
+metadata/_edit_vertical_guides_ = [111.0]
+
+[node name="ring" type="Sprite2D" parent="." unique_id=2103698251]
+process_mode = 4
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("1_21ax3")

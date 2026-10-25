@@ -5,7 +5,7 @@ const basic_height: float = 10.8
 const basic_diagonal: float = sqrt(pow(basic_width, 2.0) + pow(basic_height, 2.0))
 const basic_center: Vector3 = Vector3(basic_width / 2.0, basic_height / 2.0, 0.0)
 const line_width_base: float = basic_height * 0.005
-const frame_width: float = basic_height * 0.005
+const frame_width: float = basic_height * 0.00625
 const double_frame_width: float = frame_width * 2.0
 
 const contour: CompressedTexture2D = preload("res://textures/generic/contour_texture.png")
@@ -15,14 +15,7 @@ const contour: CompressedTexture2D = preload("res://textures/generic/contour_tex
 @onready var judgement: Node3D = $judgement
 @onready var _player_ui: Node2D = null
 
-var _note_color: Array = [
-	Color(0x6488E5FF).srgb_to_linear(),	# Tap
-	Color(0x6488E5FF).srgb_to_linear(),	# Hold
-	Color(0x009834FF).srgb_to_linear(),	# Drag
-	Color(0x009834FF).srgb_to_linear(),	# Drag-Hold
-	Color(0xD3863AFF).srgb_to_linear(),	# Flick
-	Color(0xAE4242FF).srgb_to_linear(),	# Error
-]
+var _note_color: Array = _DataManager.note_color
 
 var _line_multimesh: MultiMesh
 var _line_material: ShaderMaterial
@@ -84,7 +77,7 @@ func _mark_index(data: Array, index: int) -> void:
 		data[index] = _search_index(data, index + 1)
 
 func _parse_color(hex: int) -> Color:
-	return Color.hex(hex << 8 | 0xFF).srgb_to_linear()
+	return Color.hex(hex << 8 | 0xFF)
 
 func _ready() -> void:
 	$camera.fov = rad_to_deg(atan2(5.4, 19.2)) * 2.0
@@ -308,15 +301,15 @@ func _process(__delta: float) -> void:
 			if event[3] > time:
 				break
 			var progress: float = 0.0
-			if event[4] != null:
-				progress = clampf( ( time - event[3] ) / event[4], 0.0, 1.0 )
-				progress = Easings.Function[event[5]].call(progress)
+			if event[5] != null:
+				progress = clampf( ( time - event[3] ) / event[5], 0.0, 1.0 )
+				progress = Easings.Function[event[6]].call(progress)
 			if type == 27: # GLOBAL_X
-				global_pos.x = basic_width * ( event[6] + event[10] * progress )
+				global_pos.x = basic_width * ( event[7] + event[11] * progress )
 			elif type == 28: # GLOBAL_Y
-				global_pos.y = basic_height * ( event[6] + event[10] * progress )
+				global_pos.y = basic_height * ( event[7] + event[11] * progress )
 			elif type == 29: # GLOBAL_R
-				global_rot.z = deg_to_rad( event[6] + event[10] * progress )
+				global_rot.z = deg_to_rad( event[7] + event[11] * progress )
 			event_cull[type] = event[0]
 
 	chart_data[1].sort_custom(func(a: Array, b: Array):
@@ -389,170 +382,168 @@ func _process(__delta: float) -> void:
 				if event[3] > time:
 					break
 				var progress: float = 0.0
-				if event[4] != null:
-					progress = clampf( ( time - event[3] ) / event[4], 0.0, 1.0 )
-					progress = Easings.Function[event[5]].call(progress)
+				if event[5] != null:
+					progress = clampf( ( time - event[3] ) / event[5], 0.0, 1.0 )
+					progress = Easings.Function[event[6]].call(progress)
 				if type == 1: # X
-					line_pos.x = basic_width * ( event[6] + event[10] * progress )
+					line_pos.x = basic_width * ( event[7] + event[11] * progress )
 				elif type == 2: # Y
-					line_pos.y = basic_height * ( event[6] + event[10] * progress )
+					line_pos.y = basic_height * ( event[7] + event[11] * progress )
 				elif type == 3: # Z
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						line_pos.z = -basic_width
 					elif v3 == 2:
 						line_pos.z = -basic_height
 					elif v3 == 3:
 						line_pos.z = -basic_diagonal
-					line_pos.z *= event[6] + event[10] * progress
+					line_pos.z *= event[7] + event[11] * progress
 				elif type == 4: # R
-					line_rot.z = deg_to_rad(event[6] + event[10] * progress)
+					line_rot.z = deg_to_rad(event[7] + event[11] * progress)
 				elif type == 5: # SPEED
-					note_speed = event[6] + event[10] * progress
+					note_speed = event[7] + event[11] * progress
 				elif type == 6: # ALPHA
-					if event[4] == 0.0:
-						line_start_alpha = event[6]
-						line_end_alpha = event[7]
+					if event[5] == 0.0:
+						line_start_alpha = event[7]
+						line_end_alpha = event[8]
 					else:
-						var alpha: float = event[6] + event[10] * progress
+						var alpha: float = event[7] + event[11] * progress
 						line_start_alpha = alpha
 						line_end_alpha = alpha
 				elif type == 7: # LENGTH
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						line_length = basic_width
 					elif v3 == 2:
 						line_length = basic_height
 					elif v3 == 3:
 						line_length = basic_diagonal
-					line_length *= event[6] + event[10] * progress
-					line_length_multiplier = 2.0 if event[9] else 1.0
+					line_length *= event[7] + event[11] * progress
+					line_length_multiplier = 2.0 if event[10] else 1.0
 				elif type == 8: # WIDTH
-					line_width = line_width_base * (event[6] + event[10] * progress)
+					line_width = line_width_base * (event[7] + event[11] * progress)
 				elif type == 9: #OFFSET
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						line_offset = basic_width
 					elif v3 == 2:
 						line_offset = basic_height
 					elif v3 == 3:
 						line_offset = basic_diagonal
-					line_offset *= event[6] + event[10] * progress
+					line_offset *= event[7] + event[11] * progress
 				elif type == 10: # OFFSET_R
-					line_offset_angle = deg_to_rad(event[6] + event[10] * progress)
+					line_offset_angle = deg_to_rad(event[7] + event[11] * progress)
 				elif type == 11: # OFFSET_ZR
-					line_offset_angle_z = deg_to_rad(event[6] + event[10] * progress)
+					line_offset_angle_z = deg_to_rad(event[7] + event[11] * progress)
 				elif type == 12: # FLIP
-					line_rot.x = deg_to_rad(event[6] + event[10] * progress)
-					note_upright = event[8]
+					line_rot.x = deg_to_rad(event[7] + event[11] * progress)
+					note_upright = event[9]
 				elif type == 13: # ROLL
-					line_rot.y = deg_to_rad(event[6] + event[10] * progress)
+					line_rot.y = deg_to_rad(event[7] + event[11] * progress)
 				elif type == 14: # CAMERA_Z
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						camera_pos.z = basic_width
 					elif v3 == 2:
 						camera_pos.z = basic_height
 					elif v3 == 3:
 						camera_pos.z = basic_diagonal
-					camera_pos.z *= event[6] + event[10] * progress
+					camera_pos.z *= event[7] + event[11] * progress
 				elif type == 15: # CAMERA_X
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						camera_pos.x = basic_width
 					elif v3 == 2:
 						camera_pos.x = basic_height
 					elif v3 == 3:
 						camera_pos.x = basic_diagonal
-					camera_pos.x *= event[6] + event[10] * progress
+					camera_pos.x *= event[7] + event[11] * progress
 				elif type == 16: # CAMERA_Y
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						camera_pos.y = basic_width
 					elif v3 == 2:
 						camera_pos.y = basic_height
 					elif v3 == 3:
 						camera_pos.y = basic_diagonal
-					camera_pos.y *= event[6] + event[10] * progress
+					camera_pos.y *= event[7] + event[11] * progress
 				elif type == 17: # SPEED_MODE
-					note_speed_mode = int(event[8])
+					note_speed_mode = int(event[9])
 				elif type == 18: # COLOR
-					if event[4] == 0.0:
-						line_start_color = _parse_color(event[8])
-						line_end_color = _parse_color(event[9])
+					if event[5] == 0.0:
+						line_start_color = _parse_color(event[9])
+						line_end_color = _parse_color(event[10])
 					else:
-						var color: Color = _parse_color(event[8])
-						color += ( _parse_color(event[9]) - color ) * progress
+						var color: Color = _parse_color(event[9]).lerp(_parse_color(event[10]), progress)
 						line_start_color = color
 						line_end_color = color
-				elif type >= 19 and type <= 24: #_note_color
+				elif type >= 19 and type <= 24: #NOTE_COLOR(S)
 					var note_type: int = type - 19
-					if event[4] == 0.0:
-						note_start_color[note_type] = _parse_color(event[8])
-						note_end_color[note_type] = _parse_color(event[9])
+					if event[5] == 0.0:
+						note_start_color[note_type] = _parse_color(event[9])
+						note_end_color[note_type] = _parse_color(event[10])
 					else:
-						var color: Color = _parse_color(event[8])
-						color += ( _parse_color(event[9]) - color ) * progress
+						var color: Color = _parse_color(event[9]).lerp(_parse_color(event[10]), progress)
 						note_start_color[note_type] = color
 						note_end_color[note_type] = color
 				elif type == 25: # NOTE_ALPHA
-					if event[4] == 0.0:
-						note_start_alpha = event[6]
-						note_end_alpha = event[7]
+					if event[5] == 0.0:
+						note_start_alpha = event[7]
+						note_end_alpha = event[8]
 					else:
-						var alpha: float = event[6] + event[10] * progress
+						var alpha: float = event[7] + event[11] * progress
 						note_start_alpha = alpha
 						note_end_alpha = alpha
 				elif type == 26: # NOTE_TIME
-					var d_time: float = ( event[3] - time ) if event[8] else 0.0
-					note_start_time = event[6] + d_time
-					note_end_time = event[7] + d_time
+					var d_time: float = ( event[3] - time ) if event[9] else 0.0
+					note_start_time = event[7] + d_time
+					note_end_time = event[8] + d_time
 				elif type == 27: # NOTE_GRADIENT_TIME
-					note_gradient_start_time = event[6]
-					note_gradient_end_time = event[7]
+					note_gradient_start_time = event[7]
+					note_gradient_end_time = event[8]
 				elif type == 28: # NOTE_GRADIENT_ALPHA
-					note_gradient_start_alpha = event[6]
-					note_gradient_end_alpha = event[7]
+					note_gradient_start_alpha = event[7]
+					note_gradient_end_alpha = event[8]
 				elif type == 29: # TEXT
-					line_text = event[6]
+					line_text = event[7]
 				elif type == 30: # JUDGEMENT_WIDTH
-					status[7] = event[6] + event[10] * progress
+					status[7] = event[7] + event[11] * progress
 				elif type == 31: # JUDGEMENT_HEIGHT
-					status[8] = event[6] + event[10] * progress
+					status[8] = event[7] + event[11] * progress
 				elif type == 32: # JUDGEMENT_TIME
-					var v3: int = int(event[8])
-					status[v3 + 3] = event[6]
+					var v3: int = int(event[9])
+					status[v3 + 3] = event[7]
 				elif type == 33: # STYLE
-					line_style = int(event[8])
+					line_style = int(event[9])
 				elif type == 34: # CIRCLE_ANGLE
-					line_circle_angle = deg_to_rad(event[6] + event[10] * progress)
+					line_circle_angle = deg_to_rad(event[7] + event[11] * progress)
 				elif type == 35: # CURVE_COLTROL_X
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						line_curve_control.x = basic_width
 					elif v3 == 2:
 						line_curve_control.x = basic_height
 					elif v3 == 3:
 						line_curve_control.x = basic_diagonal
-					line_curve_control.x *= event[6] + event[10] * progress
+					line_curve_control.x *= event[7] + event[11] * progress
 				elif type == 36: # CURVE_COLTROL_Y
-					var v3: float = event[8]
+					var v3: float = event[9]
 					if v3 == 1:
 						line_curve_control.y = basic_width
 					elif v3 == 2:
 						line_curve_control.y = basic_height
 					elif v3 == 3:
 						line_curve_control.y = basic_diagonal
-					line_curve_control.y *= event[6] + event[10] * progress
+					line_curve_control.y *= event[7] + event[11] * progress
 				elif type == 37: # SENSOR
 					pass
 				elif type == 38: # NOTE_STYLE
-					note_style = int(event[8])
+					note_style = int(event[9])
 				elif type == 39: # EFFECT_CONFIG
-					effect_size = event[6] + event[10] * progress
-					effect_3d = event[8]
+					effect_size = event[7] + event[11] * progress
+					effect_3d = event[9]
 				elif type == 40: # TERMINAL
-					line_terminal = int(event[8]) - 1
+					line_terminal = int(event[9]) - 1
 				elif type == 41: # TEXTURE
 					pass
 				elif type == 42: # NOTE_TEXTURE
@@ -562,7 +553,7 @@ func _process(__delta: float) -> void:
 				elif type == 44: # HIT_SOUND
 					pass
 				elif type == 45: # LAYER
-					status[2] = int(event[6])
+					status[2] = int(event[7])
 				line_event_cull[type] = event[0]
 
 		var line_event_layer: Array = line[2]
@@ -575,83 +566,83 @@ func _process(__delta: float) -> void:
 				break
 			var type: int = event[1]
 			var progress: float = 0.0
-			if event[4] != null:
-				progress = maxf( ( time - event[3] ) / event[4], 0.0 )
+			if event[5] != null:
+				progress = maxf( ( time - event[3] ) / event[5], 0.0 )
 				if progress > 1.0:
 					_mark_index(line[3], event[0])
 					event[0] = -1
 					continue
-				progress = Easings.Function[event[5]].call(progress)
+				progress = Easings.Function[event[6]].call(progress)
 			if type == 1: # X
-				line_pos.x += basic_width * ( event[6] + event[10] * progress )
+				line_pos.x += basic_width * ( event[7] + event[11] * progress )
 			elif type == 2: # Y
-				line_pos.y += basic_height * ( event[6] + event[10] * progress )
+				line_pos.y += basic_height * ( event[7] + event[11] * progress )
 			elif type == 3: # Z
-				var v3: float = event[8]
+				var v3: float = event[9]
 				if v3 == 1:
 					v3 = -basic_width
 				elif v3 == 2:
 					v3 = -basic_height
 				elif v3 == 3:
 					v3 = -basic_diagonal
-				line_pos.z += v3 * (event[6] + event[10] * progress)
+				line_pos.z += v3 * (event[7] + event[11] * progress)
 			elif type == 4: # R
-				line_rot.z += deg_to_rad(event[6] + event[10] * progress)
+				line_rot.z += deg_to_rad(event[7] + event[11] * progress)
 			elif type == 7: # LENGTH
-				var v3: float = event[8]
+				var v3: float = event[9]
 				if v3 == 1:
 					v3 = basic_width
 				elif v3 == 2:
 					v3 = basic_height
 				elif v3 == 3:
 					v3 = basic_diagonal
-				line_length += v3 * (event[6] + event[10] * progress)
+				line_length += v3 * (event[7] + event[11] * progress)
 			elif type == 8: # WIDTH
-				line_width += line_width_base * (event[6] + event[10] * progress)
+				line_width += line_width_base * (event[7] + event[11] * progress)
 			elif type == 9: # OFFSET
-				var v3: float = event[8]
+				var v3: float = event[9]
 				if v3 == 1:
 					v3 = basic_width
 				elif v3 == 2:
 					v3 = basic_height
 				elif v3 == 3:
 					v3 = basic_diagonal
-				line_offset += v3 * (event[6] + event[10] * progress)
+				line_offset += v3 * (event[7] + event[11] * progress)
 			elif type == 10: # OFFSET_R
-				line_offset_angle += deg_to_rad(event[6] + event[10] * progress)
+				line_offset_angle += deg_to_rad(event[7] + event[11] * progress)
 			elif type == 11: # OFFSET_ZR
-				line_offset_angle_z += deg_to_rad(event[6] + event[10] * progress)
+				line_offset_angle_z += deg_to_rad(event[7] + event[11] * progress)
 			elif type == 12: # FLIP
-				line_rot.x += deg_to_rad(event[6] + event[10] * progress)
+				line_rot.x += deg_to_rad(event[7] + event[11] * progress)
 			elif type == 13: # ROLL
-				line_rot.y += deg_to_rad(event[6] + event[10] * progress)
+				line_rot.y += deg_to_rad(event[7] + event[11] * progress)
 			elif type == 14: # CAMERA_Z
-				var v3: float = event[8]
+				var v3: float = event[9]
 				if v3 == 1:
 					v3 = basic_width
 				elif v3 == 2:
 					v3 = basic_height
 				elif v3 == 3:
 					v3 = basic_diagonal
-				camera_pos.z += v3 * (event[6] + event[10] * progress)
+				camera_pos.z += v3 * (event[7] + event[11] * progress)
 			elif type == 15: # CAMERA_X
-				var v3: float = event[8]
+				var v3: float = event[9]
 				if v3 == 1:
 					v3 = basic_width
 				elif v3 == 2:
 					v3 = basic_height
 				elif v3 == 3:
 					v3 = basic_diagonal
-				camera_pos.x += v3 * (event[6] + event[10] * progress)
+				camera_pos.x += v3 * (event[7] + event[11] * progress)
 			elif type == 16: # CAMERA_Y
-				var v3: float = event[8]
+				var v3: float = event[9]
 				if v3 == 1:
 					v3 = basic_width
 				elif v3 == 2:
 					v3 = basic_height
 				elif v3 == 3:
 					v3 = basic_diagonal
-				camera_pos.y += v3 * (event[6] + event[10] * progress)
+				camera_pos.y += v3 * (event[7] + event[11] * progress)
 
 		var sin_flip: float = sin(line_rot.x)
 		var cos_flip: float = cos(line_rot.x)
@@ -737,8 +728,8 @@ func _process(__delta: float) -> void:
 			var delta_time: float = note[3] - time
 			if delta_time > note_end_time:
 				break
-			var delta_time_length: float = delta_time + note[4] if note[4] != null else delta_time
-			if ( not note[15] and delta_time_length < note_start_time
+			var delta_time_length: float = delta_time + note[5] if note[5] != null else delta_time
+			if ( not note[16] and delta_time_length < note_start_time
 			or editor and delta_time_length < 0.0 ):
 				continue
 
@@ -747,45 +738,45 @@ func _process(__delta: float) -> void:
 			var distance_length: float = 0.0
 			if note_speed_mode == 2:
 				distance = delta_time * note_speed * 0.0108
-				if note[4] != null:
-					distance_length = note[4] * note_speed * 0.0108
+				if note[5] != null:
+					distance_length = note[5] * note_speed * 0.0108
 			else:
-				distance = ( note[5] - line_distance ) * 10.8
-				if note[4] != null:
-					distance_length = note[6] * 10.8
+				distance = ( note[6] - line_distance ) * 10.8
+				if note[5] != null:
+					distance_length = note[7] * 10.8
 
 			var alpha_multiplier: float = 1.0
 			if delta_time < 0.0:
 				if type % 2 == 1:
 					distance_length = 0.0 if delta_time_length < 0.0 else distance_length + distance
 					distance = 0.0
-				if not note[14]:
-					if note[4] != null and note[13]:
+				if not note[15]:
+					if note[5] != null and note[14]:
 						alpha_multiplier = 0.3
-					elif note[15] or editor:
+					elif note[16] or editor:
 						alpha_multiplier = 1.0
 					else:
 						alpha_multiplier = ( - delta_time - alpha_duration ) / ( alpha_duration * 2.0 ) * 0.7
 						alpha_multiplier = clampf(1.0 - alpha_multiplier, 0.3, 1.0)
-			distance *= note[10]
-			distance_length *= note[10]
+			distance *= note[11]
+			distance_length *= note[11]
 			var alpha: float = ( note_gradient_end_time - delta_time ) / ( note_gradient_end_time - note_gradient_start_time )
 			alpha = note_gradient_start_alpha + ( 1.0 - clampf(alpha, 0.0, 1.0) ) * ( note_gradient_end_alpha - note_gradient_start_alpha )
 			alpha *= alpha_multiplier
 
 			var _sign: float = 1.0 if signf(distance_length) >= 0 else -1.0
-			var pos: float = note[7]
+			var pos: float = note[8]
 			var dpos: float = 0.0
-			if note[9] != null:
-				pos += ( note[9] - pos ) * clampf(-delta_time / note[4], 0.0, 1.0)
-				dpos = note[9] - pos
-			note[16] = pos
+			if note[10] != null:
+				pos += ( note[10] - pos ) * clampf(-delta_time / note[5], 0.0, 1.0)
+				dpos = note[10] - pos
+			note[17] = pos
 
 			var note_array_index: int = note_index * 7
 			var note_complex: int = type * 10 + note_style
-			camera_data_0.w = ( 1.0 if note[12] else -1.0 ) * ( note_complex + 0.1 )
+			camera_data_0.w = ( 1.0 if note[13] else -1.0 ) * ( note_complex + 0.1 )
 			_note_data_array.set(note_array_index, camera_data_0)
-			var texture_vec: float = note[11]
+			var texture_vec: float = note[12]
 			camera_data_1.z = sin(texture_vec)
 			camera_data_1.w = cos(texture_vec)
 			_note_data_array.set(note_array_index + 1, camera_data_1)
@@ -796,7 +787,7 @@ func _process(__delta: float) -> void:
 				distance = comparor.call(distance, max_distance)
 				var length: float = comparor.call(distance + distance_length, max_distance) - distance
 				dpos *= 1.0 if distance_length == 0.0 else clampf(length / distance_length, 0.0, 1.0)
-				var body_width_rad: float = note[8] / 10.0 * line_circle_angle
+				var body_width_rad: float = note[9] / 10.0 * line_circle_angle
 				var body_width: float = body_width_rad * line_length
 				var frame_width_rad: float = double_frame_width / line_length
 				var width_rad: float = body_width_rad + frame_width_rad
@@ -806,9 +797,9 @@ func _process(__delta: float) -> void:
 				elif note_style == 1 or note_style == 2 or note_style == 4:
 					half_note_height = body_width / 2.0
 				else:
-					if note[9] == null:
+					if note[10] == null:
 						if type == 2 or type == 3:
-							half_note_height = line_width * 1.1
+							half_note_height = line_width * 0.5
 						else:
 							half_note_height = line_width * 2.2
 				var half_border: float = ( half_note_height + frame_width ) * _sign
@@ -845,7 +836,7 @@ func _process(__delta: float) -> void:
 				note_index_1 += 1
 
 			else:
-				var body_width: float = note[8] / 10.0 * line_length
+				var body_width: float = note[9] / 10.0 * line_length
 				var width: float = body_width + double_frame_width
 				var half_note_height: float = 0.0
 				if note_style == 3:
@@ -853,9 +844,9 @@ func _process(__delta: float) -> void:
 				elif note_style == 1 or note_style == 2 or note_style == 4:
 					half_note_height = body_width / 2.0
 				else:
-					if note[9] == null:
+					if note[10] == null:
 						if type == 2 or type == 3:
-							half_note_height = line_width * 1.1
+							half_note_height = line_width * 0.5
 						else:
 							half_note_height = line_width * 2.2
 				var height: float = absf(distance_length) + half_note_height * 2.0 + double_frame_width

@@ -139,7 +139,7 @@ void fragment() {
 		if ( corner_x > 0.0 && corner_y > 0.0 && corner_x * corner_x + corner_y * corner_y > 1.0) {
 			discard;
 		} else if ( note_type == 0 || note_type == 1 ) {
-			if ( corner_y > 0.6 && corner_y - corner_x > 2.0 ) {
+			if ( corner_y > 0.35 && corner_y - corner_x > 1.5 ) {
 				discard;
 			}
 		}

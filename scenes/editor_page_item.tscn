@@ -1,0 +1,157 @@
+[gd_scene format=3 uid="uid://8rdbqeysr8x5"]
+
+[sub_resource type="GDScript" id="GDScript_m12ww"]
+script/source = "extends Control
+
+const font: FontVariation = preload(\"res://fonts/IosevkaAileMix.Regular.tres\")
+
+const width: float = 768.0
+const height: float = 864.0
+const grid_width: float = width / 8.0
+const scroller_height: float = height * 0.2
+
+var root: Node2D
+var scroller: PanelContainer
+var main_ui: ColorRect
+
+var _touch_position: Vector2 = Vector2(0.0, 0.0)
+var _touch_index: int = -1
+var _dragging: int = -1
+var _dragging_beat: float = 0.0
+
+var _layer: bool = false
+var _page: int = 0
+
+var page: int = -1
+
+func _draw() -> void:
+	if root.valid() and page > -1:
+
+		var grid_height: float = main_ui.grid_height
+
+		var index: int = floori(page / 2)
+		var type: int = page % 2
+
+		var line: Array = root.chart_data[1][index]
+
+		var title: String = \"[\" + str(index) + \"] \" + line[8] + \" / \"
+
+		if type == 0: # Events
+			title += \"Events\"
+			var base: int = _page * 8
+			var event_groups: Array = line[2 if _layer else 0]
+			for i: int in 7:
+				var x: float = grid_width * ( i + 1 )
+				draw_line(Vector2(x, 0.0), Vector2(x, height), Color(0xFFFFFFFF), 2.0, true)
+			for _type: int in 8:
+				for event: Array in event_groups[base + _type]:
+					var time_raw: float = event[2]
+					var bottom: float = main_ui.beat_to_height(time_raw)
+					if bottom < 0.0:
+						break
+					var length_raw: float = event[4] if event[4] != null else 0.0
+					var top: float = main_ui.beat_to_height(time_raw + length_raw)
+					if top > height:
+						continue
+					var left: float = _type * grid_width
+					var _height: float = maxf(bottom - top, grid_height)
+					draw_rect(Rect2(left, bottom - _height, grid_width, _height), Color(0x99CCEF70), false, 4.0, true)
+					draw_rect(Rect2(left, bottom - _height, grid_width, _height), Color(0x99CCEF70), true, -1.0, true)
+		else:
+			title += \"Notes\"
+			pass
+
+		draw_rect(Rect2(0.0, 0.0, width, 40.0), Color(0x00000080), true, -1.0, true)
+		draw_string(font, Vector2(5.0, 30.0), title, HORIZONTAL_ALIGNMENT_LEFT, width, 20, Color(0xFFFFFFFF))
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		var index: int = floori(page / 2)
+		var type: int = page % 2
+		if event.pressed and not event.canceled:
+			if _touch_index == -1:
+				if not get_global_rect().has_point(event.position):
+					return
+				var local_event: InputEvent = make_input_local(event)
+				_touch_index = event.index
+				_touch_position = local_event.position
+				_dragging = -1
+				accept_event()
+		elif event.index == _touch_index:
+			_touch_index = -1
+			var local_event: InputEvent = make_input_local(event)
+			var local_position: Vector2 = local_event.position
+			if _dragging == -1:
+				if type == 0:
+					var _type: int = _page * 8 + floori(local_position.x / grid_width)
+					var line: Array = root.chart_data[1][index]
+					var event_group: Array = line[2 if _layer else 0][_type]
+					var beat: float = main_ui.height_to_beat_floor(local_position.y)
+					root._data_new_event(event_group, beat, _type)
+			elif _dragging == 1:
+				root.seek_end()
+			accept_event()
+	elif event is InputEventScreenDrag:
+		if event.index == _touch_index:
+			var local_event: InputEvent = make_input_local(event)
+			var delta_vec: Vector2 = local_event.position - _touch_position
+			if _dragging == 1:
+				var scrolled: float = _dragging_beat + main_ui.height_to_beat_absolute(delta_vec.y)
+				root.seek_beat(scrolled)
+			else:
+				var distance: float = delta_vec.length()
+				if _touch_position.y < scroller_height:
+					if distance > 256.0:
+						_touch_index = -1
+				else:
+					if distance > 25.0:
+						if absf(delta_vec.y) > absf(delta_vec.x):
+							_touch_position = local_event.position
+							_dragging = 1
+							_dragging_beat = root.beat
+							root.seek_begin()
+						else:
+							_touch_index = -1
+							var new_event: InputEventScreenTouch = InputEventScreenTouch.new()
+							new_event.index = event.index
+							new_event.pressed = true
+							new_event.position = event.position
+							scroller._input(new_event)
+			accept_event()
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+"
+
+[node name="editor_page_item" type="Control" unique_id=1278886956]
+process_mode = 1
+custom_minimum_size = Vector2(768, 864)
+custom_maximum_size = Vector2(768, 864)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 768.0
+offset_bottom = 864.0
+mouse_filter = 2
+script = SubResource("GDScript_m12ww")
+metadata/_edit_vertical_guides_ = [768.0]
+metadata/_edit_horizontal_guides_ = [40.0]
+
+[node name="line_right" type="ColorRect" parent="." unique_id=1232105003]
+process_mode = 4
+z_index = 1
+layout_mode = 1
+offset_left = 767.0
+offset_right = 769.0
+offset_bottom = 866.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="line" type="ColorRect" parent="." unique_id=1673932666]
+process_mode = 4
+z_index = 1
+layout_mode = 1
+offset_top = 40.0
+offset_right = 769.0
+offset_bottom = 42.0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)

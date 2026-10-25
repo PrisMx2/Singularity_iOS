@@ -5,8 +5,8 @@ var _scenes: Dictionary = {
 	login = [ true ],
 	chapter_selection = [ true ],
 	chapter_confirm = [ true ],
-	unlock = [ true ],
-	unlock_sp = [ true ],
+	unlock = [ false ],
+	unlock_sp = [ false ],
 	song_select = [ false ],
 	main_chapters = [ true ],
 	player_ui = [ true ],
@@ -76,6 +76,7 @@ func change_scene(scene: String, _leave: bool = true) -> Node:
 		await TweenTrigger.execute_leave(node_a)
 	_cover_a.self_modulate.a = 0.0
 	node_a.add_child(_cover_a)
+
 	var tween_a: Tween = create_tween()
 	tween_a.set_ease(Tween.EASE_IN)
 	tween_a.set_trans(Tween.TRANS_QUAD)
@@ -111,9 +112,7 @@ func change_scene(scene: String, _leave: bool = true) -> Node:
 func change_scene_and_leave(scene: String, node_b: Node) -> Node:
 	var node_a: Node = get_tree().current_scene
 	var node_c: Node = await change_scene(scene, false)
-
 	node_a.remove_child(node_b)
-
 	return node_c
 
 func change_scene_self(node_b: Node) -> Node:
@@ -148,7 +147,6 @@ func change_scene_enter(node_b: Node) -> Node:
 	node_b.remove_child(_cover_b)
 	await TweenTrigger.execute_enter(node_b)
 	get_viewport().gui_disable_input = false
-
 	return node_b
 
 func insert(scene: String) -> Node:
@@ -180,7 +178,6 @@ func leave(node_b: Node) -> Node:
 	await TweenTrigger.execute_leave(node_b)
 	node_a.remove_child(node_b)
 	get_viewport().gui_disable_input = false
-
 	return node_a
 
 func unknown_function() -> void:

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b6hqxh0obw53h"]
 
 [ext_resource type="Texture2D" uid="uid://dqeosdl12rn0j" path="res://textures/clear/background.png" id="1_t2o1o"]
-[ext_resource type="Texture2D" uid="uid://dvb364gelnaas" path="res://textures/generic/missing_illust.jpg" id="3_le6tq"]
+[ext_resource type="Texture2D" uid="uid://dn6dlhvn0yv7j" path="res://textures/generic/missing_illust.png" id="3_t2o1o"]
 [ext_resource type="Shader" uid="uid://0koppdb0n8j8" path="res://shaders/ui/circle.gdshader" id="3_wvryc"]
 [ext_resource type="Texture2D" uid="uid://cpfpiqmpc1fav" path="res://textures/generic/divider.png" id="4_le6tq"]
 [ext_resource type="FontVariation" uid="uid://b1qphw0bnli0r" path="res://fonts/IosevkaAileMix.Heavy.tres" id="6_0od80"]
@@ -322,7 +322,7 @@ offset_top = 91.0
 offset_right = 206.0
 offset_bottom = 225.0
 mouse_filter = 2
-texture = ExtResource("3_le6tq")
+texture = ExtResource("3_t2o1o")
 expand_mode = 1
 
 [node name="divider" type="Sprite2D" parent="title" unique_id=991475046]

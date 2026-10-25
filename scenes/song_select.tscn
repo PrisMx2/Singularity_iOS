@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://dn18jp3rn4mgd" path="res://scenes/stardust.tscn" id="12_tsdmu"]
 [ext_resource type="Texture2D" uid="uid://bx5tf6uegnb7" path="res://textures/song_select/current_selection.png" id="14_vefgq"]
 [ext_resource type="Texture2D" uid="uid://tj3btia86ufa" path="res://textures/song_select/song_frame.png" id="16_dnvbp"]
-[ext_resource type="Texture2D" uid="uid://dvb364gelnaas" path="res://textures/generic/missing_illust.jpg" id="16_dpdup"]
+[ext_resource type="Texture2D" uid="uid://dn6dlhvn0yv7j" path="res://textures/generic/missing_illust.png" id="16_vefgq"]
 [ext_resource type="Shader" uid="uid://lhvcka6q0h8" path="res://shaders/ui/clrcle_blur.gdshader" id="19_8fkps"]
 [ext_resource type="Texture2D" uid="uid://yvpgpaiwhbax" path="res://textures/song_select/selected_highlight.png" id="19_pd52e"]
 [ext_resource type="Script" uid="uid://botwor1ubbxtu" path="res://scripts/generic_rotate.gd" id="20_es4y3"]
@@ -35,7 +35,6 @@
 [ext_resource type="Texture2D" uid="uid://d0ga6hswwndo5" path="res://textures/song_select/difficulty_selection.png" id="26_rnl63"]
 [ext_resource type="Texture2D" uid="uid://cgmquha7w28sy" path="res://textures/song_select/difficulty_arc.png" id="27_1oyvk"]
 [ext_resource type="Texture2D" uid="uid://c04wn7idvuupi" path="res://textures/generic/contour_texture.png" id="27_2aude"]
-[ext_resource type="Texture2D" uid="uid://dcn1gms56coya" path="res://textures/generic/ring.png" id="27_jida4"]
 [ext_resource type="PackedScene" uid="uid://kfjuwnut88lx" path="res://scenes/difficulty.tscn" id="28_ul3ih"]
 [ext_resource type="Texture2D" uid="uid://co5wok7dbv0b3" path="res://textures/song_select/lock.png" id="29_tsdmu"]
 [ext_resource type="Script" uid="uid://dtmac32wg1t2w" path="res://scripts/generic_text_scroll.gd" id="30_rnl63"]
@@ -59,8 +58,7 @@ const diff_data: Array = [
 @onready var title_tip: Label = $chapter/title_tip
 @onready var title_en: Label = $chapter/title_en
 
-@onready var song_selection_anchor: Node2D = $song_selection/anchor
-@onready var song_selection_item: Label = $song_selection/anchor/title
+@onready var song_selection_anchor: Control = $song_selection/anchor
 @onready var song_selected_title: Label = $selected/song/mask/title
 @onready var song_selected_artist: Label = $selected/song/mask/artist
 @onready var song_tag: Label = $song/fit_tag/tag
@@ -71,8 +69,7 @@ const diff_data: Array = [
 @onready var song_acc: Label = $song/personal_best/acc_value
 @onready var song_rank: Label = $song/personal_best/rank
 @onready var song_rank_background: ColorRect = $song/personal_best/rank/display
-@onready var diff_selection_anchor: Node2D = $difficulty_selection/rotation/anchor
-@onready var diff_selection_item: Control = $difficulty_selection/rotation/anchor/transform
+@onready var diff_selection_anchor: Control = $difficulty_selection/rotation/anchor
 @onready var diff_selected: Control = $selected/difficulty/difficulty
 @onready var ongoing: Sprite2D = $chapter/explore/ongoing
 @onready var completed: Sprite2D = $chapter/explore/completed
@@ -260,9 +257,8 @@ func load_chapter() -> void:
 		song_selection_anchor.remove_child(item)
 	_song_items = []
 	for i: int in 12:
-		var new_item: Label = song_selection_item.duplicate()
+		var new_item: Label = preload(\"res://scenes/song_item.tscn\").instantiate()
 		new_item.rotation = TAU * i / 12.0
-		new_item.visible = true
 		_song_items.append(new_item)
 		song_selection_anchor.add_child(new_item)
 
@@ -270,9 +266,8 @@ func load_chapter() -> void:
 		diff_selection_anchor.remove_child(item)
 	_diff_items = []
 	for i: int in 20:
-		var new_item: Control = diff_selection_item.duplicate()
+		var new_item: Control = preload(\"res://scenes/difficulty_item.tscn\").instantiate()
 		new_item.offset_transform_rotation = TAU * i / 20.0
-		new_item.visible = true
 		_diff_items.append(new_item)
 		diff_selection_anchor.add_child(new_item)
 
@@ -292,7 +287,7 @@ func load_illust() -> void:
 				elif ResourceLoader.exists(song_illust_path):
 					chart.illust_image = ResourceLoader.load(song_illust_path)
 					continue
-			chart.illust_image = preload(\"res://textures/generic/missing_illust.jpg\")
+			chart.illust_image = preload(\"res://textures/generic/missing_illust.png\")
 
 func stop() -> bool:
 	if current_chart.test.is_empty():
@@ -640,22 +635,6 @@ shader_parameter/mask_speed = Vector2(-5, 0)
 shader_parameter/mask_zoom = 1.25
 shader_parameter/mask_strength = 0.035
 
-[sub_resource type="GDScript" id="GDScript_jida4"]
-script/source = "extends Control
-
-func _ready() -> void:
-	var ring: Sprite2D = get_child(0)
-	var new_material: ShaderMaterial = ShaderMaterial.new()
-	new_material.shader = preload(\"res://shaders/ui/gradient.gdshader\")
-	ring.material = new_material
-
-func set_difficulty(diff: Dictionary) -> void:
-	var ring: Sprite2D = get_child(0)
-	var display: Array = diff.display
-	ring.material.set_shader_parameter(\"color_a\", display[2])
-	ring.material.set_shader_parameter(\"color_b\", display[3])
-"
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rnl63"]
 shader = ExtResource("25_otu50")
 shader_parameter/strength = 2.0
@@ -856,7 +835,7 @@ offset_left = 668.0
 offset_top = 235.0
 offset_right = 1278.0
 offset_bottom = 845.0
-icon = ExtResource("16_dpdup")
+icon = ExtResource("16_vefgq")
 expand_icon = true
 script = SubResource("GDScript_wvhbo")
 root = NodePath("../..")
@@ -1186,32 +1165,14 @@ process_mode = 4
 rotation = 0.7853982
 scale = Vector2(0.99999994, 0.99999994)
 
-[node name="anchor" type="Node2D" parent="difficulty_selection/rotation" unique_id=1852808687]
+[node name="anchor" type="Control" parent="difficulty_selection/rotation" unique_id=502494299]
 process_mode = 1
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("20_es4y3")
 touch_angle_limit = Vector2(-90, 90)
 touch_distance_limit = Vector2(353, inf)
 align_angle = 18.0
-
-[node name="transform" type="Control" parent="difficulty_selection/rotation/anchor" unique_id=1906617077]
-process_mode = 1
-visible = false
-layout_mode = 3
-anchors_preset = 0
-offset_left = 427.00012
-offset_top = -6.103516e-05
-offset_right = 427.00012
-offset_bottom = -6.103516e-05
-rotation = 3.1415927
-offset_transform_enabled = true
-offset_transform_pivot = Vector2(427, 0)
-script = SubResource("GDScript_jida4")
-metadata/_edit_vertical_guides_ = [111.0]
-
-[node name="ring" type="Sprite2D" parent="difficulty_selection/rotation/anchor/transform" unique_id=604875111]
-process_mode = 4
-scale = Vector2(1.2, 1.2)
-texture = ExtResource("27_jida4")
 
 [node name="song_selection" type="ColorRect" parent="." unique_id=761399423]
 process_mode = 4
@@ -1221,29 +1182,14 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
-[node name="anchor" type="Node2D" parent="song_selection" unique_id=1901148158]
+[node name="anchor" type="Control" parent="song_selection" unique_id=798203699]
 process_mode = 1
-position = Vector2(0, 540)
+anchors_preset = 0
+offset_top = 540.0
+offset_bottom = 540.0
 script = ExtResource("20_es4y3")
 touch_angle_limit = Vector2(-90, 90)
 touch_distance_limit = Vector2(353, inf)
-
-[node name="title" type="Label" parent="song_selection/anchor" unique_id=1133295843]
-process_mode = 4
-visible = false
-offset_left = 545.0
-offset_top = -32.0
-offset_right = 920.0
-offset_bottom = 3.0
-pivot_offset = Vector2(-545, 32)
-theme_override_colors/font_color = Color(1, 1, 1, 0.7137255)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.27450982)
-theme_override_constants/shadow_offset_x = 3
-theme_override_constants/shadow_offset_y = 3
-theme_override_fonts/font = ExtResource("24_otu50")
-theme_override_font_sizes/font_size = 27
-text = "Example"
-text_overrun_behavior = 5
 
 [node name="buffer_copy" type="BackBufferCopy" parent="." unique_id=1641795916]
 process_mode = 4

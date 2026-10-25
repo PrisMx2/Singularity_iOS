@@ -43,22 +43,12 @@ func _tween_enter() -> void:
 	reset()
 
 func _process(delta: float) -> void:
-	var delta_time: float = _get_time() - _scroll_time
-
+	super._process(delta)
 	if _touch_index == -1:
-		_scroll_auto += delta * 240.0
-		_scroll_speed *= ( 1.0 - minf(absf(_scroll_speed) * delta_time * resistance / 50.0, 0.1) )
-		if abs(_scroll_speed) < 0.2:
-			_scroll_speed = 0.0
+		_scroll_auto += delta * 360.0
 	else:
 		_scroll_auto = 0.0
-		_scroll_speed = _scroll_target - _scroll_pixel
-
-	stable = _scroll_speed == 0.0
-	_scroll_pixel += _scroll_speed * minf(delta_time / resistance / 20.0, 1.0)
-	var y: float = clampf((_scroll_record + _scroll_pixel - _scroll_base), -scroll_max, scroll_min)
-	position.y = clampf(y - _scroll_auto, -scroll_max, -scroll_min)
-	_scroll_time = _get_time()
+	position.y = clampf(position.y - _scroll_auto, -scroll_max, -scroll_min)
 "
 
 [sub_resource type="GDScript" id="GDScript_wvhbo"]

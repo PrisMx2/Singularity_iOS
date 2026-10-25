@@ -263,6 +263,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="editor" type="Button" parent="." unique_id=1006568276]
 process_mode = 1
+visible = false
 self_modulate = Color(0.8, 0.8, 1, 1)
 offset_left = 1426.0001
 offset_top = 401.00003

@@ -1,0 +1,245 @@
+[gd_scene format=3 uid="uid://couq282h1ud8g"]
+
+[ext_resource type="FontFile" uid="uid://dn6fgaqr4dj45" path="res://fonts/Scandistro_Regular.otf" id="1_c523q"]
+[ext_resource type="FontFile" uid="uid://iqkk2vu25nda" path="res://fonts/SarasaFixedSC_Regular.ttf" id="1_ooisp"]
+[ext_resource type="Shader" uid="uid://cbmu8nb6dsfcp" path="res://shaders/ui/blur.gdshader" id="1_p2dss"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p2dss"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_x5w6q"]
+shader = ExtResource("1_p2dss")
+shader_parameter/strength = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xeyld"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8mo1x"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p2j7e"]
+
+[sub_resource type="GDScript" id="GDScript_ooisp"]
+script/source = "extends \"res://scripts/generic_input.gd\"
+
+@export var root: Control
+
+func _ready() -> void:
+	super._ready()
+	text_changed.connect(func(_text: String):
+		root.func_set_name(_text)
+	)
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wvhbo"]
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.17254902, 0.17254902, 0.17254902, 1)
+border_width_left = 4
+border_width_top = 6
+border_width_right = 4
+border_width_bottom = 6
+border_color = Color(1, 1, 1, 0)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="GDScript" id="GDScript_p2dss"]
+script/source = "extends \"res://scripts/generic_button.gd\"
+
+func _pressed() -> void:
+	pass
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p2dss"]
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.17254902, 0.17254902, 0.17254902, 1)
+border_width_left = 4
+border_width_top = 6
+border_width_right = 4
+border_width_bottom = 6
+border_color = Color(1, 1, 1, 0)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5w6q"]
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.17254902, 0.17254902, 0.17254902, 1)
+border_width_left = 4
+border_width_top = 6
+border_width_right = 4
+border_width_bottom = 6
+border_color = Color(1, 1, 1, 0)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6krn0"]
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.17254902, 0.17254902, 0.17254902, 1)
+border_width_left = 4
+border_width_top = 6
+border_width_right = 4
+border_width_bottom = 6
+border_color = Color(1, 1, 1, 0)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="editor_value_item" type="PanelContainer" unique_id=1335073154]
+process_mode = 1
+custom_minimum_size = Vector2(190, 0)
+offset_right = 190.0
+offset_bottom = 89.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_p2dss")
+
+[node name="blur" type="ColorRect" parent="." unique_id=589509135]
+process_mode = 4
+material = SubResource("ShaderMaterial_x5w6q")
+layout_mode = 2
+mouse_filter = 2
+
+[node name="margin" type="MarginContainer" parent="." unique_id=1212917881]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 2
+
+[node name="fit" type="VBoxContainer" parent="margin" unique_id=94993092]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="title" type="Label" parent="margin/fit" unique_id=902784446]
+process_mode = 4
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("1_ooisp")
+theme_override_font_sizes/font_size = 22
+text = "Value 999"
+horizontal_alignment = 1
+
+[node name="margin" type="MarginContainer" parent="margin/fit" unique_id=1519997257]
+process_mode = 4
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="value" type="LineEdit" parent="margin/fit/margin" unique_id=820798657]
+process_mode = 1
+layout_mode = 2
+theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.8745098, 0.21176471)
+theme_override_constants/caret_width = 5
+theme_override_fonts/font = ExtResource("1_c523q")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_xeyld")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_8mo1x")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_p2j7e")
+text = "Value"
+placeholder_text = "Value"
+alignment = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+clear_button_enabled = true
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+drag_and_drop_selection_enabled = false
+caret_blink = true
+caret_blink_interval = 0.4
+script = SubResource("GDScript_ooisp")
+
+[node name="value_color" type="ColorRect" parent="margin/fit/margin" unique_id=601473701]
+visible = false
+custom_minimum_size = Vector2(0, 33)
+layout_mode = 2
+
+[node name="op_1" type="Button" parent="margin/fit" unique_id=1404818503]
+process_mode = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_ooisp")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_wvhbo")
+text = "Operation"
+script = SubResource("GDScript_p2dss")
+
+[node name="op_2" type="Button" parent="margin/fit" unique_id=443786723]
+process_mode = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_ooisp")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_p2dss")
+text = "Operation"
+script = SubResource("GDScript_p2dss")
+
+[node name="op_3" type="Button" parent="margin/fit" unique_id=1041463714]
+process_mode = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_ooisp")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_x5w6q")
+text = "Operation"
+script = SubResource("GDScript_p2dss")
+
+[node name="op_4" type="Button" parent="margin/fit" unique_id=1435236369]
+process_mode = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_ooisp")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_6krn0")
+text = "Operation"
+script = SubResource("GDScript_p2dss")
+
+[node name="line_top" type="ColorRect" parent="." unique_id=2060121780]
+process_mode = 4
+z_index = 1
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="line_left" type="ColorRect" parent="." unique_id=497398930]
+process_mode = 4
+z_index = 1
+custom_minimum_size = Vector2(2, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="line_right" type="ColorRect" parent="." unique_id=860756648]
+process_mode = 4
+z_index = 1
+custom_minimum_size = Vector2(2, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+offset_transform_position = Vector2(188, 0)
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)
+
+[node name="line_bottom" type="ColorRect" parent="." unique_id=218085166]
+process_mode = 4
+z_index = 1
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+color = Color(0.68235296, 0.68235296, 0.83137256, 1)

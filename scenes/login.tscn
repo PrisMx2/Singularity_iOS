@@ -20,6 +20,17 @@ shader_parameter/mask_speed = Vector2(0, 4)
 shader_parameter/mask_zoom = 1.0
 shader_parameter/mask_strength = 0.02
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2o4a8"]
+bg_color = Color(1, 1, 1, 0)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+expand_margin_left = 4.0
+expand_margin_top = 4.0
+expand_margin_right = 4.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tbijj"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wyyig"]
 
 [sub_resource type="GDScript" id="GDScript_u4ful"]
@@ -49,7 +60,6 @@ func get_device_fingerprint() -> String:
 	return raw_string.sha256_text()
 
 func _pressed() -> void:
-
 	get_viewport().gui_disable_input = true
 
 	if edit.text.length() < 4:
@@ -187,7 +197,10 @@ theme_override_colors/font_placeholder_color = Color(0.8745098, 0.8745098, 0.874
 theme_override_constants/caret_width = 5
 theme_override_fonts/font = ExtResource("7_oxet1")
 theme_override_font_sizes/font_size = 37
+theme_override_styles/normal = SubResource("StyleBoxFlat_2o4a8")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_tbijj")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_wyyig")
+text = "Username"
 placeholder_text = "login.hint"
 alignment = 1
 max_length = 16
@@ -197,21 +210,11 @@ clear_button_enabled = true
 middle_mouse_paste_enabled = false
 selecting_enabled = false
 drag_and_drop_selection_enabled = false
-flat = true
 caret_blink = true
 caret_blink_interval = 0.4
 caret_force_displayed = true
 script = ExtResource("7_1u3ka")
 label = NodePath("../length")
-filter = "1234567890qwertyuiopasdfghjklzxcvbnm _+-?!()[]{}<>,./\\@#$%^&*~"
-
-[node name="underline" type="ColorRect" parent="." unique_id=1375189289]
-process_mode = 4
-offset_left = 725.0
-offset_top = 570.0
-offset_right = 1197.0
-offset_bottom = 572.0
-mouse_filter = 2
 
 [node name="length" type="Label" parent="." unique_id=1683461782]
 process_mode = 4
