@@ -105,7 +105,7 @@ jobs:
           # for lack of a certificate. We only want the generated Xcode project.
           grep -q '^application/export_project_only=false$' export_presets.cfg
           perl -pi -e 's/^application\/export_project_only=false$/application\/export_project_only=true/' export_presets.cfg
-          grep -n 'export_project_only' export_presets.cfg
+          grep -n 'export_project_only\|app_store_team_id' export_presets.cfg
 
       - name: Import project resources
         run: |
@@ -128,6 +128,50 @@ jobs:
 
           echo "--- does the generated project reference the FMOD/GDExtension libs? ---"
           grep -nE 'libfmod|fmod_ogg|libgodot-cpp' "build/${APP_NAME}.xcodeproj/project.pbxproj" | head -30 || true
+
+      # Hand over the generated Xcode workspace itself. Someone with their own
+      # Apple Developer account can open it, pick their team, and archive /
+      # upload to App Store Connect without needing Godot or this workflow again.
+      # This MUST run before xcodebuild: afterwards build/ also holds
+      # Build/Intermediates and the .xcarchive, which have no business being in
+      # the project zip.
+      - name: Package the Xcode project
+        run: |
+          set -euo pipefail
+          test -d "build/${APP_NAME}.xcodeproj" || { echo "::error::no Xcode project under build/"; exit 1; }
+
+          echo "--- what goes into the project zip ---"
+          du -sh build/*
+          du -sh build
+
+          # -y keeps symlinks as symlinks. zip flattens them into regular files
+          # otherwise, which breaks the bundle for whoever unzips it.
+          ( cd build && zip -qry "../${APP_NAME}-xcode-project.zip" . )
+
+          ls -la "${APP_NAME}-xcode-project.zip"
+          echo "--- top-level entries ---"
+          unzip -l "${APP_NAME}-xcode-project.zip" | head -25
+
+          # The GDExtension wiring has to survive the round trip, otherwise
+          # whoever builds this gets a "library not loaded: libfmod" crash at
+          # launch and blames the project. `zip .` stores entries with a "./"
+          # prefix, and unzip's "*" does not cross "/", so probe the exact name.
+          PBX=""
+          for cand in "${APP_NAME}.xcodeproj/project.pbxproj" "./${APP_NAME}.xcodeproj/project.pbxproj"; do
+            if unzip -l "${APP_NAME}-xcode-project.zip" | grep -qF " ${cand}"; then
+              PBX="$cand"
+              break
+            fi
+          done
+          if [ -z "$PBX" ]; then
+            echo "::error::no project.pbxproj inside the project zip"
+            exit 1
+          fi
+          if ! unzip -p "${APP_NAME}-xcode-project.zip" "$PBX" | grep -qE 'fmod_ogg|libfmod'; then
+            echo "::error::generated project does not reference the FMOD GDExtension"
+            exit 1
+          fi
+          echo "project references the FMOD GDExtension (ok, entry: $PBX)"
 
       - name: Build app with code signing disabled
         run: |
@@ -215,17 +259,34 @@ jobs:
           retention-days: 7
 
       - name: Publish as Release assets
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           TAG="ios-${GITHUB_RUN_NUMBER}"
-          gh release create "$TAG" "${APP_NAME}-unsigned.ipa" "${APP_NAME}.xcarchive.zip" \
-            --title "Singularity iOS (unsigned) #${GITHUB_RUN_NUMBER}" \
-            --notes "Unsigned iOS build from ${GITHUB_SHA}.
+          ASSETS=(
+            "${APP_NAME}-xcode-project.zip"
+            "${APP_NAME}-unsigned.ipa"
+            "${APP_NAME}.xcarchive.zip"
+          )
+          NOTES="iOS build from ${GITHUB_SHA}.
 
-          ${APP_NAME}-unsigned.ipa -- re-sign it with Sideloadly / AltStore using your own Apple ID, then install.
-          ${APP_NAME}.xcarchive.zip -- the raw Xcode archive; unzip it to get ${APP_NAME}.xcarchive. Unsigned too, and it carries the dSYMs. Open it in Xcode's Organizer or feed it to a re-signing tool.
+          ${APP_NAME}-xcode-project.zip -- the generated Xcode workspace, i.e. the project
+            in source form. Unzip it, open ${APP_NAME}.xcodeproj (or the .xcworkspace), set
+            your own Apple Developer team under Signing & Capabilities, then Product >
+            Archive and upload to App Store Connect. The Team ID baked into the project is
+            the original developer's, so switch it to yours before archiving.
 
-          Neither file embeds a signature or a provisioning profile." \
-          || gh release upload "$TAG" "${APP_NAME}-unsigned.ipa" "${APP_NAME}.xcarchive.zip" --clobber
+          ${APP_NAME}-unsigned.ipa -- pre-built app bundle, no signature. Re-sign it with
+            Sideloadly / AltStore using your own Apple ID to install it on a device.
+
+          ${APP_NAME}.xcarchive.zip -- the raw Xcode archive, unsigned, with dSYMs.
+            Open it in Xcode's Organizer to re-sign, or keep it for symbolication.
+
+          None of these embeds a signature or a provisioning profile."
+
+          gh release create "$TAG" "${ASSETS[@]}" \
+            --title "Singularity iOS #${GITHUB_RUN_NUMBER}" \
+            --notes "$NOTES" \
+            || gh release upload "$TAG" "${ASSETS[@]}" --clobber
